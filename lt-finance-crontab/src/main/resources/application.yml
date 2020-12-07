@@ -1,0 +1,23 @@
+server:
+  port: 6070
+
+spring:
+  application:
+    name: lt-finance-crontab
+  main:
+    allow-bean-definition-overriding: true
+  executor:
+    core-pool-size: 4
+    max-pool-size: 8
+    keep-alive-seconds: 300
+
+rocketmq:
+  producer:
+    groupName: TASK-PRODUCER-GROUP
+    namesrvAddr: 212.64.69.77:9876
+#    namesrvAddr: 127.0.0.1:9876
+    default: false
+
+logging:
+  level:
+    boot: debug

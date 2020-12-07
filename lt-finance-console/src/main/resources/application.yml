@@ -1,0 +1,32 @@
+server:
+  port: 8081
+
+#logging:
+#  level:
+#    root: debug
+
+spring:
+  application:
+    name: lt-trade-view
+  profiles:
+    active: work
+  main:
+    allow-bean-definition-overriding: true #同名bean覆盖，后注册会覆盖之前注册的bean
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-prefix: mybatis-logs
+    map-underscore-to-camel-case: true
+
+rocketmq:
+  name-server: 212.64.69.77:9876
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" #激活所有的端点的web方式请求
+      cors:
+        allowed-origins: "*" #允许跨域的网址
+        allowed-methods: GET,POST #允许跨域的方法

@@ -1,0 +1,143 @@
+package com.lt.service;
+
+import com.alibaba.fastjson.JSON;
+import com.lt.config.MqConfiguration;
+import com.lt.result.TushareResult;
+import com.lt.utils.Constants;
+import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.TimeUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Stream;
+
+/**
+ * @author gaijf
+ * @description
+ * @date 2020/12/3
+ */
+@Slf4j
+@Service
+public class TushareService {
+
+    @Autowired
+    private DefaultMQProducer defaultMQProducer;
+
+    /**
+     * 获取每日基本信息
+     * @param tscode
+     */
+    @Async
+    public void requestDayBasic(String tscode){
+        try {
+            String fields = "ts_code,trade_date,close,turnover_rate,volume_ratio,circ_mv";
+            TushareResult tushareResult = requestData(tscode,"daily_basic",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            MqConfiguration.send(Constants.TUSHARE_BASIC_TOPIC,list.get(0),defaultMQProducer);
+        }catch (Exception e){
+            log.info("获取每日指标数据异常 tscode:{}",tscode);
+        }
+    }
+
+    /**
+     * 获取日K数据
+     * @param tscode
+     */
+//    @Async
+    public void requestDayLine(String tscode){
+        try {
+            String fields = "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount";
+            TushareResult tushareResult = requestData(tscode,"daily",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            MqConfiguration.send(Constants.TUSHARE_DAYLINE_TOPIC,list.get(0),defaultMQProducer);
+        }catch (Exception e){
+            log.info("获取日K数据异常 tscode:{} exception:{}",tscode,e);
+        }
+    }
+
+    /**
+     * 获取周K线
+     * @param tscode
+     */
+//    @Async
+    public void requestWeekLine(String tscode) {
+        try {
+            String fields = "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount";
+            TushareResult tushareResult = requestData(tscode,"weekly",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            MqConfiguration.send(Constants.TUSHARE_WEEKLINE_TOPIC,list.get(0),defaultMQProducer);
+        }catch (Exception e){
+            log.info("获取周K数据异常 tscode:{} exception:{}",tscode,e);
+        }
+    }
+
+    /**
+     * 获取月K线
+     * @param tscode
+     */
+    @Async
+    public void requestMonthLine(String tscode) {
+        try {
+            String fields = "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount";
+            TushareResult tushareResult = requestData(tscode,"monthly",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            MqConfiguration.send(Constants.TUSHARE_MONTHLINE_TOPIC,list.get(0),defaultMQProducer);
+        }catch (Exception e){
+            log.info("获取月K数据异常 tscode:{} exception:{}",tscode,e);
+        }
+    }
+
+    public TushareResult requestData(String tscode,String apiname,String fields){
+        Map<String,Object> params = new HashMap<>();
+        Map<String,Object> item = new HashMap<>();
+        item.put("ts_code", tscode);
+//        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        String trade_date = "20201207";
+        item.put("trade_date", trade_date);
+        params.put("params", item);
+        params.put("api_name", apiname);
+        params.put("token", Constants.TUSHARE_TOKEN);
+        params.put("fields", fields);
+        String res = RestTemplateUtil.post(Constants.URL,JSON.toJSONString(params),null);
+        TushareResult tushareResult = JSON.parseObject(res, TushareResult.class);
+        if(!"0".equals(tushareResult.getCode())){
+            log.info("获取Tushare数据异常 msg:{}",tushareResult.getMsg());
+            return null;
+        }
+        return tushareResult;
+    }
+
+    public List<Map<String,Object>> transitionMap(TushareResult tushareResult){
+        if(null == tushareResult || tushareResult.getData().getFields().isEmpty()){
+            return null;
+        }
+        List<String> fields = tushareResult.getData().getFields();
+        List<List<String>> items = tushareResult.getData().getItems();
+        List<Map<String,Object>> result = new ArrayList<>();
+        items.stream().forEach(o -> {
+            Map<String,Object> map = new HashMap<>();
+            Stream.iterate(0, i -> i+1).limit(o.size())
+                    .forEach(i -> {
+                        map.put(fields.get(i),o.get(i));
+                    });
+            result.add(map);
+        });
+        return result;
+    }
+}
