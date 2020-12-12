@@ -40,9 +40,7 @@ public class AverageBreakTest {
         EmaBreakEntity entity = EmaBreakEntity.builder()
                 .tsCode(code)
                 .klineType("日K")
-                .breakType("20")
                 .tradeDate(list.get(0).getTradeDate())
-                .risingNumber(num)
                 .build();
         kLineService.saveEmaBreak(entity);
     }

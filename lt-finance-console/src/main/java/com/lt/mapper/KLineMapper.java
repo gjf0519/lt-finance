@@ -22,8 +22,12 @@ public interface KLineMapper {
     @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
     List<KLineEntity> queryDayLineByLimit(@Param("code") String code, @Param("limit") int limit);
 
-    @Insert({"insert into lt_ema_break (ts_code,kline_type,break_type,trade_date,rising_number,rose) values" +
-            " (#{tsCode},#{klineType},#{breakType},#{tradeDate},#{risingNumber},#{rose})"})
+    @Insert({"insert into lt_ema_break (ts_code,kline_type,trade_date,break_day,rose" +
+            ",fivetoten,fivetotwenty,fivetothirty,fivetosixty,tentotwenty,tentothirty,tentosixty" +
+            ",twentytothirty,twentytosixty,kline_flat,kline_angle) values" +
+            " (#{tsCode},#{klineType},#{tradeDate},#{breakDay},#{rose}" +
+            ",#{fivetoten},#{fivetotwenty},#{fivetothirty},#{fivetosixty},#{tentotwenty},#{tentothirty},#{tentosixty}" +
+            ",#{twentytothirty},#{twentytosixty},#{klineFlat},#{klineAngle})"})
     void saveEmaBreak(EmaBreakEntity entity);
 
     @Select({"SELECT count(1) from lt_day_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})

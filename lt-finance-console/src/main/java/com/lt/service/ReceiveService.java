@@ -3,7 +3,8 @@ package com.lt.service;
 import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import com.lt.entity.EmaBreakEntity;
-import com.lt.utils.AverageAlgorithm;
+import com.lt.shape.AverageAlgorithm;
+import com.lt.utils.BigDecimalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,14 +129,20 @@ public class ReceiveService {
      * @param tscode
      */
     public void dayLineBreak(String tscode){
-        int limit = 11;
+        int limit = 21;
         List<KLineEntity> list = kLineService.queryDayLineByLimit(tscode,limit);
-        EmaBreakEntity entity = TwentyPrice(list, limit,"日K");
-        if(null == entity){
+//        EmaBreakEntity entity = klineBreak(list,"日K");
+//        if(null == entity){
+//            return;
+//        }
+//        entity.setTsCode(tscode);
+//        kLineService.saveEmaBreak(entity);
+        EmaBreakEntity angleEntity = angleKline(list,"日K");
+        if(null == angleEntity){
             return;
         }
-        entity.setTsCode(tscode);
-        kLineService.saveEmaBreak(entity);
+        angleEntity.setTsCode(tscode);
+        kLineService.saveEmaBreak(angleEntity);
     }
 
     /**
@@ -143,9 +150,12 @@ public class ReceiveService {
      * @param tscode
      */
     public void weekLineBreak(String tscode){
-        int limit = 11;
+        int limit = 15;
         List<KLineEntity> list = kLineService.queryWeekLineByLimit(tscode,limit);
-        EmaBreakEntity entity = TwentyPrice(list, limit,"周K");
+        if(list.isEmpty()){
+            return;
+        }
+        EmaBreakEntity entity = klineRise(list,"周K");
         if(null == entity){
             return;
         }
@@ -154,35 +164,184 @@ public class ReceiveService {
     }
 
     /**
-     * 20日均线计算
+     * 连续两日K线上涨
      * @param list
-     * @param limit
      * @param klineType
      * @return
      */
-    public EmaBreakEntity TwentyPrice(List<KLineEntity> list, int limit, String klineType){
-        if(list.get(0).getTwentyPrice() <= 0){
+    public EmaBreakEntity klineRise(List<KLineEntity> list,String klineType){
+        if(list.get(0).getPctChg() > 0.5){
             return null;
         }
-        //均线方向 -> 均线头向下
-        if(list.get(0).getTwentyPrice() - list.get(limit-1).getTwentyPrice() > 0){
+        if(list.get(0).getPctChg() < list.get(1).getPctChg()){
             return null;
         }
-        int num = 0;
+        if(list.get(0).getPctChg() < 0 || list.get(0).getPctChg() > 0.05){
+            return null;
+        }
+        if(list.get(1).getPctChg() > 0.05 || list.get(1).getPctChg() < 0){
+            return null;
+        }
         for(KLineEntity entity : list){
-            if((entity.getClose() - entity.getTwentyPrice()) < 0
-                    || (entity.getOpen() - entity.getTwentyPrice()) < 0){
+            double middle = entity.getTenPrice() - entity.getTwentyPrice();
+            if(middle == 0){
+                continue;
+            }
+            if(entity.getTwentyPrice() == 0){
                 return null;
             }
-            num++;
+            //均线之间差值
+            double rito = BigDecimalUtil.div(middle,entity.getTwentyPrice(),2);
+            if(rito > 0.05 || rito < -0.05){
+                return null;
+            }
         }
-
+        if(list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
+            return null;
+        }
+        if(list.get(1).getFivePrice() - list.get(1).getTenPrice() >= 0){
+            return null;
+        }
+        int breakDay = 0;
         return EmaBreakEntity.builder()
                 .klineType(klineType)
-                .breakType("20")
+                .fivetoten("1")
+                .fivetotwenty("1")
+                .fivetothirty("1")
+                .tentotwenty("1")
+                .tentothirty("1")
+                .twentytothirty("1")
                 .rose(list.get(0).getPctChg())
+                .breakDay(breakDay)
                 .tradeDate(list.get(0).getTradeDate())
-                .risingNumber(num)
+                .build();
+    }
+
+    /**
+     * 日K三连涨形态
+     * @param list
+     * @param klineType
+     * @return
+     */
+    public EmaBreakEntity klineBreak(List<KLineEntity> list,String klineType){
+        if(list.isEmpty()){
+            return null;
+        }
+        int lastNum = list.size() - 1;
+        //判断5日线均线方向
+        double rose = list.get(0).getFivePrice() - list.get(lastNum).getFivePrice();
+        if(rose < 0){
+            return null;
+        }
+        if(list.get(lastNum).getFivePrice() == 0){
+            return null;
+        }
+        //判断20内总涨幅
+        double rito = BigDecimalUtil.div(rose,list.get(lastNum).getFivePrice(),2);
+        if(rito > 0.02){
+            return null;
+        }
+        //判断5日均线是否突破10日均线
+        if(list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
+            return null;
+        }
+        //当天最低价与与10均线距离
+        double distance = list.get(0).getLow() - list.get(0).getTenPrice();
+        double distanceRito = BigDecimalUtil.div(distance,list.get(0).getTenPrice(),2);
+        if(distanceRito > 0.015){
+            return null;
+        }
+        //判断5日均线是否突破20日均线
+        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
+            return null;
+        }
+        //判断10日均线是否突破20日均线
+        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
+            return null;
+        }
+        int roseDay = 0;
+        for(int i = 0;i < list.size();i++){
+            KLineEntity entity = list.get(i);
+            //最近4天是否3连涨
+            if(i < 4){
+                if(entity.getPctChg() >= 0){
+                    roseDay++;
+                }
+            }
+            //10日内没有大涨或大跌
+            if(i < 10){
+                if(entity.getPctChg() > 4 || entity.getPctChg() < -4){
+                    return null;
+                }
+            }
+        }
+        if(roseDay < 3){
+            return null;
+        }
+        double angle = AverageAlgorithm.
+                calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
+        return EmaBreakEntity.builder()
+                .klineType(klineType)
+                .klineFlat("3连涨")
+                .klineAngle(angle)
+                .fivetoten("1")
+                .fivetotwenty("1")
+                .tentotwenty("1")
+                .rose(rose)
+                .breakDay(roseDay)
+                .tradeDate(list.get(0).getTradeDate())
+                .build();
+    }
+
+    /**
+     * 45°角2日内突破10日均线
+     * @param list
+     * @param klineType
+     * @return
+     */
+    public EmaBreakEntity angleKline(List<KLineEntity> list,String klineType){
+        if(list.isEmpty()){
+            return null;
+        }
+        if(list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
+            return null;
+        }
+        double angle = AverageAlgorithm.
+                calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
+        if(angle < 45){
+            return null;
+        }
+        if(list.get(0).getPctChg() < 0 || list.get(0).getPctChg() > 5){
+            return null;
+        }
+        int lastNum = list.size() - 1;
+        double rose = list.get(0).getFivePrice() - list.get(lastNum).getFivePrice();
+        double rito = BigDecimalUtil.div(rose,list.get(lastNum).getFivePrice(),2);
+        if(rito > 0.02){
+            return null;
+        }
+        if(list.get(2).getFivePrice() - list.get(2).getTenPrice() > 0){
+            return null;
+        }
+        String fivetotwenty = "0";
+        //判断5日均线是否突破20日均线
+        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
+            fivetotwenty = "1";
+        }
+        String tentotwenty = "0";
+        //判断10日均线是否突破20日均线
+        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
+            tentotwenty = "1";
+        }
+        return EmaBreakEntity.builder()
+                .klineType(klineType)
+                .klineFlat("45°角2日内突破10日均线")
+                .klineAngle(angle)
+                .fivetoten("1")
+                .fivetotwenty(fivetotwenty)
+                .tentotwenty(tentotwenty)
+                .rose(rose)
+                .tradeDate(list.get(0).getTradeDate())
                 .build();
     }
 }

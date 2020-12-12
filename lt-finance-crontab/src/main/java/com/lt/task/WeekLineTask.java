@@ -20,16 +20,15 @@ public class WeekLineTask {
     @Autowired
     TushareService tushareService;
 
-    @Scheduled(cron = "0 0 17 * * ? ")// 0/1 * * * * *
+    @Scheduled(cron = "0 0 20 * * ? ")// 0/1 * * * * *
     public void execute() {
         DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+        if(dayOfWeek != DayOfWeek.FRIDAY){
             return;
         }
-        int i = 0;
         for(String item : Constants.STOCK_CODE){
             try {
-                Thread.sleep(150);
+                Thread.sleep(300);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

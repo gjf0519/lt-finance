@@ -1,4 +1,6 @@
-package com.lt.utils;
+package com.lt.shape;
+
+import com.lt.utils.BigDecimalUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,12 @@ import java.util.List;
  */
 public class AverageAlgorithm {
 
+    /**
+     * 均线值计算
+     * @param prices
+     * @param day
+     * @return
+     */
     public static List<Double> calculate(List<Double> prices,int day){
         if(prices.size() < day){
             return new ArrayList<>(0);
@@ -25,5 +33,17 @@ public class AverageAlgorithm {
             result.add(avg);
         }
         return result;
+    }
+
+    /**
+     * 均线角度计算
+     * @param price1 当天价格
+     * @param price2 前一天价格
+     * @return
+     */
+    public static Double calculateAngle(Double price1,Double price2){
+        double m = price1/price2-1;
+        double h = Math.atan(m*100)*180/3.1416;
+        return BigDecimalUtil.round(h,2);
     }
 }

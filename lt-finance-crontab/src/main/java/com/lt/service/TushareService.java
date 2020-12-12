@@ -107,9 +107,10 @@ public class TushareService {
         Map<String,Object> params = new HashMap<>();
         Map<String,Object> item = new HashMap<>();
         item.put("ts_code", tscode);
-//        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-        String trade_date = "20201207";
-        item.put("trade_date", trade_date);
+        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+//        String trade_date = "20201211";
+        item.put("start_date", trade_date);
+        item.put("end_date", trade_date);
         params.put("params", item);
         params.put("api_name", apiname);
         params.put("token", Constants.TUSHARE_TOKEN);

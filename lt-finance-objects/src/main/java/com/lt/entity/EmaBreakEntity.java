@@ -17,10 +17,20 @@ import lombok.NoArgsConstructor;
 public class EmaBreakEntity {
     private String tsCode;
     private String klineType;
-    private String breakType;
+    private String klineFlat;
+    private double klineAngle;
     private double volumeRatio;
     private double turnoverRate;
+    private String fivetoten;
+    private String fivetotwenty;
+    private String fivetothirty;
+    private String fivetosixty;
+    private String tentotwenty;
+    private String tentothirty;
+    private String tentosixty;
+    private String twentytothirty;
+    private String twentytosixty;
     private double rose;
-    private int risingNumber;
+    private int breakDay;
     private String tradeDate;
 }

@@ -8,8 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author gaijf
@@ -28,7 +26,6 @@ public class DayLineTask {
         if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
             return;
         }
-        int i = 0;
         for(String item : Constants.STOCK_CODE){
             try {
                 Thread.sleep(150);

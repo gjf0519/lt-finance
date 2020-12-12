@@ -3,10 +3,9 @@ package com.lt;
 import com.alibaba.fastjson.JSON;
 import com.lt.result.TushareResult;
 import com.lt.service.KLineService;
-import com.lt.utils.AverageAlgorithm;
+import com.lt.shape.AverageAlgorithm;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
-import com.lt.utils.TimeUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,22 +32,126 @@ public class DayLineTest {
      */
     @Test
     public void init(){
-//        int i = 0;
-//        for(String item : Constants.STOCK_CODE){
-//            System.out.println(item+"============================="+i++);
-////            if(i <= 2824){
-////                continue;
-////            }
-//            String flag = item.substring(0,2);
-//            String code = item.substring(2,item.length());
-//            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
-//            if(null == result){
+        int i = 0;
+        for(String item : Constants.STOCK_CODE){
+            System.out.println(item+"============================="+i++);
+            if(i < 200){
+                continue;
+            }
+            String flag = item.substring(0,2);
+            String code = item.substring(2,item.length());
+//            int have = kLineService.hasSaveWeekLine(code+"."+flag.toUpperCase(),"20201204");
+//            if(have > 0){
 //                continue;
 //            }
-//            for(Map<String,Object> map : result){
-//                kLineService.saveDayLine(map);
-//            }
-//        }
+            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
+            if(null == result){
+                continue;
+            }
+            for(Map<String,Object> map : result){
+                kLineService.saveWeekLine(map);
+            }
+        }
+    }
+
+    @Test
+    public void init4(){
+        int i = 0;
+        for(String item : Constants.STOCK_CODE){
+            System.out.println(item+"444============================="+i++);//1000 1200
+            if(i <= 2372 || i >= 2400){
+                continue;
+            }
+            String flag = item.substring(0,2);
+            String code = item.substring(2,item.length());
+            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
+            if(null == result){
+                continue;
+            }
+            for(Map<String,Object> map : result){
+                kLineService.saveWeekLine(map);
+            }
+        }
+    }
+
+    @Test
+    public void init5(){
+        int i = 0;
+        for(String item : Constants.STOCK_CODE){
+            System.out.println(item+"555============================="+i++);//1500
+            if(i <= 1461 || i > 1500){
+                continue;
+            }
+            String flag = item.substring(0,2);
+            String code = item.substring(2,item.length());
+            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
+            if(null == result){
+                continue;
+            }
+            for(Map<String,Object> map : result){
+                kLineService.saveWeekLine(map);
+            }
+        }
+    }
+
+    @Test
+    public void init6(){
+        int i = 0;
+        for(String item : Constants.STOCK_CODE){
+            System.out.println(item+"666============================="+i++);//1700
+            if(i != 899){
+                continue;
+            }
+            String flag = item.substring(0,2);
+            String code = item.substring(2,item.length());
+            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
+            if(null == result){
+                continue;
+            }
+            for(Map<String,Object> map : result){
+                kLineService.saveWeekLine(map);
+            }
+        }
+    }
+
+    @Test
+    public void init2(){
+        int i = 0;
+        for(String item : Constants.STOCK_CODE){
+            System.out.println(item+"222============================="+i++);
+            if(i <= 2203 || i > 2300){
+                continue;
+            }
+            String flag = item.substring(0,2);
+            String code = item.substring(2,item.length());
+            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
+            if(null == result){
+                continue;
+            }
+            for(Map<String,Object> map : result){
+                kLineService.saveWeekLine(map);
+            }
+        }
+    }
+
+    @Test
+    public void init3(){
+        int i = 0;
+        for(String item : Constants.STOCK_CODE){
+            System.out.println(item+"333============================="+i++);
+            if(i <= 2982){
+                continue;
+            }
+            String flag = item.substring(0,2);
+            String code = item.substring(2,item.length());
+            List<Map<String,Object>> result = avgKline(code+"."+flag.toUpperCase());
+            if(null == result){
+                continue;
+            }
+            for(Map<String,Object> map : result){
+                kLineService.saveWeekLine(map);
+            }
+        }
     }
 
     public List<Map<String,Object>> avgKline(String code){
@@ -77,7 +180,7 @@ public class DayLineTest {
         item.put("start_date", start_date);
         item.put("end_date", end_date);
         params.put("params", item);
-        params.put("api_name", "daily");
+        params.put("api_name", "weekly");
         params.put("token", TUSHARE_TOKEN);
         params.put("fields", "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount");
         String res = RestTemplateUtil.post(URL,JSON.toJSONString(params),null);
