@@ -108,7 +108,7 @@ public class TushareService {
         Map<String,Object> item = new HashMap<>();
         item.put("ts_code", tscode);
         String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-//        String trade_date = "20201211";
+//        String trade_date = "20201215";
         item.put("start_date", trade_date);
         item.put("end_date", trade_date);
         params.put("params", item);

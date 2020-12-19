@@ -2,16 +2,13 @@ package com.lt.service;
 
 import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
-import com.lt.entity.EmaBreakEntity;
-import com.lt.shape.AverageAlgorithm;
+import com.lt.shape.StockAlgorithm;
 import com.lt.utils.BigDecimalUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author gaijf
@@ -97,27 +94,27 @@ public class ReceiveService {
      * @param map
      */
     public void calculateAvg(List<Double> closes,Map<String,Object> map){
-        List<Double> avgs5 = AverageAlgorithm.calculate(closes,5);
+        List<Double> avgs5 = StockAlgorithm.calculate(closes,5);
         if(avgs5.isEmpty()){
             return;
         }
         map.put("five_price",avgs5.get(avgs5.size()-1));
-        List<Double> avgs10 = AverageAlgorithm.calculate(closes,10);
+        List<Double> avgs10 = StockAlgorithm.calculate(closes,10);
         if(avgs10.isEmpty()){
             return;
         }
         map.put("ten_price",avgs10.get(avgs10.size()-1));
-        List<Double> avgs20 = AverageAlgorithm.calculate(closes,20);
+        List<Double> avgs20 = StockAlgorithm.calculate(closes,20);
         if(avgs20.isEmpty()){
             return;
         }
         map.put("twenty_price",avgs20.get(avgs20.size()-1));
-        List<Double> avgs30 = AverageAlgorithm.calculate(closes,30);
+        List<Double> avgs30 = StockAlgorithm.calculate(closes,30);
         if(avgs30.isEmpty()){
             return;
         }
         map.put("thirty_price",avgs30.get(avgs30.size()-1));
-        List<Double> avgs60 = AverageAlgorithm.calculate(closes,60);
+        List<Double> avgs60 = StockAlgorithm.calculate(closes,60);
         if(avgs60.isEmpty()){
             return;
         }
@@ -137,12 +134,6 @@ public class ReceiveService {
 //        }
 //        entity.setTsCode(tscode);
 //        kLineService.saveEmaBreak(entity);
-        EmaBreakEntity angleEntity = angleKline(list,"日K");
-        if(null == angleEntity){
-            return;
-        }
-        angleEntity.setTsCode(tscode);
-        kLineService.saveEmaBreak(angleEntity);
     }
 
     /**
@@ -150,198 +141,285 @@ public class ReceiveService {
      * @param tscode
      */
     public void weekLineBreak(String tscode){
-        int limit = 15;
+        int limit = 60;
         List<KLineEntity> list = kLineService.queryWeekLineByLimit(tscode,limit);
         if(list.isEmpty()){
             return;
         }
-        EmaBreakEntity entity = klineRise(list,"周K");
-        if(null == entity){
+        Collections.reverse(list);
+        weekLinePeriod(list);
+//        EmaBreakEntity entity = klineRise(list,"周K");
+//        if(null == entity){
+//            return;
+//        }
+//        entity.setTsCode(tscode);
+//        kLineService.saveEmaBreak(entity);
+    }
+
+    public void weekLinePeriod(List<KLineEntity> list){
+        Double [] fiveArrays = list.stream().map(o -> o.getFivePrice()).collect(Collectors.toList()).toArray(new Double[list.size()]);
+        Map<String,Integer> bands = StockAlgorithm.calculateBand(4,fiveArrays);
+        int size = list.size() - 1;
+        if(size == bands.get("最高")){
             return;
         }
-        entity.setTsCode(tscode);
-        kLineService.saveEmaBreak(entity);
+        if(size == bands.get("最低")){
+            return;
+        }
+        String lastKey = "";
+        int lastPeekIndex = 0;
+        int lastRavineIndex = 0;
+        List<KLineEntity> peeks = new ArrayList<>();
+        List<KLineEntity> ravines = new ArrayList<>();
+        for(Map.Entry<String,Integer> entry : bands.entrySet()){
+            lastKey = entry.getKey();
+            if(entry.getKey().startsWith("波峰")){
+                lastPeekIndex = entry.getValue();
+                peeks.add(list.get(entry.getValue()));
+            }else if(entry.getKey().startsWith("波谷")){
+                lastRavineIndex = entry.getValue();
+                ravines.add(list.get(entry.getValue()));
+            }
+        }
+
+        int num = 1;//上涨或下跌趋势中第几次波段
+        for(int i = (ravines.size() - 1);i > 0;i--){
+            if(ravines.get(i).getFivePrice()
+                    - ravines.get(i - 1).getFivePrice() < 0){
+                break;
+            }
+            num++;
+        }
+
+        Map<String,String> trunMap = null;
+        if(lastKey.startsWith("波谷")){
+            if(lastPeekIndex == 0){
+                return;
+            }
+            trunMap = ravineTrun(lastPeekIndex,list);
+        }else {
+            if(lastRavineIndex == 0){
+                return;
+            }
+            trunMap = peekTrun(lastRavineIndex,list);
+        }
+
+        KLineEntity entity = list.get(size);
+        KLineEntity bandEntity = list.get(bands.get(lastKey));
+        double rose = entity.getFivePrice() - bandEntity.getFivePrice();
+        //上涨幅度
+        double roseRatio = BigDecimalUtil.div(rose,bandEntity.getFivePrice(),2);
+        //本次上涨次数
+        int alt = size - bands.get(lastKey);
+//        if(num < 2 ){
+//            return;
+//        }
+//        if(alt < 4){
+//            return;
+//        }
+        if(lastKey.startsWith("波峰")){
+            if("0".equals(trunMap.get("isTrun"))){
+                return;
+            }
+            if("1".equals(trunMap.get("isBreak")) && entity.getPctChg() > 0.1){
+                return;
+            }
+        }else {
+            if("0".equals(trunMap.get("isBreak"))){
+                return;
+            }
+        }
+        if(roseRatio > 0.1){
+            return;
+        }
+        System.out.println(entity.getTsCode()+"========="+num+"========="+alt+"====="+trunMap.get("isTrun")+"========"+trunMap.get("isBreak")+"======"+roseRatio);
+        klineStatus(bandEntity,list);
     }
 
     /**
-     * 连续两日K线上涨
+     * 判断当前K线状态
      * @param list
-     * @param klineType
-     * @return
      */
-    public EmaBreakEntity klineRise(List<KLineEntity> list,String klineType){
-        if(list.get(0).getPctChg() > 0.5){
-            return null;
-        }
-        if(list.get(0).getPctChg() < list.get(1).getPctChg()){
-            return null;
-        }
-        if(list.get(0).getPctChg() < 0 || list.get(0).getPctChg() > 0.05){
-            return null;
-        }
-        if(list.get(1).getPctChg() > 0.05 || list.get(1).getPctChg() < 0){
-            return null;
-        }
-        for(KLineEntity entity : list){
-            double middle = entity.getTenPrice() - entity.getTwentyPrice();
-            if(middle == 0){
+    public void klineStatus(KLineEntity bandEntity,List<KLineEntity> list){
+        //是否拐头向下 向下天数 是否跌破20日均线 当前上涨下跌幅度
+        int size = list.size() - 1;
+        int day = 0;
+        for(int i = size;i > -1;i--){
+            if(list.get(i).getFivePrice() - list.get(i-1).getFivePrice() > 0){
+                day++;
                 continue;
             }
-            if(entity.getTwentyPrice() == 0){
-                return null;
-            }
-            //均线之间差值
-            double rito = BigDecimalUtil.div(middle,entity.getTwentyPrice(),2);
-            if(rito > 0.05 || rito < -0.05){
-                return null;
-            }
+            break;
         }
-        if(list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
-            return null;
-        }
-        if(list.get(1).getFivePrice() - list.get(1).getTenPrice() >= 0){
-            return null;
-        }
-        int breakDay = 0;
-        return EmaBreakEntity.builder()
-                .klineType(klineType)
-                .fivetoten("1")
-                .fivetotwenty("1")
-                .fivetothirty("1")
-                .tentotwenty("1")
-                .tentothirty("1")
-                .twentytothirty("1")
-                .rose(list.get(0).getPctChg())
-                .breakDay(breakDay)
-                .tradeDate(list.get(0).getTradeDate())
-                .build();
+        //均线变化
+        Map<String,String> bandMap = klineDistribute(bandEntity);
+        Map<String,String> realMap = klineDistribute(list.get(size));
+        Map<String,String> breaks = thanKline(bandMap,realMap);
+        System.out.println(bandEntity.getTsCode()+"========"+day+"========="+breaks);
+        // 当前均线状态 例如多头向上
     }
 
-    /**
-     * 日K三连涨形态
-     * @param list
-     * @param klineType
-     * @return
-     */
-    public EmaBreakEntity klineBreak(List<KLineEntity> list,String klineType){
-        if(list.isEmpty()){
-            return null;
-        }
-        int lastNum = list.size() - 1;
-        //判断5日线均线方向
-        double rose = list.get(0).getFivePrice() - list.get(lastNum).getFivePrice();
-        if(rose < 0){
-            return null;
-        }
-        if(list.get(lastNum).getFivePrice() == 0){
-            return null;
-        }
-        //判断20内总涨幅
-        double rito = BigDecimalUtil.div(rose,list.get(lastNum).getFivePrice(),2);
-        if(rito > 0.02){
-            return null;
-        }
-        //判断5日均线是否突破10日均线
-        if(list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
-            return null;
-        }
-        //当天最低价与与10均线距离
-        double distance = list.get(0).getLow() - list.get(0).getTenPrice();
-        double distanceRito = BigDecimalUtil.div(distance,list.get(0).getTenPrice(),2);
-        if(distanceRito > 0.015){
-            return null;
-        }
-        //判断5日均线是否突破20日均线
-        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
-            return null;
-        }
-        //判断10日均线是否突破20日均线
-        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
-            return null;
-        }
-        int roseDay = 0;
-        for(int i = 0;i < list.size();i++){
-            KLineEntity entity = list.get(i);
-            //最近4天是否3连涨
-            if(i < 4){
-                if(entity.getPctChg() >= 0){
-                    roseDay++;
-                }
-            }
-            //10日内没有大涨或大跌
-            if(i < 10){
-                if(entity.getPctChg() > 4 || entity.getPctChg() < -4){
-                    return null;
-                }
+    public Map<String,String> thanKline(Map<String,String> bandMap,Map<String,String> realMap){
+        Map<String,String> breaks = new HashMap<>();
+        for (Map.Entry<String,String> entry : bandMap.entrySet()) {
+            String v = entry.getValue();
+            String k = entry.getKey();
+            if("0".equals(v) && "1".equals(realMap.get(k))){
+                breaks.put(k,"1");
             }
         }
-        if(roseDay < 3){
-            return null;
-        }
-        double angle = AverageAlgorithm.
-                calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
-        return EmaBreakEntity.builder()
-                .klineType(klineType)
-                .klineFlat("3连涨")
-                .klineAngle(angle)
-                .fivetoten("1")
-                .fivetotwenty("1")
-                .tentotwenty("1")
-                .rose(rose)
-                .breakDay(roseDay)
-                .tradeDate(list.get(0).getTradeDate())
-                .build();
+        return breaks;
     }
 
-    /**
-     * 45°角2日内突破10日均线
-     * @param list
-     * @param klineType
-     * @return
-     */
-    public EmaBreakEntity angleKline(List<KLineEntity> list,String klineType){
-        if(list.isEmpty()){
-            return null;
+    public Map<String,String> klineDistribute(KLineEntity entity){
+        String breakFiveTen = "未知";
+        if(entity.getFivePrice() - entity.getTenPrice() > 0){
+            breakFiveTen = "1";
+        }else {
+            breakFiveTen = "0";
+        };
+
+        String breakFiveTwenty = "未知";
+        String breakTenTwenty = "未知";
+        if(entity.getTwentyPrice() > 0){
+            if(entity.getFivePrice() - entity.getTwentyPrice() > 0){
+                breakFiveTwenty = "1";
+            }else {
+                breakFiveTwenty = "0";
+            };
+            if(entity.getTenPrice() - entity.getTwentyPrice() > 0){
+                breakTenTwenty = "1";
+            }else {
+                breakTenTwenty = "0";
+            };
         }
-        if(list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
-            return null;
+
+        String breakFiveThirty = "未知";
+        String breakTenThirty = "未知";
+        String breakTwentyThirty = "未知";
+        if(entity.getThirtyPrice() > 0){
+
+            if(entity.getFivePrice() - entity.getThirtyPrice() > 0){
+                breakFiveThirty = "1";
+            }else {
+                breakFiveThirty = "0";
+            };
+
+            if(entity.getTenPrice() - entity.getThirtyPrice() > 0){
+                breakTenThirty = "1";
+            }else {
+                breakTenThirty = "0";
+            };
+
+            if(entity.getTwentyPrice() - entity.getThirtyPrice() > 0){
+                breakTwentyThirty = "1";
+            }else {
+                breakTwentyThirty = "0";
+            };
         }
-        double angle = AverageAlgorithm.
-                calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
-        if(angle < 45){
-            return null;
+
+        String breakFiveSixty = "未知";
+        String breakTenSixty = "未知";
+        String breakTwentySixty = "未知";
+        String breakThirtySixty = "未知";
+        if(entity.getSixtyPrice() > 0){
+            if(entity.getFivePrice() - entity.getSixtyPrice() > 0){
+                breakFiveSixty = "1";
+            }else {
+                breakFiveSixty = "0";
+            };
+            if(entity.getTenPrice() - entity.getSixtyPrice() > 0){
+                breakTenSixty = "1";
+            }else {
+                breakTenSixty = "0";
+            };
+            if(entity.getTwentyPrice() - entity.getSixtyPrice() > 0){
+                breakTwentySixty = "1";
+            }else {
+                breakTwentySixty = "0";
+            };
+            if(entity.getThirtyPrice() - entity.getSixtyPrice() > 0){
+                breakThirtySixty = "1";
+            }else {
+                breakThirtySixty = "0";
+            };
         }
-        if(list.get(0).getPctChg() < 0 || list.get(0).getPctChg() > 5){
-            return null;
+        Map<String,String> map = new HashMap<>();
+        map.put("breakFiveTen",breakFiveTen);
+        map.put("breakFiveTwenty",breakFiveTwenty);
+        map.put("breakTenTwenty",breakTenTwenty);
+        map.put("breakFiveThirty",breakFiveThirty);
+        map.put("breakTenThirty",breakTenThirty);
+        map.put("breakTwentyThirty",breakTwentyThirty);
+        map.put("breakFiveSixty",breakFiveSixty);
+        map.put("breakTenSixty",breakTenSixty);
+        map.put("breakTwentySixty",breakTwentySixty);
+        map.put("breakThirtySixty",breakThirtySixty);
+        return map;
+    }
+
+
+    public Map<String,String> ravineTrun(int index,List<KLineEntity> list){
+        Map<String,String> map = new HashMap<>();
+        //波峰最高价
+        double price = limitMax(index,list);
+        int size = list.size() - 1;
+        double sub = list.get(size).getFivePrice() - price;
+        String isBreak = "0";
+        //突破上次波峰
+        if(sub > 0){
+            isBreak = "1";
         }
-        int lastNum = list.size() - 1;
-        double rose = list.get(0).getFivePrice() - list.get(lastNum).getFivePrice();
-        double rito = BigDecimalUtil.div(rose,list.get(lastNum).getFivePrice(),2);
-        if(rito > 0.02){
-            return null;
+        String isTrun = "0";
+        //开始转头
+        if(list.get(size).getFivePrice() - list.get(size-1).getFivePrice() < 0){
+            isTrun = "1";
         }
-        if(list.get(2).getFivePrice() - list.get(2).getTenPrice() > 0){
-            return null;
+        map.put("isTrun",isTrun);
+        map.put("isBreak",isBreak);
+        return map;
+    }
+
+    public Map<String,String> peekTrun(int index,List<KLineEntity> list){
+        Map<String,String> map = new HashMap<>();
+        //波谷最低价
+        double price = limitMin(index,list);
+        int size = list.size() - 1;
+        double sub = list.get(size).getFivePrice() - price;
+        String isBreak = "0";
+        //突破上次波谷
+        if(sub > 0){
+            isBreak = "1";
         }
-        String fivetotwenty = "0";
-        //判断5日均线是否突破20日均线
-        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
-            fivetotwenty = "1";
+        String isTrun = "0";
+        //开始转头
+        if(list.get(size).getFivePrice() - list.get(size-1).getFivePrice() > 0){
+            isTrun = "1";
         }
-        String tentotwenty = "0";
-        //判断10日均线是否突破20日均线
-        if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0){
-            tentotwenty = "1";
+        map.put("isTrun",isTrun);
+        map.put("isBreak",isBreak);
+        return map;
+    }
+
+    private double limitMin(int index,List<KLineEntity> list){
+        int end = index > 4 ? 5 : index;
+        double min = list.get(index).getFivePrice();
+        for(int i = 1;i < end;i++){
+            if(min > list.get(index-i).getFivePrice()){
+                min = list.get(index-i).getFivePrice();
+            }
         }
-        return EmaBreakEntity.builder()
-                .klineType(klineType)
-                .klineFlat("45°角2日内突破10日均线")
-                .klineAngle(angle)
-                .fivetoten("1")
-                .fivetotwenty(fivetotwenty)
-                .tentotwenty(tentotwenty)
-                .rose(rose)
-                .tradeDate(list.get(0).getTradeDate())
-                .build();
+        return min;
+    }
+
+    private double limitMax(int index,List<KLineEntity> list){
+        int end = index > 4 ? 5 : index;
+        double min = list.get(index).getFivePrice();
+        for(int i = 1;i < end;i++){
+            if(min < list.get(index-i).getFivePrice()){
+                min = list.get(index-i).getFivePrice();
+            }
+        }
+        return min;
     }
 }

@@ -65,4 +65,9 @@ public class KLineService {
     public void saveWeekLine(Map map) {
         kLineMapper.saveWeekLine(map);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void saveTreeEven(Map map) {
+        kLineMapper.saveTreeEven(map);
+    }
 }

@@ -24,7 +24,7 @@ import java.util.List;
  * @date 2020/12/3
  */
 @Slf4j
-@Component
+//@Component
 public class DayLineConsumer {
 
     @Value("${rocketmq.name-server}")

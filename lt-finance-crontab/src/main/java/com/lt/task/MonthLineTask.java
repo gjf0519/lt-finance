@@ -22,20 +22,20 @@ public class MonthLineTask {
 
     @Scheduled(cron = "0 0 17 * * ? ")// 0/1 * * * * *
     public void execute() {
-        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
-            return;
-        }
-        int i = 0;
-        for(String item : Constants.STOCK_CODE){
-            try {
-                Thread.sleep(150);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-            tushareService.requestMonthLine(code+"."+flag.toUpperCase());
-        }
+//        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
+//        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+//            return;
+//        }
+//        int i = 0;
+//        for(String item : Constants.STOCK_CODE){
+//            try {
+//                Thread.sleep(150);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            String flag = item.substring(0,2);
+//            String code = item.substring(2,item.length());
+//            tushareService.requestMonthLine(code+"."+flag.toUpperCase());
+//        }
     }
 }

@@ -22,12 +22,14 @@ public class KLineBreakTest {
 
     @Test
     public void weekbreak(){
-        for(String item : Constants.STOCK_CODE){
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-            receiveService.weekLineBreak(code+"."+flag.toUpperCase());
-        }
-//        receiveService.weekLineBreak("603665.SH");
+//        int i = 0;
+//        for(String item : Constants.STOCK_CODE){
+//            String flag = item.substring(0,2);
+//            String code = item.substring(2,item.length());
+//            receiveService.weekLineBreak(code+"."+flag.toUpperCase());
+//            //System.out.println("===================================="+i++);
+//        }
+        receiveService.weekLineBreak("002455.SZ");
     }
 
     @Test

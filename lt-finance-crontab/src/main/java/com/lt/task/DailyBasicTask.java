@@ -22,14 +22,14 @@ public class DailyBasicTask {
 
     @Scheduled(cron = "0 0 17 * * ? ")// 0/1 * * * * *
     public void execute() {
-        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
-            return;
-        }
-        for(String item : Constants.STOCK_CODE){
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-            tushareService.requestDayBasic(code+"."+flag.toUpperCase());
-        }
+//        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
+//        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+//            return;
+//        }
+//        for(String item : Constants.STOCK_CODE){
+//            String flag = item.substring(0,2);
+//            String code = item.substring(2,item.length());
+//            tushareService.requestDayBasic(code+"."+flag.toUpperCase());
+//        }
     }
 }
