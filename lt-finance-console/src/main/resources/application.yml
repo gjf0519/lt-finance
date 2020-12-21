@@ -9,7 +9,7 @@ spring:
   application:
     name: lt-trade-view
   profiles:
-    active: work
+    active: home
   main:
     allow-bean-definition-overriding: true #同名bean覆盖，后注册会覆盖之前注册的bean
 

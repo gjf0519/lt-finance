@@ -15,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 
 /**
@@ -30,84 +32,82 @@ public class DayLineTest {
 
     @Autowired
     private KLineService kLineService;
+    @Autowired
+    private ThreadPoolExecutor threadPoolExecutor;
 
     /**
      * 第一次初始化数据
      */
     @Test
-    public void init(){
-        int i = 0;
+    public void initWeek(){
+        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
         for(String item : Constants.STOCK_CODE){
-            System.out.println(item+"============================="+i++);
-            if(i <= 2000){
-                continue;
-            }
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-//            int have = kLineService.hasSaveWeekLine(code+"."+flag.toUpperCase(),"20201204");
-//            if(have > 0){
-//                continue;
-//            }
-            List<Map<String,Object>> result = avgPyKline(code+"."+flag.toUpperCase());
-            if(null == result){
-                continue;
-            }
-            for(Map<String,Object> map : result){
-                kLineService.saveWeekLine(map);
-            }
+            threadPoolExecutor.execute(()->{
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                int have = kLineService.hasSaveWeekLine(code+"."+flag.toUpperCase(),"20201204");
+                System.out.println("==========================================="+latch.getCount());
+                if(have > 0){
+                    latch.countDown();
+                    return;
+                }
+                List<Map<String,Object>> result = requestWeekPyData(code+"."+flag.toUpperCase());
+                if(null == result){
+                    return;
+                }
+                avgKline(result);
+                for(Map<String,Object> map : result){
+                    kLineService.saveWeekLine(map);
+                }
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
     @Test
-    public void init2(){
-        int i = 0;
+    public void initDay(){
+        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
         for(String item : Constants.STOCK_CODE){
-            System.out.println(item+"============================="+i++);
-            if(i <= 600 || i > 1300){
-                continue;
-            }
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-//            int have = kLineService.hasSaveWeekLine(code+"."+flag.toUpperCase(),"20201204");
-//            if(have > 0){
-//                continue;
-//            }
-            List<Map<String,Object>> result = avgPyKline(code+"."+flag.toUpperCase());
-            if(null == result){
-                continue;
-            }
-            for(Map<String,Object> map : result){
-                kLineService.saveWeekLine(map);
-            }
+            threadPoolExecutor.execute(()->{
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
+                if(null == result){
+                    return;
+                }
+                avgKline(result);
+                for(Map<String,Object> map : result){
+                    kLineService.saveDayLine(map);
+                }
+                latch.countDown();
+                System.out.println("==========================================="+latch.getCount());
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    @Test
-    public void init3(){
-        int i = 0;
-        for(String item : Constants.STOCK_CODE){
-            System.out.println(item+"============================="+i++);
-            if(i <= 1300 || i > 2000){
-                continue;
-            }
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-//            int have = kLineService.hasSaveWeekLine(code+"."+flag.toUpperCase(),"20201204");
-//            if(have > 0){
-//                continue;
-//            }
-            List<Map<String,Object>> result = avgPyKline(code+"."+flag.toUpperCase());
-            if(null == result){
-                continue;
-            }
-            for(Map<String,Object> map : result){
-                kLineService.saveWeekLine(map);
-            }
-        }
+    public List<Map<String,Object>> requestDayPyData(String code){
+        List<String> list = executePython("D:\\workspace-python\\day_line.py",code);
+        List<Map<String,Object>> result = transPyData(list);
+        return result;
     }
 
-    public List<Map<String,Object>> avgPyKline(String code){
-        List<Map<String,Object>> result = requestPyData(code);
+    public List<Map<String,Object>> requestWeekPyData(String code){
+        List<String> list = executePython("D:\\workspace-python\\week_line.py",code);
+        List<Map<String,Object>> result = transPyData(list);
+        return result;
+    }
+
+    public List<Map<String,Object>> avgKline(List<Map<String,Object>> result){
         if(result.size() <= 0){
             return null;
         }
@@ -118,60 +118,6 @@ public class DayLineTest {
         }
         avgLine(list,result);
         Collections.reverse(result);
-        return result;
-    }
-
-    public List<Map<String,Object>> avgKline(String code){
-        TushareResult tushareResult = requestData(code);
-        List<Map<String,Object>> result = transitionMap(tushareResult);
-        if(result.size() <= 0){
-            return null;
-        }
-        List<Double> list = new ArrayList<>();
-        for(int i = (result.size()-1);i > -1;i--){
-            Map<String,Object> map = result.get(i);
-            list.add(Double.valueOf(map.get("close").toString()));
-        }
-        avgLine(list,result);
-        Collections.reverse(result);
-        return result;
-    }
-
-    public List<Map<String,Object>> requestPyData(String code){
-        List<Map<String,Object>> result = getPyData(code);
-        return result;
-    }
-
-    public TushareResult requestData(String code){
-        Map<String,Object> params = new HashMap<>();
-        Map<String,Object> item = new HashMap<>();
-        item.put("ts_code", code);
-        String start_date = "20190101";
-//        String end_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-        String end_date = "20201207";
-        item.put("start_date", start_date);
-        item.put("end_date", end_date);
-        params.put("params", item);
-        params.put("api_name", "weekly");
-        params.put("token", TUSHARE_TOKEN);
-        params.put("fields", "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount");
-        String res = RestTemplateUtil.post(URL,JSON.toJSONString(params),null);
-        TushareResult tushareResult = JSON.parseObject(res, TushareResult.class);
-        return tushareResult;
-    }
-
-    public List<Map<String,Object>> transitionMap(TushareResult tushareResult){
-        List<String> fields = tushareResult.getData().getFields();
-        List<List<String>> items = tushareResult.getData().getItems();
-        List<Map<String,Object>> result = new ArrayList<>();
-        items.stream().forEach(o -> {
-            Map<String,Object> map = new HashMap<>();
-            Stream.iterate(0, i -> i+1).limit(o.size())
-                    .forEach(i -> {
-                        map.put(fields.get(i),o.get(i));
-                    });
-            result.add(map);
-        });
         return result;
     }
 
@@ -208,8 +154,7 @@ public class DayLineTest {
         }
     }
 
-    public static List<Map<String,Object>> getPyData(String tscode){
-        List<String> list = executePython("E:\\workspace-python\\week_line.py",tscode);
+    public static List<Map<String,Object>> transPyData(List<String> list){
         List<Map<String,Object>> results = new ArrayList();
         for(String line : list){
             List<String> vals = JSONArray.parseArray(line,String.class);
@@ -232,7 +177,7 @@ public class DayLineTest {
     public static List<String> executePython(String pyPath,String tscode){
         List<String> list = new ArrayList<>();
         Process proc;
-        String[] args = new String[]{"C:\\python3.8\\python",pyPath,tscode};
+        String[] args = new String[]{"C:\\python37\\python",pyPath,tscode};
         try {
             proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(

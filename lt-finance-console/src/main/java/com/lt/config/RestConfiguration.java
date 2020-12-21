@@ -14,6 +14,9 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author gaijf
@@ -22,6 +25,18 @@ import java.security.cert.X509Certificate;
  */
 @Configuration
 public class RestConfiguration {
+    private static final int corePoolSize = 8;
+    private static final int maximumPoolSize = 50;
+    private static final long keepAliveTime = 2;
+    private static final int capacity = 10000;
+
+    @Bean
+    public ThreadPoolExecutor threadPoolExecutor(){
+        return new ThreadPoolExecutor(
+                corePoolSize,maximumPoolSize,keepAliveTime,
+                TimeUnit.SECONDS,new ArrayBlockingQueue<>(capacity));
+    }
+
     @Bean
     public RestTemplate restTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
         TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
