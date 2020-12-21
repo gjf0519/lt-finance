@@ -126,8 +126,10 @@ public class ReceiveService {
      * @param tscode
      */
     public void dayLineBreak(String tscode){
-        int limit = 21;
+        int limit = 10;
         List<KLineEntity> list = kLineService.queryDayLineByLimit(tscode,limit);
+//        Collections.reverse(list);
+        parallel(list);
 //        EmaBreakEntity entity = klineBreak(list,"日K");
 //        if(null == entity){
 //            return;
@@ -141,7 +143,7 @@ public class ReceiveService {
      * @param tscode
      */
     public void weekLineBreak(String tscode){
-        int limit = 60;
+        int limit = 20;
         List<KLineEntity> list = kLineService.queryWeekLineByLimit(tscode,limit);
         if(list.isEmpty()){
             return;
@@ -154,6 +156,38 @@ public class ReceiveService {
 //        }
 //        entity.setTsCode(tscode);
 //        kLineService.saveEmaBreak(entity);
+    }
+
+    public void parallel(List<KLineEntity> list){
+        //小于20日均线全部剔除
+        if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0 &&
+                list.get(1).getFivePrice() - list.get(2).getTwentyPrice() < 0 &&
+                list.get(2).getFivePrice() - list.get(3).getTwentyPrice() < 0){
+            return;
+        }
+
+        int sing = 0;
+        for(int i = 0;i < (list.size()-1);i++){
+            KLineEntity entity1 = list.get(i);
+            KLineEntity entity2 = list.get(i+1);
+            if(entity1.getFivePrice() - entity2.getFivePrice() >= 0){
+                sing++;
+            }else {
+                sing = 0;
+            }
+            if(entity1.getPctChg() > 5 || entity1.getPctChg() <= -5){
+                return;
+            }
+//            double angle = StockAlgorithm.calculateAngle(entity1.getFivePrice(),entity2.getFivePrice());
+//            double angle2 = StockAlgorithm.calculateAngle(entity1.getTenPrice(),entity2.getTwentyPrice());
+//            double angle3 = StockAlgorithm.calculateAngle(entity1.getTwentyPrice(),entity2.getTwentyPrice());
+//            double sub = entity1.getFivePrice() - entity1.getTwentyPrice();
+//            System.out.println(entity1.getTradeDate()+"==================="+angle+"======="+angle2);
+        }
+        if(sing < 5){
+            return;
+        }
+        System.out.println(list.get(0).getTsCode()+"=============="+sing);
     }
 
     public void weekLinePeriod(List<KLineEntity> list){
