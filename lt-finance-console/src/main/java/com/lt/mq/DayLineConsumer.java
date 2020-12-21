@@ -1,5 +1,6 @@
 package com.lt.mq;
 
+import com.alibaba.fastjson.JSON;
 import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gaijf
@@ -61,7 +63,8 @@ public class DayLineConsumer {
             for (MessageExt ext : list) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
-                    receiveService.receiveDayLine(record);
+                    Map map =  JSON.parseObject(record, Map.class);
+                    receiveService.receiveDayLine(map);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }

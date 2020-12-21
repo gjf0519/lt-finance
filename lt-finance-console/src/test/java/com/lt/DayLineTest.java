@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.lt.result.TushareResult;
 import com.lt.service.KLineService;
+import com.lt.service.ReceiveService;
 import com.lt.shape.StockAlgorithm;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
@@ -33,6 +34,8 @@ public class DayLineTest {
     @Autowired
     private KLineService kLineService;
     @Autowired
+    ReceiveService receiveService;
+    @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
     /**
@@ -53,6 +56,7 @@ public class DayLineTest {
                 }
                 List<Map<String,Object>> result = requestWeekPyData(code+"."+flag.toUpperCase());
                 if(null == result){
+                    latch.countDown();
                     return;
                 }
                 avgKline(result);
@@ -78,12 +82,18 @@ public class DayLineTest {
                 String code = item.substring(2,item.length());
                 List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
                 if(null == result){
+                latch.countDown();
                     return;
                 }
                 avgKline(result);
                 for(Map<String,Object> map : result){
                     kLineService.saveDayLine(map);
                 }
+//                if(null == result || result.isEmpty()){
+//                    latch.countDown();
+//                    return;
+//                }
+//                receiveService.receiveDayLine(result.get(0));
                 latch.countDown();
                 System.out.println("==========================================="+latch.getCount());
             });
@@ -97,13 +107,13 @@ public class DayLineTest {
 
     public List<Map<String,Object>> requestDayPyData(String code){
         List<String> list = executePython("D:\\workspace-python\\day_line.py",code);
-        List<Map<String,Object>> result = transPyData(list);
+        List<Map<String,Object>> result = transPyDataDay(list);
         return result;
     }
 
     public List<Map<String,Object>> requestWeekPyData(String code){
         List<String> list = executePython("D:\\workspace-python\\week_line.py",code);
-        List<Map<String,Object>> result = transPyData(list);
+        List<Map<String,Object>> result = transPyDataWeek(list);
         return result;
     }
 
@@ -154,7 +164,27 @@ public class DayLineTest {
         }
     }
 
-    public static List<Map<String,Object>> transPyData(List<String> list){
+    public static List<Map<String,Object>> transPyDataDay(List<String> list){
+        List<Map<String,Object>> results = new ArrayList();
+        for(String line : list){
+            List<String> vals = JSONArray.parseArray(line,String.class);
+            Map<String,Object> result = new HashMap<>();
+            result.put("ts_code",vals.get(0));
+            result.put("trade_date",vals.get(1));
+            result.put("close",vals.get(5));
+            result.put("open",vals.get(2));
+            result.put("high",vals.get(3));
+            result.put("low",vals.get(4));
+            result.put("pre_close",vals.get(6));
+            result.put("change",vals.get(7));
+            result.put("pct_chg",vals.get(8));
+            result.put("vol",vals.get(9));
+            results.add(result);
+        }
+        return results;
+    }
+
+    public static List<Map<String,Object>> transPyDataWeek(List<String> list){
         List<Map<String,Object>> results = new ArrayList();
         for(String line : list){
             List<String> vals = JSONArray.parseArray(line,String.class);

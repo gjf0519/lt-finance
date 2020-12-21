@@ -32,11 +32,10 @@ public class ReceiveService {
 
     /**
      * 消费日K数据
-     * @param record
+     * @param map
      */
-    public void receiveDayLine(String record) {
+    public void receiveDayLine(Map map) {
         try {
-            Map map =  JSON.parseObject(record, Map.class);
             String tscode = map.get("ts_code").toString();
             String tradeDate = map.get("trade_date").toString();
             //判断日K数据是否已保存
@@ -44,8 +43,8 @@ public class ReceiveService {
             if(isSave > 0){
                 return;
             }
-            List<KLineEntity> list = kLineService.queryDayLineByLimit(tscode,59);
-            List<Double> closes = new ArrayList<>(60);
+            List<KLineEntity> list = kLineService.queryDayLineByLimit(tscode,119);
+            List<Double> closes = new ArrayList<>(120);
             closes.add(Double.valueOf(map.get("close").toString()));
             for(KLineEntity item : list){
                 closes.add(item.getClose());
@@ -159,11 +158,21 @@ public class ReceiveService {
     }
 
     public void parallel(List<KLineEntity> list){
-        //小于20日均线全部剔除
-        if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0 &&
-                list.get(1).getFivePrice() - list.get(2).getTwentyPrice() < 0 &&
-                list.get(2).getFivePrice() - list.get(3).getTwentyPrice() < 0){
+        if(list.isEmpty()){
             return;
+        }
+        //小于20日均线全部剔除
+        if(list.get(0).getPctChg() <= 0){
+            if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0 &&
+                    list.get(0).getFivePrice() - list.get(1).getFivePrice() < 0 &&
+                    list.get(1).getFivePrice() - list.get(2).getFivePrice() < 0 &&
+                    list.get(2).getFivePrice() - list.get(3).getFivePrice() < 0){
+                return;
+            }
+        }else {
+            if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0){
+                return;
+            }
         }
 
         int sing = 0;
