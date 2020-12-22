@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class Test {
     public static void main(String[] args) {
-        List<String> list = executePython("E:\\workspace-python\\week_line1.py","002455.SZ");
+        List<String> list = executePython("E:\\workspace-python\\day_line.py","002455.SZ");
         for(String line : list){
                 List<String> vals = JSONArray.parseArray(line,String.class);
                 Map<String,Object> result = new HashMap<>();

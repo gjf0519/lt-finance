@@ -1,6 +1,7 @@
 package com.lt.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.lt.config.MqConfiguration;
 import com.lt.result.TushareResult;
 import com.lt.utils.Constants;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -53,13 +57,13 @@ public class TushareService {
 //    @Async
     public void requestDayLine(String tscode){
         try {
-            String fields = "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount";
-            TushareResult tushareResult = requestData(tscode,"daily",fields);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
-            if(null == list || list.isEmpty()){
+            List<String> list = executePython("/home/python/day_line.py",tscode);
+            System.out.println(tscode+"==================="+list.size());
+            if(list.isEmpty()){
                 return;
             }
-            MqConfiguration.send(Constants.TUSHARE_DAYLINE_TOPIC,list.get(0),defaultMQProducer);
+            List<Map<String,Object>> result = transPyDataDay(list);
+            MqConfiguration.send(Constants.TUSHARE_DAYLINE_TOPIC,result.get(0),defaultMQProducer);
         }catch (Exception e){
             log.info("获取日K数据异常 tscode:{} exception:{}",tscode,e);
         }
@@ -140,5 +144,67 @@ public class TushareService {
             result.add(map);
         });
         return result;
+    }
+
+    private List<Map<String,Object>> transPyDataDay(List<String> list){
+        List<Map<String,Object>> results = new ArrayList();
+        for(String line : list){
+            List<String> vals = JSONArray.parseArray(line,String.class);
+            Map<String,Object> result = new HashMap<>();
+            result.put("ts_code",vals.get(0));
+            result.put("trade_date",vals.get(1));
+            result.put("close",vals.get(5));
+            result.put("open",vals.get(2));
+            result.put("high",vals.get(3));
+            result.put("low",vals.get(4));
+            result.put("pre_close",vals.get(6));
+            result.put("change",vals.get(7));
+            result.put("pct_chg",vals.get(8));
+            result.put("vol",vals.get(9));
+            results.add(result);
+        }
+        return results;
+    }
+
+    private List<Map<String,Object>> transPyDataWeek(List<String> list){
+        List<Map<String,Object>> results = new ArrayList();
+        for(String line : list){
+            List<String> vals = JSONArray.parseArray(line,String.class);
+            Map<String,Object> result = new HashMap<>();
+            result.put("ts_code",vals.get(0));
+            result.put("trade_date",vals.get(1));
+            result.put("close",vals.get(2));
+            result.put("open",vals.get(3));
+            result.put("high",vals.get(4));
+            result.put("low",vals.get(5));
+            result.put("pre_close",vals.get(6));
+            result.put("change",vals.get(7));
+            result.put("pct_chg",vals.get(8));
+            result.put("vol",vals.get(9));
+            results.add(result);
+        }
+        return results;
+    }
+
+    private List<String> executePython(String pyPath,String tscode){
+        List<String> list = new ArrayList<>();
+        Process proc;
+        String[] args = new String[]{"/usr/local/python3.8/Python-3.8.0/python",pyPath,tscode};
+        try {
+            proc = Runtime.getRuntime().exec(args);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(proc.getInputStream()));
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                list = JSONArray.parseArray(line,String.class);
+            }
+            in.close();
+            proc.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

@@ -53,16 +53,13 @@ public class ReceiveService {
             //计算均线价格
             calculateAvg(closes,map);
             kLineService.saveDayLine(map);
-            //过滤均线突破数据
-            dayLineBreak(tscode);
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public void receiveWeekLine(String record) {
+    public void receiveWeekLine(Map map) {
         try {
-            Map map =  JSON.parseObject(record, Map.class);
             String tscode = map.get("ts_code").toString();
             String tradeDate = map.get("trade_date").toString();
             //判断周K数据是否已保存
@@ -80,8 +77,6 @@ public class ReceiveService {
             //计算均线价格
             calculateAvg(closes,map);
             kLineService.saveWeekLine(map);
-            //过滤均线突破数据
-            weekLineBreak(tscode);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -173,6 +168,11 @@ public class ReceiveService {
             if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0){
                 return;
             }
+            double sub = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
+            double ratio = BigDecimalUtil.div(sub,list.get(0).getFivePrice(),2);
+            if(ratio > 0.3){
+                return;
+            }
         }
 
         int sing = 0;
@@ -187,11 +187,6 @@ public class ReceiveService {
             if(entity1.getPctChg() > 5 || entity1.getPctChg() <= -5){
                 return;
             }
-//            double angle = StockAlgorithm.calculateAngle(entity1.getFivePrice(),entity2.getFivePrice());
-//            double angle2 = StockAlgorithm.calculateAngle(entity1.getTenPrice(),entity2.getTwentyPrice());
-//            double angle3 = StockAlgorithm.calculateAngle(entity1.getTwentyPrice(),entity2.getTwentyPrice());
-//            double sub = entity1.getFivePrice() - entity1.getTwentyPrice();
-//            System.out.println(entity1.getTradeDate()+"==================="+angle+"======="+angle2);
         }
         if(sing < 5){
             return;

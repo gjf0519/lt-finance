@@ -34,7 +34,7 @@ public class DayLineTest {
     @Autowired
     private KLineService kLineService;
     @Autowired
-    ReceiveService receiveService;
+    private ReceiveService receiveService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
@@ -81,19 +81,19 @@ public class DayLineTest {
                 String flag = item.substring(0,2);
                 String code = item.substring(2,item.length());
                 List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
-                if(null == result){
-                latch.countDown();
-                    return;
-                }
-                avgKline(result);
-                for(Map<String,Object> map : result){
-                    kLineService.saveDayLine(map);
-                }
-//                if(null == result || result.isEmpty()){
-//                    latch.countDown();
+//                if(null == result){
+//                latch.countDown();
 //                    return;
 //                }
-//                receiveService.receiveDayLine(result.get(0));
+//                avgKline(result);
+//                for(Map<String,Object> map : result){
+//                    kLineService.saveDayLine(map);
+//                }
+                if(null == result || result.isEmpty()){
+                    latch.countDown();
+                    return;
+                }
+                receiveService.receiveDayLine(result.get(0));
                 latch.countDown();
                 System.out.println("==========================================="+latch.getCount());
             });
@@ -106,13 +106,13 @@ public class DayLineTest {
     }
 
     public List<Map<String,Object>> requestDayPyData(String code){
-        List<String> list = executePython("D:\\workspace-python\\day_line.py",code);
+        List<String> list = executePython("E:\\workspace-python\\day_line.py",code);
         List<Map<String,Object>> result = transPyDataDay(list);
         return result;
     }
 
     public List<Map<String,Object>> requestWeekPyData(String code){
-        List<String> list = executePython("D:\\workspace-python\\week_line.py",code);
+        List<String> list = executePython("E:\\workspace-python\\week_line.py",code);
         List<Map<String,Object>> result = transPyDataWeek(list);
         return result;
     }
@@ -207,7 +207,7 @@ public class DayLineTest {
     public static List<String> executePython(String pyPath,String tscode){
         List<String> list = new ArrayList<>();
         Process proc;
-        String[] args = new String[]{"C:\\python37\\python",pyPath,tscode};
+        String[] args = new String[]{"C:\\python3.8\\python",pyPath,tscode};
         try {
             proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(
