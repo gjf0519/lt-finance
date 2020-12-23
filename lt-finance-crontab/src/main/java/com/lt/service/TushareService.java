@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -58,7 +59,7 @@ public class TushareService {
     public void requestDayLine(String tscode){
         try {
             List<String> list = executePython("/home/python/day_line.py",tscode);
-            System.out.println(tscode+"==================="+list.size());
+            System.out.println(tscode+"==================="+list);
             if(list.isEmpty()){
                 return;
             }
