@@ -36,5 +36,6 @@ public class DayLineTask {
             String code = item.substring(2,item.length());
             tushareService.requestDayLine(code+"."+flag.toUpperCase());
         }
+        log.info("==========================日线收集数据完成======================");
     }
 }
