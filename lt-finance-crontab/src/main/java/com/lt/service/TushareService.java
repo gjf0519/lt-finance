@@ -59,7 +59,6 @@ public class TushareService {
     public void requestDayLine(String tscode){
         try {
             List<String> list = executePython("/home/python/day_line.py",tscode);
-            System.out.println(tscode+"==================="+list);
             if(list.isEmpty()){
                 return;
             }
@@ -77,13 +76,12 @@ public class TushareService {
 //    @Async
     public void requestWeekLine(String tscode) {
         try {
-            String fields = "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount";
-            TushareResult tushareResult = requestData(tscode,"weekly",fields);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
-            if(null == list || list.isEmpty()){
+            List<String> list = executePython("/home/python/week_line.py",tscode);
+            if(list.isEmpty()){
                 return;
             }
-            MqConfiguration.send(Constants.TUSHARE_WEEKLINE_TOPIC,list.get(0),defaultMQProducer);
+            List<Map<String,Object>> result = transPyDataWeek(list);
+            MqConfiguration.send(Constants.TUSHARE_WEEKLINE_TOPIC,result.get(0),defaultMQProducer);
         }catch (Exception e){
             log.info("获取周K数据异常 tscode:{} exception:{}",tscode,e);
         }
