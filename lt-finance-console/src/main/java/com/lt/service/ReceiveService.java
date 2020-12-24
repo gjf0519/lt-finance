@@ -137,13 +137,14 @@ public class ReceiveService {
      * @param tscode
      */
     public void weekLineBreak(String tscode){
-        int limit = 20;
+        int limit = 10;
         List<KLineEntity> list = kLineService.queryWeekLineByLimit(tscode,limit);
         if(list.isEmpty()){
             return;
         }
-        Collections.reverse(list);
-        weekLinePeriod(list);
+        parallelWeek(list);
+//        Collections.reverse(list);
+//        weekLinePeriod(list);
 //        EmaBreakEntity entity = klineRise(list,"周K");
 //        if(null == entity){
 //            return;
@@ -152,8 +153,54 @@ public class ReceiveService {
 //        kLineService.saveEmaBreak(entity);
     }
 
+    public void parallelWeek(List<KLineEntity> list){
+        if(list.isEmpty() || list.size() < 10){
+            return;
+        }
+        //小于20日均线全部剔除
+        if(list.get(0).getPctChg() <= 0){
+            if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0 ||
+                    list.get(0).getFivePrice() - list.get(0).getTenPrice() < 0){
+                return;
+            }
+        }else {
+            if(list.get(0).getFivePrice() - list.get(1).getTenPrice() < 0){
+                return;
+            }
+            if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0){
+                return;
+            }
+//            double sub = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
+//            double ratio = BigDecimalUtil.div(sub,list.get(0).getFivePrice(),2);
+//            if(ratio > 0.03){
+//                return;
+//            }
+        }
+        int sing = 0;
+        for(int i = 0;i < (list.size()-1);i++){
+            KLineEntity entity1 = list.get(i);
+            KLineEntity entity2 = list.get(i+1);
+            if(entity1.getFivePrice() - entity2.getFivePrice() >= 0){
+                sing++;
+            }else {
+                sing = 0;
+            }
+            if(entity1.getPctChg() > 10 || entity1.getPctChg() <= -10){
+                return;
+            }
+        }
+//        if(sing == 3){
+//            System.out.println(list.get(0).getTsCode()+"=============="+sing);
+//            return;
+//        }
+        if(sing < 5){
+            return;
+        }
+        System.out.println(list.get(0).getTsCode()+"=============="+sing);
+    }
+
     public void parallel(List<KLineEntity> list){
-        if(list.isEmpty()){
+        if(list.isEmpty() || list.size() < 10){
             return;
         }
         //小于20日均线全部剔除
@@ -170,7 +217,7 @@ public class ReceiveService {
             }
             double sub = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
             double ratio = BigDecimalUtil.div(sub,list.get(0).getFivePrice(),2);
-            if(ratio > 0.3){
+            if(ratio > 0.03){
                 return;
             }
         }
