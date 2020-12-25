@@ -45,11 +45,9 @@ public interface KLineMapper {
             ",#{vol},#{amount},#{five_price},#{ten_price},#{twenty_price},#{thirty_price},#{sixty_price},#{semester_price})"})
     void saveWeekLine(Map<String,Object> map);
 
-    @Insert({"insert into lt_tree_even_test (ts_code,trade_date,rose,fivetoten,fivetotwenty,fivetothirty," +
-            "tentotwenty,twentytothirty,five_angle,full_angle,distance_rito," +
-            "kform,five_ten_distance,ten_twenty_distance,vol_rose,next_rose) values" +
-            " (#{ts_code},#{trade_date},#{rose},#{fivetoten},#{fivetotwenty},#{fivetothirty}" +
-            ",#{tentotwenty},#{twentytothirty},#{five_angle},#{full_angle},#{distance_rito}," +
-            "#{kform},#{five_ten_distance},#{ten_twenty_distance},#{vol_rose},#{nextRose})"})
-    void saveTreeEven(Map map);
+    @Insert({"insert into lt_month_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
+            "vol,amount,five_price,ten_price,twenty_price,thirty_price,sixty_price,semester_price) values" +
+            " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
+            ",#{vol},#{amount},#{five_price},#{ten_price},#{twenty_price},#{thirty_price},#{sixty_price},#{semester_price})"})
+    void saveWeekMonth(Map map);
 }

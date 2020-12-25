@@ -26,7 +26,7 @@ import java.util.Map;
  * @date 2020/12/3
  */
 @Slf4j
-@Component
+//@Component
 public class WeekLineConsumer {
 
     @Value("${rocketmq.name-server}")

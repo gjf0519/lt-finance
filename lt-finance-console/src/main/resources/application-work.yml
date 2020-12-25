@@ -38,3 +38,10 @@ spring:
     keep-alive-seconds: 300
   resources:
     static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, classpath:/templates/
+
+finanace:
+  system:
+    python:
+      profile: C:/python3.8/python
+      day-line: E:/workspace-python/day_line.py
+      week-line: E:/workspace-python/week_line.py

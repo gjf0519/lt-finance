@@ -33,7 +33,7 @@ public class KLineBreakTest {
             receiveService.weekLineBreak(code+"."+flag.toUpperCase());
             //System.out.println("===================================="+i++);
         }
-//        receiveService.weekLineBreak("002455.SZ");
+//        receiveService.weekLineBreak("002083.SZ");
     }
 
     @Test

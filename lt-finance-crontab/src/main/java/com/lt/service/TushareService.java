@@ -55,7 +55,6 @@ public class TushareService {
      * 获取日K数据
      * @param tscode
      */
-//    @Async
     public void requestDayLine(String tscode){
         try {
             List<String> list = executePython("/home/python/day_line.py",tscode);
@@ -73,7 +72,6 @@ public class TushareService {
      * 获取周K线
      * @param tscode
      */
-//    @Async
     public void requestWeekLine(String tscode) {
         try {
             List<String> list = executePython("/home/python/week_line.py",tscode);
@@ -89,20 +87,28 @@ public class TushareService {
 
     /**
      * 获取月K线
-     * @param tscode
      */
     @Async
-    public void requestMonthLine(String tscode) {
+    public void requestMonthLine() {
         try {
-            String fields = "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount";
-            TushareResult tushareResult = requestData(tscode,"monthly",fields);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
-            if(null == list || list.isEmpty()){
-                return;
+            for(String item : Constants.STOCK_CODE){
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                String tscode = code+"."+flag.toUpperCase();
+                List<String> list = executePython("/home/python/month_line.py",tscode);
+                if(list.isEmpty()){
+                    return;
+                }
+                List<Map<String,Object>> result = transPyDataWeek(list);
+                MqConfiguration.send(Constants.TUSHARE_MONTHLINE_TOPIC,result.get(0),defaultMQProducer);
             }
-            MqConfiguration.send(Constants.TUSHARE_MONTHLINE_TOPIC,list.get(0),defaultMQProducer);
         }catch (Exception e){
-            log.info("获取月K数据异常 tscode:{} exception:{}",tscode,e);
+            log.info("获取月K数据异常 exception:{}",e);
         }
     }
 
@@ -166,6 +172,26 @@ public class TushareService {
     }
 
     private List<Map<String,Object>> transPyDataWeek(List<String> list){
+        List<Map<String,Object>> results = new ArrayList();
+        for(String line : list){
+            List<String> vals = JSONArray.parseArray(line,String.class);
+            Map<String,Object> result = new HashMap<>();
+            result.put("ts_code",vals.get(0));
+            result.put("trade_date",vals.get(1));
+            result.put("close",vals.get(2));
+            result.put("open",vals.get(3));
+            result.put("high",vals.get(4));
+            result.put("low",vals.get(5));
+            result.put("pre_close",vals.get(6));
+            result.put("change",vals.get(7));
+            result.put("pct_chg",vals.get(8));
+            result.put("vol",vals.get(9));
+            results.add(result);
+        }
+        return results;
+    }
+
+    private List<Map<String,Object>> transPyDataMonth(List<String> list){
         List<Map<String,Object>> results = new ArrayList();
         for(String line : list){
             List<String> vals = JSONArray.parseArray(line,String.class);

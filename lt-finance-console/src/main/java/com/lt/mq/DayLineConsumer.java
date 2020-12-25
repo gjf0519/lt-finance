@@ -26,13 +26,13 @@ import java.util.Map;
  * @date 2020/12/3
  */
 @Slf4j
-//@Component
+@Component
 public class DayLineConsumer {
 
     @Value("${rocketmq.name-server}")
     private String nameServerAddr;
     private String topicName = Constants.TUSHARE_DAYLINE_TOPIC;
-    private String consumerGroupName = "DAYLINE-CONSUMER-GROUP";
+    private String consumerGroupName = "DAYLINE-CONSUMER-GROUP-WORK";
     private DefaultMQPushConsumer consumer;
     @Autowired
     private ReceiveService receiveService;
