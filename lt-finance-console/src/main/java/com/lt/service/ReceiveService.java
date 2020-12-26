@@ -122,8 +122,10 @@ public class ReceiveService {
     public void dayLineBreak(String tscode){
         int limit = 10;
         List<KLineEntity> list = kLineService.queryDayLineByLimit(tscode,limit);
-//        Collections.reverse(list);
-        parallel(list);
+        if(list.isEmpty()){
+            return;
+        }
+        parallelDay(list);
 //        EmaBreakEntity entity = klineBreak(list,"日K");
 //        if(null == entity){
 //            return;
@@ -199,14 +201,24 @@ public class ReceiveService {
         System.out.println(list.get(0).getTsCode()+"=============="+sing);
     }
 
-    public void parallel(List<KLineEntity> list){
+    public void parallelDay(List<KLineEntity> list){
         if(list.isEmpty() || list.size() < 10){
             return;
         }
-        //小于20日均线全部剔除
+
         if(list.get(0).getPctChg() <= 0){
-            if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0 &&
-                    list.get(0).getFivePrice() - list.get(1).getFivePrice() < 0 &&
+            //5日均线在20日以下剔除
+            if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0){
+                return;
+            }
+            //5日10日20日都在30日以下剔除
+            if(list.get(0).getFivePrice() - list.get(0).getThirtyPrice() < 0 &&
+                    list.get(0).getTenPrice() - list.get(0).getThirtyPrice() < 0 &&
+                    list.get(0).getTwentyPrice() - list.get(0).getThirtyPrice() < 0 ){
+                return;
+            }
+            //当前连续三日下跌剔除
+            if(list.get(0).getFivePrice() - list.get(1).getFivePrice() < 0 &&
                     list.get(1).getFivePrice() - list.get(2).getFivePrice() < 0 &&
                     list.get(2).getFivePrice() - list.get(3).getFivePrice() < 0){
                 return;
@@ -215,30 +227,51 @@ public class ReceiveService {
             if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0){
                 return;
             }
-            double sub = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
-            double ratio = BigDecimalUtil.div(sub,list.get(0).getFivePrice(),2);
+        }
+        for(int i =0;i < 5;i++){
+            //当前5日内10日均线必须在20日均线以上
+            if(list.get(i).getFivePrice() - list.get(i).getTwentyPrice()<0){
+                return;
+            }
+            if(list.get(i).getTenPrice() - list.get(i).getTwentyPrice()<0){
+                return;
+            }
+            double sub = list.get(i).getFivePrice() - list.get(i).getTwentyPrice();
+            double ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
             if(ratio > 0.03){
                 return;
             }
         }
 
         int sing = 0;
+        double pctchg = 0.0;
+        String prev = "后五";
         for(int i = 0;i < (list.size()-1);i++){
             KLineEntity entity1 = list.get(i);
             KLineEntity entity2 = list.get(i+1);
             if(entity1.getFivePrice() - entity2.getFivePrice() >= 0){
                 sing++;
-            }else {
+            }else if(sing < 3) {
                 sing = 0;
             }
-            if(entity1.getPctChg() > 5 || entity1.getPctChg() <= -5){
+            if(sing>=3 && i < 5){
+                prev = "前五";
+            }
+            if(entity1.getPctChg() > 5 && entity1.getPctChg() < 9){
+               if(entity1.getOpen() > entity1.getFivePrice()
+                       || entity1.getClose() < entity1.getFivePrice()){
+                   return;
+               }
+            }
+            if(entity1.getPctChg() <= -5){
                 return;
             }
+            pctchg = pctchg+entity1.getPctChg();
         }
-        if(sing < 5){
+        if(sing < 3 || pctchg < 0){
             return;
         }
-        System.out.println(list.get(0).getTsCode()+"=============="+sing);
+        System.out.println(list.get(0).getTsCode()+"======="+pctchg+"======="+sing+"====================="+prev);
     }
 
     public void weekLinePeriod(List<KLineEntity> list){

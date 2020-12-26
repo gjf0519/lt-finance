@@ -70,7 +70,7 @@ public class WeekLineConsumer {
                     e.printStackTrace();
                 }
             }
-            log.info("周K数据开始消费");
+            System.out.println("周K数据开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
     }

@@ -69,8 +69,8 @@ public class DayLineConsumer {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                System.out.println("日K数据开始消费");
             }
+            System.out.println("日K数据开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
     }

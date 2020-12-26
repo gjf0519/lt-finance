@@ -25,25 +25,32 @@ public class KLineBreakTest {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Test
-    public void weekbreak(){
-        int i = 0;
-        for(String item : Constants.STOCK_CODE){
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-            receiveService.weekLineBreak(code+"."+flag.toUpperCase());
-            //System.out.println("===================================="+i++);
-        }
-//        receiveService.weekLineBreak("002083.SZ");
+    public void daybreak(){
+//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+//        for(String item : Constants.STOCK_CODE){
+//            threadPoolExecutor.execute(()->{
+//                String flag = item.substring(0,2);
+//                String code = item.substring(2,item.length());
+//                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
+//                latch.countDown();
+//            });
+//        }
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        receiveService.dayLineBreak("002752.SZ");
     }
 
     @Test
-    public void daybreak(){
+    public void weekbreak(){
         CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
         for(String item : Constants.STOCK_CODE){
             threadPoolExecutor.execute(()->{
                 String flag = item.substring(0,2);
                 String code = item.substring(2,item.length());
-                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
+                receiveService.weekLineBreak(code+"."+flag.toUpperCase());
                 latch.countDown();
             });
         }
@@ -52,13 +59,6 @@ public class KLineBreakTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        int i = 0;
-//        for(String item : Constants.STOCK_CODE){
-//            String flag = item.substring(0,2);
-//            String code = item.substring(2,item.length());
-//            receiveService.dayLineBreak(code+"."+flag.toUpperCase());
-//            //System.out.println("===================================="+i++);
-//        }
-//        receiveService.dayLineBreak("603589.SH");
+//        receiveService.weekLineBreak("002083.SZ");
     }
 }
