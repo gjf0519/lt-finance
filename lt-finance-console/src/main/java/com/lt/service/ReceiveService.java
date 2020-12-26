@@ -120,8 +120,21 @@ public class ReceiveService {
      * @param tscode
      */
     public void dayLineBreak(String tscode){
+        dayLineBreak(tscode,null);
+    }
+
+    /**
+     * 日K均线突破
+     * @param tscode
+     */
+    public void dayLineBreak(String tscode,String tradeDate){
         int limit = 10;
-        List<KLineEntity> list = kLineService.queryDayLineByLimit(tscode,limit);
+        List<KLineEntity> list = null;
+        if(null == tradeDate){
+            list = kLineService.queryDayLineByLimit(tscode,limit);
+        }else {
+            list = kLineService.queryDayLineByLimitDate(tscode,limit,tradeDate);
+        }
         if(list.isEmpty()){
             return;
         }
@@ -238,7 +251,7 @@ public class ReceiveService {
             }
             double sub = list.get(i).getFivePrice() - list.get(i).getTwentyPrice();
             double ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
-            if(ratio > 0.03){
+            if(ratio > 0.04){
                 return;
             }
         }
@@ -271,7 +284,21 @@ public class ReceiveService {
         if(sing < 3 || pctchg < 0){
             return;
         }
-        System.out.println(list.get(0).getTsCode()+"======="+pctchg+"======="+sing+"====================="+prev);
+        if(sing < 7 || pctchg < 0 || pctchg > 4){
+            return;
+        }
+        double ratio1 = 0.0;
+        if(list.get(0).getPctChg() < 0){
+            double sub = list.get(0).getClose() - list.get(0).getTwentyPrice();
+            ratio1 = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+        }else {
+            double sub = list.get(0).getOpen() - list.get(0).getTwentyPrice();
+            ratio1 = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+        }
+        if(ratio1 > 0.03){
+            return;
+        }
+        System.out.println(list.get(0).getTsCode()+"======="+pctchg+"======="+sing+"==========="+prev+"==========="+ratio1);
     }
 
     public void weekLinePeriod(List<KLineEntity> list){

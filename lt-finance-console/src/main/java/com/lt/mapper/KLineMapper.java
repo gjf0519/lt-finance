@@ -22,6 +22,12 @@ public interface KLineMapper {
     @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
     List<KLineEntity> queryDayLineByLimit(@Param("code") String code, @Param("limit") int limit);
 
+    @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} and trade_date <= #{trade_date} ORDER BY trade_date desc LIMIT #{limit}"})
+    List<KLineEntity> queryDayLineByLimitDate(
+            @Param("code") String code,
+            @Param("limit") int limit,
+            @Param("trade_date") String tradeDate);
+
     @Insert({"insert into lt_ema_break (ts_code,kline_type,trade_date,break_day,rose" +
             ",fivetoten,fivetotwenty,fivetothirty,fivetosixty,tentotwenty,tentothirty,tentosixty" +
             ",twentytothirty,twentytosixty,kline_flat,kline_angle) values" +

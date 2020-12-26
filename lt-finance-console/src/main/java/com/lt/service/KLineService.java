@@ -41,6 +41,16 @@ public class KLineService {
     }
 
     /**
+     * 查询日K线数据
+     * @param code
+     * @param limit
+     * @return
+     */
+    public List<KLineEntity> queryDayLineByLimitDate(String code, int limit,String tradeDate){
+        return kLineMapper.queryDayLineByLimitDate(code,limit,tradeDate);
+    }
+
+    /**
      * 保存K线突破数据
      * @param entity
      */

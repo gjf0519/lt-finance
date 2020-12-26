@@ -26,21 +26,21 @@ public class KLineBreakTest {
 
     @Test
     public void daybreak(){
-//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-//        for(String item : Constants.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                String flag = item.substring(0,2);
-//                String code = item.substring(2,item.length());
-//                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        receiveService.dayLineBreak("002752.SZ");
+        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+        for(String item : Constants.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        receiveService.dayLineBreak("000713.SZ","20201217");
     }
 
     @Test
