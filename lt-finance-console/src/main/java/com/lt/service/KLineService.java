@@ -66,8 +66,12 @@ public class KLineService {
         kLineMapper.saveWeekLine(map);
     }
 
+    public int hasSaveMonthLine(String tscode, String tradeDate) {
+        return kLineMapper.hasSaveMonthLine(tscode,tradeDate);
+    }
+
     @Transactional(rollbackFor = Exception.class)
-    public void saveWeekMonth(Map map) {
-        kLineMapper.saveWeekMonth(map);
+    public void saveMonthLine(Map map) {
+        kLineMapper.saveMonthLine(map);
     }
 }

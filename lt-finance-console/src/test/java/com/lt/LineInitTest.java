@@ -32,12 +32,14 @@ public class LineInitTest {
     public static final String URL = "http://api.waditu.com";
     public static final String TUSHARE_TOKEN = "79d2b64fa07ce8f0fe6009ae8f25e5b4fd3cdcf78cf785eec3b5ab12";
 
-    @Value("finanace.system.python.profile")
+    @Value("${finanace.system.python.profile}")
     private String pyHome;
-    @Value("finanace.system.python.day-line")
+    @Value("${finanace.system.python.day-line}")
     private String dayLinePath;
-    @Value("finanace.system.python.week-line")
+    @Value("${finanace.system.python.week-line}")
     private String weekLinePath;
+    @Value("${finanace.system.python.month-line}")
+    private String monthLinePath;
     @Autowired
     private KLineService kLineService;
     @Autowired
@@ -119,16 +121,16 @@ public class LineInitTest {
                 String flag = item.substring(0,2);
                 String code = item.substring(2,item.length());
                 List<Map<String,Object>> result = requestMonthPyData(code+"."+flag.toUpperCase());
-                System.out.println("============="+latch.getCount());
                 if(null == result){
                     latch.countDown();
                     return;
                 }
                 avgKline(result);
                 for(Map<String,Object> map : result){
-                    kLineService.saveWeekMonth(map);
+                    kLineService.saveMonthLine(map);
                 }
                 latch.countDown();
+                System.out.println("============="+latch.getCount());
             });
         }
         try {
@@ -139,21 +141,19 @@ public class LineInitTest {
     }
 
     public List<Map<String,Object>> requestDayPyData(String code){
-        List<String> list = executePython("E:\\workspace-python\\day_line.py",code);
-//        List<String> list = executePython("D:\\workspace-python\\day_line.py",code);
+        List<String> list = executePython(dayLinePath,code);
         List<Map<String,Object>> result = transPyDataDay(list);
         return result;
     }
 
     public List<Map<String,Object>> requestWeekPyData(String code){
-        List<String> list = executePython("E:\\workspace-python\\week_line.py",code);
+        List<String> list = executePython(weekLinePath,code);
         List<Map<String,Object>> result = transPyDataWeek(list);
         return result;
     }
 
     public List<Map<String,Object>> requestMonthPyData(String code){
-        List<String> list = executePython("E:\\workspace-python\\month_line.py",code);
-//        List<String> list = executePython("D:\\workspace-python\\day_line.py",code);
+        List<String> list = executePython(monthLinePath,code);
         List<Map<String,Object>> result = transPyDataWeek(list);
         return result;
     }
@@ -245,11 +245,10 @@ public class LineInitTest {
         return results;
     }
 
-    public static List<String> executePython(String pyPath,String tscode){
+    public List<String> executePython(String pyPath,String tscode){
         List<String> list = new ArrayList<>();
         Process proc;
-        String[] args = new String[]{"C:\\python3.8\\python",pyPath,tscode};
-//        String[] args = new String[]{"C:\\python37\\python",pyPath,tscode};
+        String[] args = new String[]{pyHome,pyPath,tscode};
         try {
             proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(

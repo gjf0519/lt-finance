@@ -44,4 +44,8 @@ finanace:
     python:
       profile: C:/python37/python
       day-line: D:/workspace-python/day_line.py
-      week-line: E:/workspace-python/week_line.py
+      week-line: D:/workspace-python/week_line.py
+      month-line: D:/workspace-python/month_line.py
+  comsumer:
+    day-line: DAYLINE-CONSUMER-GROUP-HOME
+    week-line: WEEKLINE-CONSUMER-GROUP-HOME

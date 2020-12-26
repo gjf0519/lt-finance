@@ -49,5 +49,8 @@ public interface KLineMapper {
             "vol,amount,five_price,ten_price,twenty_price,thirty_price,sixty_price,semester_price) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
             ",#{vol},#{amount},#{five_price},#{ten_price},#{twenty_price},#{thirty_price},#{sixty_price},#{semester_price})"})
-    void saveWeekMonth(Map map);
+    void saveMonthLine(Map map);
+
+    @Select({"SELECT count(1) from lt_month_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
+    int hasSaveMonthLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
 }

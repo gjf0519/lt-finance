@@ -32,7 +32,8 @@ public class DayLineConsumer {
     @Value("${rocketmq.name-server}")
     private String nameServerAddr;
     private String topicName = Constants.TUSHARE_DAYLINE_TOPIC;
-    private String consumerGroupName = "DAYLINE-CONSUMER-GROUP-WORK";
+    @Value("${finanace.comsumer.day-line}")
+    private String consumerGroupName;
     private DefaultMQPushConsumer consumer;
     @Autowired
     private ReceiveService receiveService;

@@ -26,13 +26,14 @@ import java.util.Map;
  * @date 2020/12/3
  */
 @Slf4j
-//@Component
+@Component
 public class WeekLineConsumer {
 
     @Value("${rocketmq.name-server}")
     private String nameServerAddr;
     private String topicName = Constants.TUSHARE_WEEKLINE_TOPIC;
-    private String consumerGroupName = "WEEKLINE-CONSUMER-GROUP";
+    @Value("${finanace.comsumer.week-line}")
+    private String consumerGroupName;
     private DefaultMQPushConsumer consumer;
     @Autowired
     private ReceiveService receiveService;
@@ -69,6 +70,7 @@ public class WeekLineConsumer {
                     e.printStackTrace();
                 }
             }
+            log.info("周K数据开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
     }
