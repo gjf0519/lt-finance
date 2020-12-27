@@ -56,19 +56,19 @@ public class LineInitTest {
                 String code = item.substring(2,item.length());
                 List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
                 System.out.println("============="+latch.getCount());
-//                if(null == result){
-//                latch.countDown();
-//                    return;
-//                }
-//                avgKline(result);
-//                for(Map<String,Object> map : result){
-//                    kLineService.saveDayLine(map);
-//                }
-                if(null == result || result.isEmpty()){
-                    latch.countDown();
+                if(null == result){
+                latch.countDown();
                     return;
                 }
-                receiveService.receiveDayLine(result.get(0));
+                avgKline(result);
+                for(Map<String,Object> map : result){
+                    kLineService.saveDayLine(map);
+                }
+//                if(null == result || result.isEmpty()){
+//                    latch.countDown();
+//                    return;
+//                }
+//                receiveService.receiveDayLine(result.get(0));
                 latch.countDown();
             });
         }
@@ -255,7 +255,11 @@ public class LineInitTest {
                     new InputStreamReader(proc.getInputStream()));
             String line = null;
             while ((line = in.readLine()) != null) {
-                list = JSONArray.parseArray(line,String.class);
+                try {
+                    list = JSONArray.parseArray(line,String.class);
+                }catch (Exception e){
+                    System.out.println(line+"==================="+tscode);
+                }
             }
             in.close();
             proc.waitFor();

@@ -59,6 +59,6 @@ public class KLineBreakTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        receiveService.weekLineBreak("002083.SZ");
+//        receiveService.weekLineBreak("600319.SH","20191227");
     }
 }

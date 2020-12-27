@@ -71,6 +71,10 @@ public class KLineService {
         return kLineMapper.queryWeekLineByLimit(tscode,limit);
     }
 
+    public List<KLineEntity> queryWeekLineByLimitDate(String tscode, int limit,String tradeDate) {
+        return kLineMapper.queryWeekLineByLimitDate(tscode,limit,tradeDate);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void saveWeekLine(Map map) {
         kLineMapper.saveWeekLine(map);

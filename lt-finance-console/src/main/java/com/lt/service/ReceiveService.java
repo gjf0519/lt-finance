@@ -138,7 +138,12 @@ public class ReceiveService {
         if(list.isEmpty()){
             return;
         }
-        parallelDay(list);
+        try {
+            parallelDay(list);
+        }catch (Exception e){
+            System.out.println(tscode+"=========================================");
+            e.printStackTrace();
+        }
 //        EmaBreakEntity entity = klineBreak(list,"日K");
 //        if(null == entity){
 //            return;
@@ -152,12 +157,26 @@ public class ReceiveService {
      * @param tscode
      */
     public void weekLineBreak(String tscode){
+        weekLineBreak(tscode,null);
+    }
+
+    /**
+     * 周K均线突破
+     * @param tscode
+     */
+    public void weekLineBreak(String tscode,String tradeDate){
         int limit = 10;
-        List<KLineEntity> list = kLineService.queryWeekLineByLimit(tscode,limit);
+        List<KLineEntity> list = null;
+        if(null == tradeDate){
+            list = kLineService.queryWeekLineByLimit(tscode,limit);
+        }else {
+            list = kLineService.queryWeekLineByLimitDate(tscode,limit,tradeDate);
+        }
         if(list.isEmpty()){
             return;
         }
-        parallelWeek(list);
+        angleFilter(list);
+//        parallelWeek(list);
 //        Collections.reverse(list);
 //        weekLinePeriod(list);
 //        EmaBreakEntity entity = klineRise(list,"周K");
@@ -168,10 +187,37 @@ public class ReceiveService {
 //        kLineService.saveEmaBreak(entity);
     }
 
+    public void angleFilter(List<KLineEntity> list){
+        double angle1 = StockAlgorithm.calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
+        double sub1 = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
+        if(list.get(0).getTenPrice() == 0){
+            System.out.println("############################"+list.get(0).getTsCode());
+            return;
+        }
+        double radio1 = BigDecimalUtil.div(sub1,list.get(0).getTwentyPrice(),2);
+        double pctchg = BigDecimalUtil.add(list.get(0).getPctChg(),list.get(1).getPctChg(),2);
+        pctchg = BigDecimalUtil.add(pctchg,list.get(2).getPctChg(),2);
+
+//        double angle1 = StockAlgorithm.calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
+//        double sub1 = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
+//        if(list.get(0).getTenPrice() == 0){
+//            System.out.println("############################"+list.get(0).getTsCode());
+//            return;
+//        }
+//        double radio1 = BigDecimalUtil.div(sub1,list.get(0).getTwentyPrice(),2);
+
+//        System.out.println(angle+"==================================="+list.get(0).getTsCode());
+        if(angle1 > 70 && radio1 < 0.1){
+            System.out.println(angle1+"=================="+radio1+"================="+list.get(0).getTsCode()+"============="+pctchg);
+        }
+    }
+
+
     public void parallelWeek(List<KLineEntity> list){
         if(list.isEmpty() || list.size() < 10){
             return;
         }
+
         //小于20日均线全部剔除
         if(list.get(0).getPctChg() <= 0){
             if(list.get(0).getFivePrice() - list.get(0).getTwentyPrice() < 0 ||
@@ -185,13 +231,23 @@ public class ReceiveService {
             if(list.get(0).getFivePrice() - list.get(1).getTwentyPrice() < 0){
                 return;
             }
-//            double sub = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
-//            double ratio = BigDecimalUtil.div(sub,list.get(0).getFivePrice(),2);
-//            if(ratio > 0.03){
-//                return;
-//            }
+        }
+        for(int i =0;i < 5;i++){
+            //当前5日内10日均线必须在20日均线以上
+            if(list.get(i).getFivePrice() - list.get(i).getTwentyPrice()<0){
+                return;
+            }
+            if(list.get(i).getTenPrice() - list.get(i).getTwentyPrice()<0){
+                return;
+            }
+            double sub = list.get(i).getFivePrice() - list.get(i).getTwentyPrice();
+            double ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+            if(ratio > 0.04){
+                return;
+            }
         }
         int sing = 0;
+        double pctchg = 0.0;
         for(int i = 0;i < (list.size()-1);i++){
             KLineEntity entity1 = list.get(i);
             KLineEntity entity2 = list.get(i+1);
@@ -203,15 +259,20 @@ public class ReceiveService {
             if(entity1.getPctChg() > 10 || entity1.getPctChg() <= -10){
                 return;
             }
+            pctchg = pctchg+entity1.getPctChg();
         }
-//        if(sing == 3){
-//            System.out.println(list.get(0).getTsCode()+"=============="+sing);
-//            return;
-//        }
-        if(sing < 5){
+        if(sing < 3){
             return;
         }
-        System.out.println(list.get(0).getTsCode()+"=============="+sing);
+        double ratio1 = 0.0;
+        if(list.get(0).getPctChg() < 0){
+            double sub = list.get(0).getClose() - list.get(0).getTwentyPrice();
+            ratio1 = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+        }else {
+            double sub = list.get(0).getOpen() - list.get(0).getTwentyPrice();
+            ratio1 = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+        }
+        System.out.println(list.get(0).getTsCode()+"======"+pctchg+"========"+sing+"============"+ratio1);
     }
 
     public void parallelDay(List<KLineEntity> list){

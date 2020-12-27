@@ -59,4 +59,9 @@ public interface KLineMapper {
 
     @Select({"SELECT count(1) from lt_month_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
     int hasSaveMonthLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
+
+    @Select({"SELECT * from lt_week_line m WHERE m.ts_code=#{code} and trade_date <= #{trade_date} ORDER BY trade_date desc LIMIT #{limit}"})
+    List<KLineEntity> queryWeekLineByLimitDate(@Param("code") String tscode,
+                                               @Param("limit") int limit,
+                                               @Param("trade_date") String tradeDate);
 }
