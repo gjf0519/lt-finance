@@ -139,7 +139,8 @@ public class ReceiveService {
             return;
         }
         try {
-            demonLine(list);
+            angleDayFilter(list);
+//            demonLine(list);
 //            parallelDay(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
@@ -209,6 +210,29 @@ public class ReceiveService {
 
 //        System.out.println(angle+"==================================="+list.get(0).getTsCode());
         if(angle1 > 70 && radio1 < 0.1){
+            System.out.println(angle1+"=================="+radio1+"================="+list.get(0).getTsCode()+"============="+pctchg);
+        }
+    }
+
+    public void angleDayFilter(List<KLineEntity> list){
+//        double angle3 = StockAlgorithm.calculateAngle(list.get(2).getFivePrice(),list.get(3).getFivePrice());
+//        double angle4 = StockAlgorithm.calculateAngle(list.get(3).getFivePrice(),list.get(4).getFivePrice());
+//        double angle5 = StockAlgorithm.calculateAngle(list.get(4).getFivePrice(),list.get(5).getFivePrice());
+//        double angle5 = StockAlgorithm.calculateAngle(list.get(6).getFivePrice(),list.get(7).getFivePrice());
+//        double angle6 = StockAlgorithm.calculateAngle(list.get(5).getFivePrice(),list.get(6).getFivePrice());
+//        System.out.println(angle1+"=="+angle2+"==="+angle3+"==="+angle4);
+        double sub1 = list.get(0).getFivePrice() - list.get(0).getTwentyPrice();
+        if(list.get(0).getTenPrice() == 0){
+            System.out.println("############################"+list.get(0).getTsCode());
+            return;
+        }
+        double radio1 = BigDecimalUtil.div(sub1,list.get(0).getTwentyPrice(),2);
+        double pctchg = BigDecimalUtil.add(list.get(0).getPctChg(),list.get(1).getPctChg(),2);
+        pctchg = BigDecimalUtil.add(pctchg,list.get(2).getPctChg(),2);
+        double angle1 = StockAlgorithm.calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
+        double angle2 = StockAlgorithm.calculateAngle(list.get(2).getFivePrice(),list.get(3).getFivePrice());
+        double angle = angle1 - angle2;
+        if((angle1 > 20 && angle2 < 0) || angle > 70){
             System.out.println(angle1+"=================="+radio1+"================="+list.get(0).getTsCode()+"============="+pctchg);
         }
     }
