@@ -40,6 +40,8 @@ public class KLineBreakTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+//        receiveService.dayLineBreak("002752.SZ");
+//        receiveService.dayLineBreak("000816.SZ","20201023");
 //        receiveService.dayLineBreak("000713.SZ","20201217");
     }
 

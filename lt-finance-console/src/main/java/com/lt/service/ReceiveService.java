@@ -139,7 +139,8 @@ public class ReceiveService {
             return;
         }
         try {
-            parallelDay(list);
+            demonLine(list);
+//            parallelDay(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
             e.printStackTrace();
@@ -360,6 +361,106 @@ public class ReceiveService {
             return;
         }
         System.out.println(list.get(0).getTsCode()+"======="+pctchg+"======="+sing+"==========="+prev+"==========="+ratio1);
+    }
+
+    /**
+     * 妖妖过滤规则
+     * @param list
+     */
+    public void demonLine(List<KLineEntity> list){
+        if(list.isEmpty() || list.size() < 10){
+            return;
+        }
+        //过滤掉价格大于50
+        if(list.get(0).getClose() > 50){
+            return;
+        }
+        //10日内必须趋势向上
+        int size = list.size() - 1;
+        if(list.get(0).getFivePrice() -
+                list.get(size).getFivePrice() < 0){
+            return;
+        }
+        //当前价格小于20剔除
+        if(list.get(0).getClose() -
+                list.get(0).getTwentyPrice() < 0 ||
+                list.get(0).getLow() - list.get(0).getTwentyPrice() < 0){
+            return;
+        }
+        //5小于10或小于20剔除
+        if(list.get(0).getFivePrice() - list.get(1).getTenPrice() < 0
+                || list.get(0).getFivePrice() - list.get(1).getTwentyPrice() <= 0){
+            return;
+        }
+        //10小于20剔除
+        if(list.get(0).getTenPrice() - list.get(1).getTwentyPrice() < 0){
+            return;
+        }
+        //5、10、20都在30以下剔除
+        if(list.get(0).getFivePrice() - list.get(0).getThirtyPrice() < 0 &&
+                list.get(0).getTenPrice() - list.get(0).getThirtyPrice() < 0 &&
+                list.get(0).getTwentyPrice() - list.get(0).getThirtyPrice() < 0 ){
+            return;
+        }
+        //K线与20K比值
+        double ratio = 0.0;
+        if(list.get(0).getPctChg() < 0){
+            double sub = list.get(0).getClose() - list.get(0).getTwentyPrice();
+            ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+        }else {
+            double sub = list.get(0).getOpen() - list.get(0).getTwentyPrice();
+            ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
+        }
+        if(ratio >= 0.03){
+            return;
+        }
+        //10与20K比值
+        double subtt1 = list.get(0).getTwentyPrice() - list.get(0).getThirtyPrice();
+        double ratiott1 = BigDecimalUtil.div(subtt1,list.get(0).getThirtyPrice(),4);
+        if(ratiott1 > 0.03){
+            return;
+        }
+        //20与30K比值
+        double subtt2 = list.get(0).getTwentyPrice() - list.get(0).getThirtyPrice();
+        double ratiott2 = BigDecimalUtil.div(subtt2,list.get(0).getThirtyPrice(),4);
+        if(ratiott2 > 0.01 || ratiott2 < -0.01){
+            return;
+        }
+        //连续6日5在20以上,并且没有大波动
+        for (int i = 0;i < 6;i++){
+            if(list.get(i).getFivePrice() -
+                    list.get(i).getTwentyPrice() < 0){
+                return;
+            }
+            if(list.get(i).getPctChg() > 5 || list.get(i).getPctChg() < -4){
+                return;
+            }
+        }
+        //5K上涨连续时长
+        int dwSign = 0;
+        int upSign = 0;
+        int eqSign = 0;
+        double pctchg = 0.0;
+        Map<String,Integer> map = new HashMap<>();
+        for(int i = 0;i < size;i++){
+            KLineEntity entity1 = list.get(i);
+            KLineEntity entity2 = list.get(i+1);
+            double sub = entity1.getFivePrice() - entity2.getFivePrice();
+            if(sub > 0){
+                upSign++;
+            }else if(sub < 0) {
+                dwSign++;
+            }else {
+                eqSign++;
+            }
+            if(i < 5){
+                map.put("dwSign",dwSign);
+                map.put("upSign",upSign);
+                map.put("eqSign",eqSign);
+            }
+            pctchg = pctchg + list.get(i).getPctChg();
+        }
+        System.out.println(list.get(0).getTsCode()+"**"+ratio+"**"+pctchg+"**"+map);
     }
 
     public void weekLinePeriod(List<KLineEntity> list){
