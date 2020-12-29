@@ -233,7 +233,7 @@ public class ReceiveService {
         double angle1 = StockAlgorithm.calculateAngle(list.get(0).getFivePrice(),list.get(1).getFivePrice());
         double angle2 = StockAlgorithm.calculateAngle(list.get(2).getFivePrice(),list.get(3).getFivePrice());
         double angle = angle1 - angle2;
-        if((angle1 > 20 && angle2 < 0) || angle > 70){
+        if((angle > 70  || angle1 > 70) && radio1 < 0.03){
             System.out.println(angle1+"=================="+radio1+"================="+list.get(0).getTsCode()+"============="+pctchg);
         }
     }
