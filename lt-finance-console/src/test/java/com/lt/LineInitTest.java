@@ -77,6 +77,14 @@ public class LineInitTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+//        List<Map<String,Object>> result = requestDayPyData("002939.SZ");
+//        if(null == result){
+//            return;
+//        }
+//        avgKline(result);
+//        for(Map<String,Object> map : result){
+//            kLineService.saveDayLine(map);
+//        }
     }
 
     @Test

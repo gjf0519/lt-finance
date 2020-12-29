@@ -128,7 +128,7 @@ public class ReceiveService {
      * @param tscode
      */
     public void dayLineBreak(String tscode,String tradeDate){
-        int limit = 10;
+        int limit = 60;
         List<KLineEntity> list = null;
         if(null == tradeDate){
             list = kLineService.queryDayLineByLimit(tscode,limit);
@@ -139,9 +139,10 @@ public class ReceiveService {
             return;
         }
         try {
-            angleDayFilter(list);
+//            angleDayFilter(list);
 //            demonLine(list);
 //            parallelDay(list);
+            dayLinePeriod(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
             e.printStackTrace();
@@ -427,15 +428,9 @@ public class ReceiveService {
             return;
         }
         //K线与20K比值
-        double ratio = 0.0;
-        if(list.get(0).getPctChg() < 0){
-            double sub = list.get(0).getClose() - list.get(0).getTwentyPrice();
-            ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
-        }else {
-            double sub = list.get(0).getOpen() - list.get(0).getTwentyPrice();
-            ratio = BigDecimalUtil.div(sub,list.get(0).getTwentyPrice(),2);
-        }
-        if(ratio >= 0.03){
+        double subtt0 = list.get(0).getLow() - list.get(0).getTwentyPrice();
+        double ratiott0 = BigDecimalUtil.div(subtt0,list.get(0).getTwentyPrice(),2);
+        if(ratiott0 >= 0.03){
             return;
         }
         //10与20K比值
@@ -448,6 +443,13 @@ public class ReceiveService {
         double subtt2 = list.get(0).getTwentyPrice() - list.get(0).getThirtyPrice();
         double ratiott2 = BigDecimalUtil.div(subtt2,list.get(0).getThirtyPrice(),4);
         if(ratiott2 > 0.01 || ratiott2 < -0.01){
+            return;
+        }
+        //30与60K比值
+        double subtt3 = list.get(0).getThirtyPrice() - list.get(0).getSixtyPrice();
+        double ratiott3 = BigDecimalUtil.div(subtt2,list.get(0).getSixtyPrice(),4);
+        System.out.println(subtt1+"============"+ratiott3);
+        if(subtt3 > 0.01 || ratiott3 < -0.01){
             return;
         }
         //连续6日5在20以上,并且没有大波动
@@ -484,7 +486,44 @@ public class ReceiveService {
             }
             pctchg = pctchg + list.get(i).getPctChg();
         }
-        System.out.println(list.get(0).getTsCode()+"**"+ratio+"**"+pctchg+"**"+map);
+        System.out.println(list.get(0).getTsCode()+"**"+ratiott0+"**"+pctchg+"**"+map);
+    }
+
+    public void dayLinePeriod(List<KLineEntity> list){
+        Double [] fiveArrays = list.stream().map(o -> o.getFivePrice()).collect(Collectors.toList()).toArray(new Double[list.size()]);
+        Map<String,Integer> bands = StockAlgorithm.calculateBand(4,fiveArrays);
+        List<KLineEntity> peeks = new ArrayList<>();
+        List<KLineEntity> ravines = new ArrayList<>();
+        for(Map.Entry<String,Integer> entry : bands.entrySet()){
+            if(entry.getKey().startsWith("波峰")){
+                peeks.add(list.get(entry.getValue()));
+            }else if(entry.getKey().startsWith("波谷")){
+                ravines.add(list.get(entry.getValue()));
+            }
+        }
+        List<Map<String,String>> lineStatus = new ArrayList<>();
+        for (KLineEntity entity:peeks) {
+            Map<String,String> bandMap = klineDistribute(entity);
+            lineStatus.add(bandMap);
+        }
+        //对比波峰突破均线数量
+        Map<String,Map<String,String>> breaks = new HashMap<>();
+        for(int i = 0;i < (lineStatus.size()-1);i++){
+            Map<String,String> item = new HashMap<>();
+            Map<String,String> line1 = lineStatus.get(i);
+            Map<String,String> line2 = lineStatus.get(i+1);
+            for(Map.Entry<String,String> entry : line1.entrySet()){
+                if("1".equals(entry.getValue()) &&
+                        "0".equals(line2.get(entry.getKey()))){
+                    item.put(entry.getKey(),"1");
+                }
+            }
+            if(!item.isEmpty()){
+                breaks.put(String.valueOf(i),item);
+            }
+        }
+        System.out.println(JSON.toJSONString(peeks));
+        System.out.println(JSON.toJSONString(ravines));
     }
 
     public void weekLinePeriod(List<KLineEntity> list){

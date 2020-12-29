@@ -140,17 +140,14 @@ public class StockAlgorithm {
                 if(index >= nums.length){
                     break;
                 }
-                bands.put("波谷"+index,index);
+                bands.put("波谷"+index,index+1);
             }else {
-                if(index == -1){
-                    System.out.println("=========================");
-                }
                 index = peaks(index,limit,nums);
                 turn = -1;
                 if(index >= nums.length){
                     break;
                 }
-                bands.put("波峰"+index,index);
+                bands.put("波峰"+index,index+1);
             }
         }
         return bands;
