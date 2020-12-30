@@ -60,7 +60,8 @@ public class LineInitTest {
                 latch.countDown();
                     return;
                 }
-                avgKline(result);
+                //均线计算
+                expma(result);
                 for(Map<String,Object> map : result){
                     kLineService.saveDayLine(map);
                 }
@@ -89,6 +90,11 @@ public class LineInitTest {
 
     @Test
     public void initWeek(){
+        try {
+            Thread.sleep(10800000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
         for(String item : Constants.STOCK_CODE){
             threadPoolExecutor.execute(()->{
@@ -100,7 +106,8 @@ public class LineInitTest {
                     latch.countDown();
                     return;
                 }
-                avgKline(result);
+                //均线计算
+                expma(result);
                 for(Map<String,Object> map : result){
                     kLineService.saveWeekLine(map);
                 }
@@ -133,7 +140,8 @@ public class LineInitTest {
                     latch.countDown();
                     return;
                 }
-                avgKline(result);
+                //均线计算
+                expma(result);
                 for(Map<String,Object> map : result){
                     kLineService.saveMonthLine(map);
                 }
@@ -166,7 +174,7 @@ public class LineInitTest {
         return result;
     }
 
-    public List<Map<String,Object>> avgKline(List<Map<String,Object>> result){
+    public List<Map<String,Object>> expma(List<Map<String,Object>> result){
         if(result.size() <= 0){
             return null;
         }
@@ -175,41 +183,18 @@ public class LineInitTest {
             Map<String,Object> map = result.get(i);
             list.add(Double.valueOf(map.get("close").toString()));
         }
-        avgLine(list,result);
+        expma(list,result);
         Collections.reverse(result);
         return result;
     }
 
-    public void avgLine(List<Double> list,List<Map<String,Object>> result){
-        List<Double> avgs5 = StockAlgorithm.calculate(list,5);
-        Collections.reverse(avgs5);
-        for(int i = 0;i < avgs5.size();i++){
-            result.get(i).put("five_price",avgs5.get(i));
-        }
-        List<Double> avgs10 = StockAlgorithm.calculate(list,10);
-        Collections.reverse(avgs10);
-        for(int i = 0;i < avgs10.size();i++){
-            result.get(i).put("ten_price",avgs10.get(i));
-        }
-        List<Double> avgs20 = StockAlgorithm.calculate(list,20);
-        Collections.reverse(avgs20);
-        for(int i = 0;i < avgs20.size();i++){
-            result.get(i).put("twenty_price",avgs20.get(i));
-        }
-        List<Double> avgs30 = StockAlgorithm.calculate(list,30);
-        Collections.reverse(avgs30);
-        for(int i = 0;i < avgs30.size();i++){
-            result.get(i).put("thirty_price",avgs30.get(i));
-        }
-        List<Double> avgs60 = StockAlgorithm.calculate(list,60);
-        Collections.reverse(avgs60);
-        for(int i = 0;i < avgs60.size();i++){
-            result.get(i).put("sixty_price",avgs60.get(i));
-        }
-        List<Double> avgs120 = StockAlgorithm.calculate(list,120);
-        Collections.reverse(avgs120);
-        for(int i = 0;i < avgs120.size();i++){
-            result.get(i).put("semester_price",avgs120.get(i));
+    public void expma(List<Double> list,List<Map<String,Object>> result){
+        for (int i = 0;i < Constants.MA_NUM_ARREY.length;i++) {
+            List<Double> mas = StockAlgorithm.calculate(list,Constants.MA_NUM_ARREY[i]);
+            Collections.reverse(mas);
+            for(int y = 0;y < mas.size();y++){
+                result.get(y).put(Constants.MA_NAME_ARREY[i],mas.get(y));
+            }
         }
     }
 

@@ -215,6 +215,7 @@ public class TushareService {
         List<String> list = new ArrayList<>();
         Process proc;
         String[] args = new String[]{"/usr/local/python3.8/Python-3.8.0/python",pyPath,tscode};
+        log.info("脚本收集数据:{}",tscode);
         try {
             proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(

@@ -26,9 +26,11 @@ public class KLineEntity {
     private double pctChg;
     private double vol;
     private double amount;
-    private double fivePrice;
-    private double tenPrice;
-    private double twentyPrice;
-    private double thirtyPrice;
-    private double sixtyPrice;
+    private double maFive;
+    private double maTen;
+    private double maTwenty;
+    private double maMonth;
+    private double maQuarter;
+    private double maSemester;
+    private double maYear;
 }

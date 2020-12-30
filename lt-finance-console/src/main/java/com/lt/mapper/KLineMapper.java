@@ -14,9 +14,9 @@ import java.util.Map;
 public interface KLineMapper {
 
     @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,five_price,ten_price,twenty_price,thirty_price,sixty_price) values" +
+            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{five_price},#{ten_price},#{twenty_price},#{thirty_price},#{sixty_price})"})
+            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
     void saveDayLine(Map<String,Object> map);
 
     @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
@@ -46,15 +46,15 @@ public interface KLineMapper {
     List<KLineEntity> queryWeekLineByLimit(@Param("code") String code, @Param("limit") int limit);
 
     @Insert({"insert into lt_week_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,five_price,ten_price,twenty_price,thirty_price,sixty_price,semester_price) values" +
+            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{five_price},#{ten_price},#{twenty_price},#{thirty_price},#{sixty_price},#{semester_price})"})
+            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
     void saveWeekLine(Map<String,Object> map);
 
     @Insert({"insert into lt_month_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,five_price,ten_price,twenty_price,thirty_price,sixty_price,semester_price) values" +
+            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{five_price},#{ten_price},#{twenty_price},#{thirty_price},#{sixty_price},#{semester_price})"})
+            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter})"})
     void saveMonthLine(Map map);
 
     @Select({"SELECT count(1) from lt_month_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
