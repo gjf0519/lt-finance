@@ -111,7 +111,8 @@ public class ReceiveService {
      * @param tscode
      */
     public void dayLineBreak(String tscode,String tradeDate){
-        int limit = 90;
+//        int limit = 90;
+        int limit = 20;
         List<KLineEntity> list = null;
         if(null == tradeDate){
             list = kLineService.queryDayLineByLimit(tscode,limit);
@@ -425,6 +426,50 @@ public class ReceiveService {
         }
         //10日内必须趋势向上
         int size = list.size() - 1;
+        for(int i = 0;i < size;i++){
+            KLineEntity entity1 = list.get(i);
+            double sub = entity1.getMaFive() - entity1.getMaTen();
+            double ratio = BigDecimalUtil.div(sub,entity1.getMaTen(),4);
+
+            double sub1 = entity1.getMaFive() - entity1.getMaTwenty();
+            double ratio1 = BigDecimalUtil.div(sub1,entity1.getMaTwenty(),4);
+
+            double sub2 = entity1.getMaFive() - entity1.getMaMonth();
+            double ratio2 = BigDecimalUtil.div(sub2,entity1.getMaMonth(),4);
+
+            double sub3 = entity1.getMaFive() - entity1.getMaQuarter();
+            double ratio3 = BigDecimalUtil.div(sub3,entity1.getMaQuarter(),4);
+
+            double sub4 = entity1.getMaFive() - entity1.getMaSemester();
+            double ratio4 = BigDecimalUtil.div(sub4,entity1.getMaSemester(),4);
+
+            double sub5 = entity1.getMaFive() - entity1.getMaYear();
+            double ratio5 = BigDecimalUtil.div(sub5,entity1.getMaYear(),4);
+
+            double sub6 = entity1.getMaTen() - entity1.getMaMonth();
+            double ratio6 = BigDecimalUtil.div(sub6,entity1.getMaMonth(),4);
+
+            double sub7 = entity1.getMaTen() - entity1.getMaQuarter();
+            double ratio7 = BigDecimalUtil.div(sub7,entity1.getMaQuarter(),4);
+
+            double sub8 = entity1.getMaTen() - entity1.getMaTwenty();
+            double ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTwenty(),4);
+
+            double sub10 = entity1.getMaTwenty() - entity1.getMaMonth();
+            double ratio10 = BigDecimalUtil.div(sub10,entity1.getMaMonth(),4);
+
+            double sub11 = entity1.getMaTwenty() - entity1.getMaQuarter();
+            double ratio11 = BigDecimalUtil.div(sub11,entity1.getMaQuarter(),4);
+
+            double sub14 = entity1.getMaMonth() - entity1.getMaQuarter();
+            double ratio14 = BigDecimalUtil.div(sub14,entity1.getMaQuarter(),4);
+            System.out.println(ratio+"="+ratio1+"="+ratio2+"="+ratio3+"="+ratio4+"="+ratio5+"="+ratio6+"="+ratio7+"="+ratio8+"="+ratio10+"="+ratio11+"="+ratio14);
+        }
+
+        if(true)
+            return;
+
+
         if(list.get(0).getMaFive() -
                 list.get(size).getMaFive() < 0){
             return;
