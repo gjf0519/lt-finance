@@ -40,9 +40,14 @@ public class KLineBreakTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        receiveService.dayLineBreak("000713.SZ");
-//        receiveService.dayLineBreak("000816.SZ","20200708");
-//        receiveService.dayLineBreak("000713.SZ","20201217");
+//        receiveService.dayLineBreak("600300.SH");
+        receiveService.dayLineBreak("601016.SH","20201222");
+        //半年突破年但5 10 20 30 都在下方
+        receiveService.dayLineBreak("600644.SH","20201222");
+
+        receiveService.dayLineBreak("600292.SH","20201218");
+
+        receiveService.dayLineBreak("002529.SH","20201216");
     }
 
     @Test

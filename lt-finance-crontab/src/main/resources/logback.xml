@@ -62,7 +62,7 @@
 
     <logger name="mybatis-logs" level="DEBUG"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="INFO_FILE" />
     </root>

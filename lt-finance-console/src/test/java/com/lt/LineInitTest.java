@@ -49,52 +49,47 @@ public class LineInitTest {
 
     @Test
     public void initDay(){
-        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-        for(String item : Constants.STOCK_CODE){
-            threadPoolExecutor.execute(()->{
-                String flag = item.substring(0,2);
-                String code = item.substring(2,item.length());
-                List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
-                System.out.println("============="+latch.getCount());
-                if(null == result){
-                latch.countDown();
-                    return;
-                }
-                //均线计算
-                expma(result);
-                for(Map<String,Object> map : result){
-                    kLineService.saveDayLine(map);
-                }
-//                if(null == result || result.isEmpty()){
-//                    latch.countDown();
+//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+//        for(String item : Constants.STOCK_CODE){
+//            threadPoolExecutor.execute(()->{
+//                String flag = item.substring(0,2);
+//                String code = item.substring(2,item.length());
+//                List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
+//                System.out.println("============="+latch.getCount());
+//                if(null == result){
+//                latch.countDown();
 //                    return;
 //                }
-//                receiveService.receiveDayLine(result.get(0));
-                latch.countDown();
-            });
-        }
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        List<Map<String,Object>> result = requestDayPyData("002939.SZ");
-//        if(null == result){
-//            return;
+//                //均线计算
+//                expma(result);
+//                for(Map<String,Object> map : result){
+//                    kLineService.saveDayLine(map);
+//                }
+////                if(null == result || result.isEmpty()){
+////                    latch.countDown();
+////                    return;
+////                }
+////                receiveService.receiveDayLine(result.get(0));
+//                latch.countDown();
+//            });
 //        }
-//        avgKline(result);
-//        for(Map<String,Object> map : result){
-//            kLineService.saveDayLine(map);
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
 //        }
+        List<Map<String,Object>> result = requestDayPyData("000029.SZ");
+        if(null == result){
+            return;
+        }
+        expma(result);
+        for(Map<String,Object> map : result){
+            kLineService.saveDayLine(map);
+        }
     }
 
     @Test
     public void initWeek(){
-        try {
-            Thread.sleep(10800000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
         for(String item : Constants.STOCK_CODE){
             threadPoolExecutor.execute(()->{

@@ -111,7 +111,7 @@ public class ReceiveService {
      * @param tscode
      */
     public void dayLineBreak(String tscode,String tradeDate){
-        int limit = 60;
+        int limit = 90;
         List<KLineEntity> list = null;
         if(null == tradeDate){
             list = kLineService.queryDayLineByLimit(tscode,limit);
@@ -122,10 +122,10 @@ public class ReceiveService {
             return;
         }
         try {
-//            angleDayFilter(list);
-//            demonLine(list);
+//            filterSemesterAndYear(list);
+            demonLine(list);
 //            parallelDay(list);
-            dayLinePeriod(list);
+//            dayLinePeriod(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
             e.printStackTrace();
@@ -161,7 +161,6 @@ public class ReceiveService {
         if(list.isEmpty()){
             return;
         }
-        angleFilter(list);
 //        parallelWeek(list);
 //        Collections.reverse(list);
 //        weekLinePeriod(list);
@@ -173,54 +172,95 @@ public class ReceiveService {
 //        kLineService.saveEmaBreak(entity);
     }
 
-    public void angleFilter(List<KLineEntity> list){
-        double angle1 = StockAlgorithm.calculateAngle(list.get(0).getMaFive(),list.get(1).getMaFive());
-        double sub1 = list.get(0).getMaFive() - list.get(0).getMaTwenty();
-        if(list.get(0).getMaFive() == 0){
-            System.out.println("############################"+list.get(0).getTsCode());
+
+    /**
+     * 过滤出突破半年或年线的数据
+     */
+    public void filterSemesterAndYear(List<KLineEntity> list){
+        if(list.get(0).getClose() > 50){
             return;
         }
-        double radio1 = BigDecimalUtil.div(sub1,list.get(0).getMaTwenty(),2);
-        double pctchg = BigDecimalUtil.add(list.get(0).getPctChg(),list.get(1).getPctChg(),2);
-        pctchg = BigDecimalUtil.add(pctchg,list.get(2).getPctChg(),2);
-
-//        double angle1 = StockAlgorithm.calculateAngle(list.get(0).getMaFive(),list.get(1).getMaFive());
-//        double sub1 = list.get(0).getMaFive() - list.get(0).getMaTwenty();
-//        if(list.get(0).getMaTen() == 0){
-//            System.out.println("############################"+list.get(0).getTsCode());
-//            return;
-//        }
-//        double radio1 = BigDecimalUtil.div(sub1,list.get(0).getMaTwenty(),2);
-
-//        System.out.println(angle+"==================================="+list.get(0).getTsCode());
-        if(angle1 > 70 && radio1 < 0.1){
-            System.out.println(angle1+"=================="+radio1+"================="+list.get(0).getTsCode()+"============="+pctchg);
-        }
-    }
-
-    public void angleDayFilter(List<KLineEntity> list){
-//        double angle3 = StockAlgorithm.calculateAngle(list.get(2).getMaFive(),list.get(3).getMaFive());
-//        double angle4 = StockAlgorithm.calculateAngle(list.get(3).getMaFive(),list.get(4).getMaFive());
-//        double angle5 = StockAlgorithm.calculateAngle(list.get(4).getMaFive(),list.get(5).getMaFive());
-//        double angle5 = StockAlgorithm.calculateAngle(list.get(6).getMaFive(),list.get(7).getMaFive());
-//        double angle6 = StockAlgorithm.calculateAngle(list.get(5).getMaFive(),list.get(6).getMaFive());
-//        System.out.println(angle1+"=="+angle2+"==="+angle3+"==="+angle4);
-        double sub1 = list.get(0).getMaFive() - list.get(0).getMaTwenty();
-        if(list.get(0).getMaTen() == 0){
-            System.out.println("############################"+list.get(0).getTsCode());
+        if(list.get(0).getMaFive() -  list.get(0).getMaSemester() < 0
+                && list.get(0).getMaFive() -  list.get(0).getMaYear() < 0){
             return;
         }
-        double radio1 = BigDecimalUtil.div(sub1,list.get(0).getMaTwenty(),2);
-        double pctchg = BigDecimalUtil.add(list.get(0).getPctChg(),list.get(1).getPctChg(),2);
-        pctchg = BigDecimalUtil.add(pctchg,list.get(2).getPctChg(),2);
-        double angle1 = StockAlgorithm.calculateAngle(list.get(0).getMaFive(),list.get(1).getMaFive());
-        double angle2 = StockAlgorithm.calculateAngle(list.get(2).getMaFive(),list.get(3).getMaFive());
-        double angle = angle1 - angle2;
-        if((angle > 70  || angle1 > 70) && radio1 < 0.03){
-            System.out.println(angle1+"=================="+radio1+"================="+list.get(0).getTsCode()+"============="+pctchg);
+        double sy = list.get(0).getMaSemester() - list.get(0).getMaYear();
+        if(0 == list.get(0).getMaSemester()){
+            return;
         }
-    }
+        double syradio = BigDecimalUtil.div(sy,list.get(0).getMaSemester(),4);
+        if(syradio < -0.1 || syradio > 0.2){
+            return;
+        }
+        double ys1 = list.get(0).getMaYear() - list.get(0).getMaSemester();
+        double ysradio1 = BigDecimalUtil.div(ys1,list.get(0).getMaSemester(),4);
 
+        double ys2 = list.get(10).getMaYear() - list.get(10).getMaSemester();
+        double ysradio2 = BigDecimalUtil.div(ys2,list.get(10).getMaSemester(),4);
+
+
+        if(ysradio1 - ysradio2 > 0){
+            return;
+        }
+        int sindex = 0;
+        for(int i = 0;i < list.size();i++){
+            if(list.get(i).getMaFive() - list.get(i).getMaSemester() < 0){
+                break;
+            }
+            sindex = i;
+        }
+
+        int yindex = 0;
+        for(int i = 0;i < list.size();i++){
+            if(list.get(i).getMaFive() - list.get(i).getMaYear() < 0){
+                break;
+            }
+            yindex = i;
+        }
+
+        int ysindex = 0;
+        for(int i = 0;i < list.size();i++){
+            if(list.get(i).getMaYear() - list.get(i).getMaSemester() > 0){
+                break;
+            }
+            ysindex = i;
+        }
+
+        int stime = sindex+1;
+        double ssub = list.get(0).getClose() - list.get(sindex).getClose();
+        double sratio = BigDecimalUtil.div(ssub,list.get(sindex).getClose(),4);
+
+        int ytime = yindex+1;
+        double ysub = list.get(0).getClose() - list.get(yindex).getClose();
+        double yratio = BigDecimalUtil.div(ysub,list.get(yindex).getClose(),4);
+
+        int ystime = ysindex+1;
+        double yssub = list.get(0).getClose() - list.get(ysindex).getClose();
+        double ysratio = BigDecimalUtil.div(yssub,list.get(ysindex).getClose(),4);
+        if(stime == 1 && ytime == 1){
+            return;
+        }
+        if(ytime == 1 && sratio > 0.1){
+            return;
+        }
+        if(ytime != 1 && yratio > 0.3){
+            return;
+        }
+        if(ystime != 1 && ysratio > 0.5){
+            return;
+        }
+        //5日均线在20日以下剔除
+        if(list.get(0).getMaFive() - list.get(0).getMaTwenty() < 0){
+            return;
+        }
+        //10日20日都在30日以下剔除并且30日在60日以下
+        if(list.get(0).getMaTen() - list.get(0).getMaMonth() < 0 ||
+                list.get(0).getMaTwenty() - list.get(0).getMaMonth() < 0 ||
+                list.get(0).getMaMonth() - list.get(0).getMaQuarter() < 0 ){
+            return;
+        }
+        System.out.println(list.get(0).getTsCode()+"=========="+sratio+"======="+stime+"======"+yratio+"========"+ytime+"=========="+ystime);
+    }
 
     public void parallelWeek(List<KLineEntity> list){
         if(list.isEmpty() || list.size() < 10){
@@ -431,7 +471,6 @@ public class ReceiveService {
         //30与60K比值
         double subtt3 = list.get(0).getMaMonth() - list.get(0).getMaQuarter();
         double ratiott3 = BigDecimalUtil.div(subtt2,list.get(0).getMaQuarter(),4);
-        System.out.println(subtt1+"============"+ratiott3);
         if(subtt3 > 0.01 || ratiott3 < -0.01){
             return;
         }
