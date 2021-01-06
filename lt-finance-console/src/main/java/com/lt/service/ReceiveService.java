@@ -429,6 +429,12 @@ public class ReceiveService {
         boolean isGreat = false;
         if(list.get(0).getMaSemester() - list.get(0).getMaYear() > 0 &&
                 list.get(size).getMaSemester() - list.get(size).getMaYear() < 0){
+            if(list.get(0).getMaFive() - list.get(0).getMaYear() < 0 &&
+                    list.get(0).getMaTen() - list.get(0).getMaYear() < 0 &&
+                    list.get(0).getMaTwenty() - list.get(0).getMaYear() < 0 &&
+                    list.get(0).getMaMonth() - list.get(0).getMaYear() < 0){
+                return;
+            }
             isGreat = true;
         }
         List<Double> minList = new ArrayList<>();
