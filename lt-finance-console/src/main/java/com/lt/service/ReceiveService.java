@@ -424,52 +424,152 @@ public class ReceiveService {
         if(list.get(0).getClose() > 50){
             return;
         }
-        //10日内必须趋势向上
         int size = list.size() - 1;
+        //重大突破
+        boolean isGreat = false;
+        if(list.get(0).getMaSemester() - list.get(0).getMaYear() > 0 &&
+                list.get(size).getMaSemester() - list.get(size).getMaYear() < 0){
+            isGreat = true;
+        }
+        List<Double> minList = new ArrayList<>();
+        List<Double> maxList = new ArrayList<>();
+        List<Double> ttList = new ArrayList<>();//20在30以下的天数
+        int sign = 0;//3日内20必须在30以上
         for(int i = 0;i < size;i++){
             KLineEntity entity1 = list.get(i);
             double sub = entity1.getMaFive() - entity1.getMaTen();
             double ratio = BigDecimalUtil.div(sub,entity1.getMaTen(),4);
-
+            if(ratio < 0.1 && ratio > -0.1){
+                minList.add(ratio);
+            }else if(ratio > 0.15 || ratio < -0.15){
+                return;
+            } else {
+                maxList.add(ratio);
+            }
             double sub1 = entity1.getMaFive() - entity1.getMaTwenty();
             double ratio1 = BigDecimalUtil.div(sub1,entity1.getMaTwenty(),4);
-
+            if(ratio1 < 0.1 && ratio1 > -0.1){
+                minList.add(ratio1);
+            }else if(ratio1 > 0.15 || ratio1 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio1);
+            }
             double sub2 = entity1.getMaFive() - entity1.getMaMonth();
             double ratio2 = BigDecimalUtil.div(sub2,entity1.getMaMonth(),4);
-
+            if(ratio2 < 0.1 && ratio2 > -0.1){
+                minList.add(ratio2);
+            }else if(ratio2 > 0.15 || ratio2 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio2);
+            }
             double sub3 = entity1.getMaFive() - entity1.getMaQuarter();
             double ratio3 = BigDecimalUtil.div(sub3,entity1.getMaQuarter(),4);
+            if(ratio3 < 0.1 && ratio3 > -0.1){
+                minList.add(ratio3);
+            }else if(ratio3 > 0.15 || ratio3 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio3);
+            }
 
-            double sub4 = entity1.getMaFive() - entity1.getMaSemester();
-            double ratio4 = BigDecimalUtil.div(sub4,entity1.getMaSemester(),4);
-
-            double sub5 = entity1.getMaFive() - entity1.getMaYear();
-            double ratio5 = BigDecimalUtil.div(sub5,entity1.getMaYear(),4);
+            double sub5 = entity1.getMaTen() - entity1.getMaTwenty();
+            double ratio5 = BigDecimalUtil.div(sub5,entity1.getMaTwenty(),4);
+            if(ratio5 < 0.1 && ratio5 > -0.1){
+                minList.add(ratio5);
+            }else if(ratio5 > 0.15 || ratio5 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio5);
+            }
 
             double sub6 = entity1.getMaTen() - entity1.getMaMonth();
             double ratio6 = BigDecimalUtil.div(sub6,entity1.getMaMonth(),4);
-
+            if(ratio6 < 0.1 && ratio6 > -0.1){
+                minList.add(ratio6);
+            }else if(ratio6 > 0.15 || ratio6 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio6);
+            }
             double sub7 = entity1.getMaTen() - entity1.getMaQuarter();
             double ratio7 = BigDecimalUtil.div(sub7,entity1.getMaQuarter(),4);
-
+            if(ratio7 < 0.1 && ratio7 > -0.1){
+                minList.add(ratio7);
+            } else if(ratio7 > 0.15 || ratio7 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio7);
+            }
             double sub8 = entity1.getMaTen() - entity1.getMaTwenty();
             double ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTwenty(),4);
-
+            if(ratio8 < 0.1 && ratio8 > -0.1){
+                minList.add(ratio8);
+            } else if(ratio8 > 0.15 || ratio8 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio8);
+            }
             double sub10 = entity1.getMaTwenty() - entity1.getMaMonth();
+            if(i < 3 && sub10 < 0){
+                sign++;
+            }
+            //3日内20在30以下并且无重大突破
+            if(sign >= 3 && !isGreat){
+                return;
+            }
+            if(sub10 < 0){
+                ttList.add(sub10);
+            }
             double ratio10 = BigDecimalUtil.div(sub10,entity1.getMaMonth(),4);
-
+            if(ratio10 < 0.1 && ratio10 > -0.1){
+                minList.add(ratio10);
+            } else if(ratio10 > 0.15 || ratio10 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio10);
+            }
             double sub11 = entity1.getMaTwenty() - entity1.getMaQuarter();
             double ratio11 = BigDecimalUtil.div(sub11,entity1.getMaQuarter(),4);
+            if(ratio11 < 0.1 && ratio11 > -0.1){
+                minList.add(ratio11);
+            } else if(ratio11 > 0.15 || ratio11 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio11);
+            }
 
             double sub14 = entity1.getMaMonth() - entity1.getMaQuarter();
             double ratio14 = BigDecimalUtil.div(sub14,entity1.getMaQuarter(),4);
-            System.out.println(ratio+"="+ratio1+"="+ratio2+"="+ratio3+"="+ratio4+"="+ratio5+"="+ratio6+"="+ratio7+"="+ratio8+"="+ratio10+"="+ratio11+"="+ratio14);
+            if(ratio14 < 0.1 && ratio14 > -0.1){
+                minList.add(ratio14);
+            }else if(ratio14 > 0.15 || ratio14 < -0.15){
+                return;
+            }else {
+                maxList.add(ratio14);
+            }
+
+//            System.out.println(ratio+"="+ratio1+"="+ratio2+"="+ratio3+"="+ratio4+"="+ratio5+"="+ratio6+"="+ratio7+"="+ratio8+"="+ratio10+"="+ratio11+"="+ratio14);
         }
+        if(ttList.size() == list.size()){
+            return;
+        }
+        double ra = BigDecimalUtil.div(maxList.size(),minList.size(),4);
+        if(ra > 0.1){
+            return;
+        }
+        if(isGreat){
+            System.out.println("***************************************"+list.get(0).getTsCode());
+        }else {
+            System.out.println("======================================"+list.get(0).getTsCode());
+        }
+
 
         if(true)
             return;
 
-
+        //10日内必须趋势向上
         if(list.get(0).getMaFive() -
                 list.get(size).getMaFive() < 0){
             return;
