@@ -50,10 +50,10 @@ public class KLineBreakTest {
 //        receiveService.dayLineBreak("002529.SZ","20201216");
 //
 //        receiveService.dayLineBreak("002529.SZ","20201216");
-//        receiveService.dayLineBreak("000816.SZ","20200703");
+//        receiveService.dayLineBreak("000816.SZ","20201023");
 //        receiveService.dayLineBreak("002342.SZ","20201103");
-
-        //丰乐
+//
+//        //丰乐
 //        receiveService.dayLineBreak("000713.SZ","20201217");
     }
 
