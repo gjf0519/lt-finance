@@ -424,162 +424,7 @@ public class ReceiveService {
         if(list.get(0).getClose() > 50){
             return;
         }
-        int size = list.size() - 1;
-        //重大突破
-        boolean isGreat = false;
-        if(list.get(0).getMaSemester() - list.get(0).getMaYear() > 0 &&
-                list.get(size).getMaSemester() - list.get(size).getMaYear() < 0){
-            if(list.get(0).getMaFive() - list.get(0).getMaYear() < 0 &&
-                    list.get(0).getMaTen() - list.get(0).getMaYear() < 0 &&
-                    list.get(0).getMaTwenty() - list.get(0).getMaYear() < 0 &&
-                    list.get(0).getMaMonth() - list.get(0).getMaYear() < 0){
-                return;
-            }
-            isGreat = true;
-        }
-        List<Double> minList = new ArrayList<>();
-        List<Double> maxList = new ArrayList<>();
-        List<Double> ttList = new ArrayList<>();//20在30以下的天数
-        int sign = 0;//3日内20必须在30以上
-        for(int i = 0;i < size;i++){
-            KLineEntity entity1 = list.get(i);
-            double sub = entity1.getMaFive() - entity1.getMaTen();
-            double ratio = BigDecimalUtil.div(sub,entity1.getMaTen(),4);
-            if(ratio < 0.1 && ratio > -0.1){
-                minList.add(ratio);
-            }else if(ratio > 0.15 || ratio < -0.15){
-                return;
-            } else {
-                maxList.add(ratio);
-            }
-            double sub1 = entity1.getMaFive() - entity1.getMaTwenty();
-            double ratio1 = BigDecimalUtil.div(sub1,entity1.getMaTwenty(),4);
-            if(ratio1 < 0.1 && ratio1 > -0.1){
-                minList.add(ratio1);
-            }else if(ratio1 > 0.15 || ratio1 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio1);
-            }
-            double sub2 = entity1.getMaFive() - entity1.getMaMonth();
-            double ratio2 = BigDecimalUtil.div(sub2,entity1.getMaMonth(),4);
-            if(ratio2 < 0.1 && ratio2 > -0.1){
-                minList.add(ratio2);
-            }else if(ratio2 > 0.15 || ratio2 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio2);
-            }
-            double sub3 = entity1.getMaFive() - entity1.getMaQuarter();
-            double ratio3 = BigDecimalUtil.div(sub3,entity1.getMaQuarter(),4);
-            if(ratio3 < 0.1 && ratio3 > -0.1){
-                minList.add(ratio3);
-            }else if(ratio3 > 0.15 || ratio3 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio3);
-            }
 
-            double sub5 = entity1.getMaTen() - entity1.getMaTwenty();
-            double ratio5 = BigDecimalUtil.div(sub5,entity1.getMaTwenty(),4);
-            if(ratio5 < 0.1 && ratio5 > -0.1){
-                minList.add(ratio5);
-            }else if(ratio5 > 0.15 || ratio5 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio5);
-            }
-
-            double sub6 = entity1.getMaTen() - entity1.getMaMonth();
-            double ratio6 = BigDecimalUtil.div(sub6,entity1.getMaMonth(),4);
-            if(ratio6 < 0.1 && ratio6 > -0.1){
-                minList.add(ratio6);
-            }else if(ratio6 > 0.15 || ratio6 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio6);
-            }
-            double sub7 = entity1.getMaTen() - entity1.getMaQuarter();
-            double ratio7 = BigDecimalUtil.div(sub7,entity1.getMaQuarter(),4);
-            if(ratio7 < 0.1 && ratio7 > -0.1){
-                minList.add(ratio7);
-            } else if(ratio7 > 0.15 || ratio7 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio7);
-            }
-            double sub8 = entity1.getMaTen() - entity1.getMaTwenty();
-            double ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTwenty(),4);
-            if(ratio8 < 0.1 && ratio8 > -0.1){
-                minList.add(ratio8);
-            } else if(ratio8 > 0.15 || ratio8 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio8);
-            }
-            double sub10 = entity1.getMaTwenty() - entity1.getMaMonth();
-            if(i < 3 && sub10 < 0){
-                sign++;
-            }
-            //3日内20在30以下并且无重大突破
-            if(sign >= 3 && !isGreat){
-                return;
-            }
-            if(sub10 < 0){
-                ttList.add(sub10);
-            }
-            double ratio10 = BigDecimalUtil.div(sub10,entity1.getMaMonth(),4);
-            if(ratio10 < 0.1 && ratio10 > -0.1){
-                minList.add(ratio10);
-            } else if(ratio10 > 0.15 || ratio10 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio10);
-            }
-            double sub11 = entity1.getMaTwenty() - entity1.getMaQuarter();
-            double ratio11 = BigDecimalUtil.div(sub11,entity1.getMaQuarter(),4);
-            if(ratio11 < 0.1 && ratio11 > -0.1){
-                minList.add(ratio11);
-            } else if(ratio11 > 0.15 || ratio11 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio11);
-            }
-
-            double sub14 = entity1.getMaMonth() - entity1.getMaQuarter();
-            double ratio14 = BigDecimalUtil.div(sub14,entity1.getMaQuarter(),4);
-            if(ratio14 < 0.1 && ratio14 > -0.1){
-                minList.add(ratio14);
-            }else if(ratio14 > 0.15 || ratio14 < -0.15){
-                return;
-            }else {
-                maxList.add(ratio14);
-            }
-
-//            System.out.println(ratio+"="+ratio1+"="+ratio2+"="+ratio3+"="+ratio4+"="+ratio5+"="+ratio6+"="+ratio7+"="+ratio8+"="+ratio10+"="+ratio11+"="+ratio14);
-        }
-        if(ttList.size() == list.size()){
-            return;
-        }
-        double ra = BigDecimalUtil.div(maxList.size(),minList.size(),4);
-        if(ra > 0.1){
-            return;
-        }
-        if(isGreat){
-            System.out.println("***************************************"+list.get(0).getTsCode());
-        }else {
-            System.out.println("======================================"+list.get(0).getTsCode());
-        }
-
-
-        if(true)
-            return;
-
-        //10日内必须趋势向上
-        if(list.get(0).getMaFive() -
-                list.get(size).getMaFive() < 0){
-            return;
-        }
         //当前价格小于20剔除
         if(list.get(0).getClose() -
                 list.get(0).getMaTwenty() < 0 ||
@@ -622,7 +467,7 @@ public class ReceiveService {
         //30与60K比值
         double subtt3 = list.get(0).getMaMonth() - list.get(0).getMaQuarter();
         double ratiott3 = BigDecimalUtil.div(subtt2,list.get(0).getMaQuarter(),4);
-        if(subtt3 > 0.01 || ratiott3 < -0.01){
+        if(subtt3 > 0.1 || ratiott3 < -0.1){
             return;
         }
         //连续6日5在20以上,并且没有大波动
@@ -635,6 +480,123 @@ public class ReceiveService {
                 return;
             }
         }
+
+        List<Double> minList = new ArrayList<>();
+        List<Double> maxList = new ArrayList<>();
+        for(int i = 0;i < list.size();i++){
+            KLineEntity entity1 = list.get(i);
+            double sub = entity1.getMaFive() - entity1.getMaTen();
+            double ratio = 0;
+            if(sub >= 0){
+                ratio = BigDecimalUtil.div(sub,entity1.getMaTen(),4);
+            }else {
+                ratio = BigDecimalUtil.div(sub,entity1.getMaFive(),4);
+            }
+            if(ratio < 0.05 && ratio > -0.05){
+                minList.add(ratio);
+            }else if(ratio > 0.05 || ratio < -0.05){
+                return;
+            } else {
+                maxList.add(ratio);
+            }
+
+            double sub1 = entity1.getMaFive() - entity1.getMaTwenty();
+            double ratio1 = 0;
+            if(sub1 >= 0){
+                ratio1 = BigDecimalUtil.div(sub1,entity1.getMaTwenty(),4);
+            }else {
+                ratio1 = BigDecimalUtil.div(sub1,entity1.getMaFive(),4);
+            }
+            if(ratio1 < 0.1 && ratio1 > -0.1){
+                minList.add(ratio1);
+            }else if(ratio1 > 0.1 || ratio1 < -0.1){
+                return;
+            }else {
+                maxList.add(ratio1);
+            }
+            double sub2 = entity1.getMaFive() - entity1.getMaMonth();
+            double ratio2 = 0;
+            if(sub2 >= 0){
+                ratio2 = BigDecimalUtil.div(sub2,entity1.getMaMonth(),4);
+            }else {
+                ratio2 = BigDecimalUtil.div(sub2,entity1.getMaFive(),4);
+            }
+            if(ratio2 < 0.1 && ratio2 > -0.1){
+                minList.add(ratio2);
+            }else if(ratio2 > 0.1 || ratio2 < -0.1){
+                return;
+            }else {
+                maxList.add(ratio2);
+            }
+
+            double sub5 = entity1.getMaTen() - entity1.getMaTwenty();
+            double ratio5 = 0;
+            if(sub5 >= 0){
+                ratio5 = BigDecimalUtil.div(sub5,entity1.getMaTwenty(),4);
+            }else {
+                ratio5 = BigDecimalUtil.div(sub5,entity1.getMaTen(),4);
+            }
+            if(ratio5 < 0.05 && ratio5 > -0.05){
+                minList.add(ratio5);
+            }else if(ratio5 > 0.05 || ratio5 < -0.05){
+                return;
+            }else {
+                maxList.add(ratio5);
+            }
+
+            double sub6 = entity1.getMaTen() - entity1.getMaMonth();
+            double ratio6 = 0;
+            if(sub6 >= 0){
+                ratio6 = BigDecimalUtil.div(sub6,entity1.getMaMonth(),4);
+            }else {
+                ratio6 = BigDecimalUtil.div(sub6,entity1.getMaTen(),4);
+            }
+            if(ratio6 < 0.1 && ratio6 > -0.1){
+                minList.add(ratio6);
+            }else if(ratio6 > 0.1 || ratio6 < -0.1){
+                return;
+            }else {
+                maxList.add(ratio6);
+            }
+
+            double sub8 = entity1.getMaTen() - entity1.getMaTwenty();
+            double ratio8 = 0;
+            if(sub8 >= 0){
+                ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTwenty(),4);
+            }else {
+                ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTen(),4);
+            }
+            if(ratio8 < 0.03 && ratio8 > -0.03){
+                minList.add(ratio8);
+            } else if(ratio8 > 0.03 || ratio8 < -0.03){
+                return;
+            }else {
+                maxList.add(ratio8);
+            }
+
+            double sub10 = entity1.getMaTwenty() - entity1.getMaMonth();
+            double ratio10 = 0;
+            if(sub10 >= 0){
+                ratio10 = BigDecimalUtil.div(sub10,entity1.getMaMonth(),4);
+            }else {
+                ratio10 = BigDecimalUtil.div(sub10,entity1.getMaTwenty(),4);
+            }
+            if(ratio10 < 0.03 && ratio10 > -0.03){
+                minList.add(ratio10);
+            } else if(ratio10 > 0.03 || ratio10 < -0.03){
+                return;
+            }else {
+                maxList.add(ratio10);
+            }
+        }
+
+        int size = list.size() - 1;
+        //10日内必须趋势向上
+        if(list.get(0).getMaFive() -
+                list.get(size).getMaFive() < 0){
+            return;
+        }
+
         //5K上涨连续时长
         int dwSign = 0;
         int upSign = 0;
