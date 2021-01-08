@@ -112,7 +112,7 @@ public class ReceiveService {
      */
     public void dayLineBreak(String tscode,String tradeDate){
 //        int limit = 90;
-        int limit = 30;
+        int limit = 60;
         List<KLineEntity> list = null;
         if(null == tradeDate){
             list = kLineService.queryDayLineByLimit(tscode,limit);
@@ -425,9 +425,28 @@ public class ReceiveService {
             return;
         }
 
+        int adhesion = 0;
+        for(KLineEntity entity : list){
+            double rat1 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2),2);
+            double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2),2);
+            double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2),2);
+            if(rat1 <= 0.02 && rat2<= 0.02 && rat3<= 0.02){
+                adhesion++;
+            }else if(adhesion >= 10){
+                break;
+            }else {
+                adhesion = 0;
+            }
+//            System.out.println(rat1+"======="+rat2+"============"+rat3);
+        }
+        if(adhesion < 10){
+            return;
+        }
+
         //过滤掉全部在60日以下
         boolean break60 = true;
-        for(KLineEntity entity : list){
+        for(int i = 0;i < 20;i++){
+            KLineEntity entity = list.get(i);
             if(entity.getMaFive() - entity.getMaQuarter() > 0){
                 break60 = false;
                 break;
@@ -438,22 +457,33 @@ public class ReceiveService {
         }
 
         //5与20最大比值不能超过0.06
-        for(KLineEntity entity : list){
+        List<Double> ftratios = new ArrayList<>();
+        for(int i = 0;i < 20;i++){
+            KLineEntity entity = list.get(i);
             double sub = entity.getMaFive() - entity.getMaTwenty();
             double ratio = 0;
             if(sub >= 0){
-                ratio = BigDecimalUtil.div(sub,entity.getMaTwenty(),4);
+                ratio = BigDecimalUtil.div(sub,entity.getMaTwenty(),2);
             }else {
-                ratio = BigDecimalUtil.div(sub,entity.getMaFive(),4);
+                ratio = BigDecimalUtil.div(sub,entity.getMaFive(),2);
             }
-            if(ratio > 0.06 || ratio < -0.06){
+            if(ratio >= 0.05 || ratio <= -0.05){
+                ftratios.add(ratio);
+            }
+            if(ratio >= 0.06 || ratio <= -0.06){
                 return;
             }
         }
+        double ftratio = BigDecimalUtil.div(ftratios.size(),list.size(),4);
+        if(ftratio >= 0.1){
+            return;
+        }
+//        System.out.println(ftratio+"##################################"+list.get(0).getTsCode());
 
         List<Double> minList = new ArrayList<>();
         List<Double> maxList = new ArrayList<>();
-        for(KLineEntity entity : list){
+        for(int i = 0;i < 20;i++){
+            KLineEntity entity = list.get(i);
             if(entity.getPctChg() > 3 || entity.getPctChg() < -3){
                 maxList.add(entity.getPctChg());
             }else {
@@ -466,7 +496,8 @@ public class ReceiveService {
         }
 //        System.out.println(ratio+"================================"+list.get(0).getTsCode());
 
-        int size = list.size() - 1;
+        //振幅在0.1以下
+        int size = 20 - 1;
         double fiveSub = list.get(0).getMaFive() - list.get(size).getMaFive();
         double fiveRatio = 0;
         if(fiveSub >= 0){
@@ -474,7 +505,7 @@ public class ReceiveService {
         }else {
             fiveRatio = BigDecimalUtil.div(fiveSub,list.get(0).getMaFive(),2);
         }
-        if(fiveRatio > 0.1 || fiveRatio < -0.1){
+        if(fiveRatio > 0.1 || fiveRatio < -0.03){
             return;
         }
         System.out.println(fiveRatio+"*************************************"+list.get(0).getTsCode());
