@@ -198,6 +198,6 @@ public class StockAlgorithm {
     }
 
     public static void main(String[] args) {
-        System.out.println(calculateAngle(1.7,1.65));
+        System.out.println(calculateAngle(4.29,3.98));
     }
 }

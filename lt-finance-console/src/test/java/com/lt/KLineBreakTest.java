@@ -40,22 +40,21 @@ public class KLineBreakTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        receiveService.dayLineBreak("000002.SZ");
-//        receiveService.dayLineBreak("000890.SZ");
+        receiveService.dayLineBreak("000543.SZ");
+        receiveService.dayLineBreak("000890.SZ");
 //        receiveService.dayLineBreak("601016.SH","20201222");
-//        //半年突破年但5 10 20 30 都在下方
+        //半年突破年但5 10 20 30 都在下方
 //        receiveService.dayLineBreak("600644.SH","20201222");
-//
+
 //        receiveService.dayLineBreak("600292.SH","20201218");
-//
-//        receiveService.dayLineBreak("002529.SZ","20201216");
-//
-//        receiveService.dayLineBreak("000816.SZ","20201023");
+
+        receiveService.dayLineBreak("002529.SZ","20201216");
+        receiveService.dayLineBreak("000816.SZ","20200703");
 //        receiveService.dayLineBreak("002342.SZ","20201113");
 
         //丰乐
 //        receiveService.dayLineBreak("000713.SZ","20201217");
-//        receiveService.dayLineBreak("000713.SZ","20201209");
+        receiveService.dayLineBreak("000713.SZ","20201209");
     }
 
     @Test
@@ -76,4 +75,5 @@ public class KLineBreakTest {
         }
 //        receiveService.weekLineBreak("600319.SH","20191227");
     }
+
 }

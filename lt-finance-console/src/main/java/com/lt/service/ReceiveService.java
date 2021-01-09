@@ -112,7 +112,7 @@ public class ReceiveService {
      */
     public void dayLineBreak(String tscode,String tradeDate){
 //        int limit = 90;
-        int limit = 60;
+        int limit = 30;
         List<KLineEntity> list = null;
         if(null == tradeDate){
             list = kLineService.queryDayLineByLimit(tscode,limit);
@@ -123,8 +123,10 @@ public class ReceiveService {
             return;
         }
         try {
+            angles(list);
+//            parallel(list);
 //            filterSemesterAndYear(list);
-            demonLine(list);
+//            demonLine(list);
 //            parallelDay(list);
 //            dayLinePeriod(list);
         }catch (Exception e){
@@ -137,6 +139,81 @@ public class ReceiveService {
 //        }
 //        entity.setTsCode(tscode);
 //        kLineService.saveEmaBreak(entity);
+    }
+
+    /**
+     * 粘合程度
+     * @param list
+     */
+    public void cohere(List<KLineEntity> list){
+
+    }
+
+    /**
+     * 平行度
+     * @param list
+     */
+    public void parallel(List<KLineEntity> list){
+        Set<Double> maTwentys = new HashSet<>();
+        Set<Double> maMonths = new HashSet<>();
+        Set<Double> maQuarters = new HashSet<>();
+        Set<Double> maSemesters = new HashSet<>();
+        Set<Double> maYears = new HashSet<>();
+        for (KLineEntity entity : list) {
+            maTwentys.add(entity.getMaTwenty());
+            maMonths.add(entity.getMaMonth());
+            maQuarters.add(entity.getMaQuarter());
+            maSemesters.add(entity.getMaSemester());
+            maYears.add(entity.getMaYear());
+        }
+        System.out.println(maTwentys.size()+"================"+"20"+"================"+list.get(0).getTsCode());
+        System.out.println(maMonths.size()+"================"+"月"+"================"+list.get(0).getTsCode());
+        System.out.println(maQuarters.size()+"================="+"季"+"==============="+list.get(0).getTsCode());
+        System.out.println(maSemesters.size()+"================="+"半年"+"==============="+list.get(0).getTsCode());
+        System.out.println(maYears.size()+"==============="+"年"+"================="+list.get(0).getTsCode());
+    }
+
+
+    public void angles(List<KLineEntity> list){
+        Double [] fiveArrays = list.stream().map(o -> o.getMaFive()).collect(Collectors.toList()).toArray(new Double[list.size()]);
+        Map<String,Integer> bands = StockAlgorithm.calculateBand(4,fiveArrays);
+        List<Integer> subs = new ArrayList<>();
+        int prev = -1;
+        for(Map.Entry<String,Integer> entry : bands.entrySet()){
+            if("最高".equals(entry.getKey())){
+                continue;
+            }
+            if("最低".equals(entry.getKey())){
+                continue;
+            }
+            if(prev == -1){
+                prev = entry.getValue();
+                continue;
+            }else {
+                int sub = entry.getValue() - prev;
+                subs.add(sub);
+                prev = entry.getValue();
+            }
+        }
+        System.out.println(JSON.toJSONString(subs));
+
+
+
+        List<Double> list10 = new ArrayList<>();
+        List<Double> list20 = new ArrayList<>();
+        List<Double> list30 = new ArrayList<>();
+        List<Double> list40 = new ArrayList<>();
+        List<Double> list50 = new ArrayList<>();
+        Collections.reverse(list);
+        for (int i = 1;i < list.size();i++) {
+            KLineEntity entity1 = list.get(i);
+            KLineEntity entity2 = list.get(i-1);
+            double angle = StockAlgorithm.calculateAngle(entity1.getMaFive(),entity2.getMaFive());
+            if(angle <= 30 && angle >= -30){
+                list20.add(angle);
+            }
+        }
+        System.out.println(list.get(0).getTsCode()+"==="+JSON.toJSONString(list20));
     }
 
     /**
@@ -412,8 +489,17 @@ public class ReceiveService {
         System.out.println(list.get(0).getTsCode()+"======="+pctchg+"======="+sing+"==========="+prev+"==========="+ratio1);
     }
 
+    public void adhesionDegree(KLineEntity entity){
+        double rat1 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2),2);
+//        double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2),2);
+//        double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2),2);
+        double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaTen(),entity.getMaTwenty(),2),2);
+        double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaTwenty(),entity.getMaMonth(),2),2);
+        System.out.println(rat1+"======="+rat2+"============"+rat3);
+    }
+
     /**
-     * 妖妖过滤规则
+     * 过滤规则
      * @param list
      */
     public void demonLine(List<KLineEntity> list){
@@ -425,97 +511,178 @@ public class ReceiveService {
             return;
         }
 
-        for(int i = 0;i < 20;i++){
-            KLineEntity entity = list.get(i);
-            if(entity.getPctChg() > 5 || entity.getPctChg() < -5){
+        //当前价格小于20剔除
+        if(list.get(0).getClose() -
+                list.get(0).getMaTwenty() < 0 ||
+                list.get(0).getLow() - list.get(0).getMaTwenty() < 0){
+            return;
+        }
+        //5小于10或小于20剔除
+        if(list.get(0).getMaFive() - list.get(1).getMaTen() < 0
+                || list.get(0).getMaFive() - list.get(1).getMaTwenty() <= 0){
+            return;
+        }
+        //10小于20剔除
+        if(list.get(0).getMaTen() - list.get(1).getMaTwenty() < 0){
+            return;
+        }
+        //5、10、20都在30以下剔除
+        if(list.get(0).getMaFive() - list.get(0).getMaMonth() < 0 &&
+                list.get(0).getMaTen() - list.get(0).getMaMonth() < 0 &&
+                list.get(0).getMaTwenty() - list.get(0).getMaMonth() < 0 ){
+            return;
+        }
+        //K线与20K比值
+        double subtt0 = list.get(0).getLow() - list.get(0).getMaTwenty();
+        double ratiott0 = BigDecimalUtil.div(subtt0,list.get(0).getMaTwenty(),2);
+        if(ratiott0 >= 0.03){
+            return;
+        }
+        //10与20K比值
+        double subtt1 = list.get(0).getMaTwenty() - list.get(0).getMaMonth();
+        double ratiott1 = BigDecimalUtil.div(subtt1,list.get(0).getMaMonth(),4);
+        if(ratiott1 > 0.03){
+            return;
+        }
+        //20与30K比值
+        double subtt2 = list.get(0).getMaTwenty() - list.get(0).getMaMonth();
+        double ratiott2 = BigDecimalUtil.div(subtt2,list.get(0).getMaMonth(),4);
+        if(ratiott2 > 0.01 || ratiott2 < -0.01){
+            return;
+        }
+        //30与60K比值
+        double subtt3 = list.get(0).getMaMonth() - list.get(0).getMaQuarter();
+        double ratiott3 = BigDecimalUtil.div(subtt2,list.get(0).getMaQuarter(),4);
+        if(subtt3 > 0.1 || ratiott3 < -0.1){
+            return;
+        }
+        //连续6日5在20以上,并且没有大波动
+        for (int i = 0;i < 6;i++){
+            if(list.get(i).getMaFive() -
+                    list.get(i).getMaTwenty() < 0){
+                return;
+            }
+            if(list.get(i).getPctChg() > 5 || list.get(i).getPctChg() < -4){
                 return;
             }
         }
-
-        int adhesion = 0;
-        for(KLineEntity entity : list){
-            double rat1 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2),2);
-            double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2),2);
-            double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2),2);
-            if(rat1 <= 0.01 && rat2<= 0.01 && rat3<= 0.02){
-                adhesion++;
-            }else if(adhesion >= 10){
-                break;
-            }else {
-                adhesion = 0;
-            }
-//            System.out.println(rat1+"======="+rat2+"============"+rat3);
-        }
-        if(adhesion < 10){
-            return;
-        }
-
-        //过滤掉全部在60日以下
-        boolean break60 = true;
-        for(int i = 0;i < 20;i++){
-            KLineEntity entity = list.get(i);
-            if(entity.getMaFive() - entity.getMaQuarter() > 0){
-                break60 = false;
-                break;
-            }
-        }
-        if(break60){
-            return;
-        }
-
-        //5与20最大比值不能超过0.06
-        List<Double> ftratios = new ArrayList<>();
-        for(int i = 0;i < 20;i++){
-            KLineEntity entity = list.get(i);
-            double sub = entity.getMaFive() - entity.getMaTwenty();
-            double ratio = 0;
-            if(sub >= 0){
-                ratio = BigDecimalUtil.div(sub,entity.getMaTwenty(),2);
-            }else {
-                ratio = BigDecimalUtil.div(sub,entity.getMaFive(),2);
-            }
-            if(ratio >= 0.05 || ratio <= -0.05){
-                ftratios.add(ratio);
-            }
-            if(ratio >= 0.06 || ratio <= -0.06){
-                return;
-            }
-        }
-        double ftratio = BigDecimalUtil.div(ftratios.size(),list.size(),4);
-        if(ftratio >= 0.1){
-            return;
-        }
-//        System.out.println(ftratio+"##################################"+list.get(0).getTsCode());
 
         List<Double> minList = new ArrayList<>();
         List<Double> maxList = new ArrayList<>();
-        for(int i = 0;i < 20;i++){
-            KLineEntity entity = list.get(i);
-            if(entity.getPctChg() > 3 || entity.getPctChg() < -3){
-                maxList.add(entity.getPctChg());
+        for(int i = 0;i < list.size();i++){
+            KLineEntity entity1 = list.get(i);
+            double sub = entity1.getMaFive() - entity1.getMaTen();
+            double ratio = 0;
+            if(sub >= 0){
+                ratio = BigDecimalUtil.div(sub,entity1.getMaTen(),4);
             }else {
-                minList.add(entity.getPctChg());
+                ratio = BigDecimalUtil.div(sub,entity1.getMaFive(),4);
+            }
+            if(ratio < 0.05 && ratio > -0.05){
+                minList.add(ratio);
+            }else if(ratio > 0.05 || ratio < -0.05){
+                return;
+            } else {
+                maxList.add(ratio);
+            }
+
+            double sub1 = entity1.getMaFive() - entity1.getMaTwenty();
+            double ratio1 = 0;
+            if(sub1 >= 0){
+                ratio1 = BigDecimalUtil.div(sub1,entity1.getMaTwenty(),4);
+            }else {
+                ratio1 = BigDecimalUtil.div(sub1,entity1.getMaFive(),4);
+            }
+            if(ratio1 < 0.1 && ratio1 > -0.1){
+                minList.add(ratio1);
+            }else if(ratio1 > 0.1 || ratio1 < -0.1){
+                return;
+            }else {
+                maxList.add(ratio1);
+            }
+            double sub2 = entity1.getMaFive() - entity1.getMaMonth();
+            double ratio2 = 0;
+            if(sub2 >= 0){
+                ratio2 = BigDecimalUtil.div(sub2,entity1.getMaMonth(),4);
+            }else {
+                ratio2 = BigDecimalUtil.div(sub2,entity1.getMaFive(),4);
+            }
+            if(ratio2 < 0.1 && ratio2 > -0.1){
+                minList.add(ratio2);
+            }else if(ratio2 > 0.1 || ratio2 < -0.1){
+                return;
+            }else {
+                maxList.add(ratio2);
+            }
+
+            double sub5 = entity1.getMaTen() - entity1.getMaTwenty();
+            double ratio5 = 0;
+            if(sub5 >= 0){
+                ratio5 = BigDecimalUtil.div(sub5,entity1.getMaTwenty(),4);
+            }else {
+                ratio5 = BigDecimalUtil.div(sub5,entity1.getMaTen(),4);
+            }
+            if(ratio5 < 0.05 && ratio5 > -0.05){
+                minList.add(ratio5);
+            }else if(ratio5 > 0.05 || ratio5 < -0.05){
+                return;
+            }else {
+                maxList.add(ratio5);
+            }
+
+            double sub6 = entity1.getMaTen() - entity1.getMaMonth();
+            double ratio6 = 0;
+            if(sub6 >= 0){
+                ratio6 = BigDecimalUtil.div(sub6,entity1.getMaMonth(),4);
+            }else {
+                ratio6 = BigDecimalUtil.div(sub6,entity1.getMaTen(),4);
+            }
+            if(ratio6 < 0.1 && ratio6 > -0.1){
+                minList.add(ratio6);
+            }else if(ratio6 > 0.1 || ratio6 < -0.1){
+                return;
+            }else {
+                maxList.add(ratio6);
+            }
+
+            double sub8 = entity1.getMaTen() - entity1.getMaTwenty();
+            double ratio8 = 0;
+            if(sub8 >= 0){
+                ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTwenty(),4);
+            }else {
+                ratio8 = BigDecimalUtil.div(sub8,entity1.getMaTen(),4);
+            }
+            if(ratio8 < 0.03 && ratio8 > -0.03){
+                minList.add(ratio8);
+            } else if(ratio8 > 0.03 || ratio8 < -0.03){
+                return;
+            }else {
+                maxList.add(ratio8);
+            }
+
+            double sub10 = entity1.getMaTwenty() - entity1.getMaMonth();
+            double ratio10 = 0;
+            if(sub10 >= 0){
+                ratio10 = BigDecimalUtil.div(sub10,entity1.getMaMonth(),4);
+            }else {
+                ratio10 = BigDecimalUtil.div(sub10,entity1.getMaTwenty(),4);
+            }
+            if(ratio10 < 0.03 && ratio10 > -0.03){
+                minList.add(ratio10);
+            } else if(ratio10 > 0.03 || ratio10 < -0.03){
+                return;
+            }else {
+                maxList.add(ratio10);
             }
         }
-        double ratio = BigDecimalUtil.div(maxList.size(),minList.size(),4);
-        if(ratio > 0.2){
-            return;
-        }
-//        System.out.println(ratio+"================================"+list.get(0).getTsCode());
 
-        //振幅在0.1以下
-        int size = 20 - 1;
-        double fiveSub = list.get(0).getMaFive() - list.get(size).getMaFive();
-        double fiveRatio = 0;
-        if(fiveSub >= 0){
-            fiveRatio = BigDecimalUtil.div(fiveSub,list.get(size).getMaFive(),2);
-        }else {
-            fiveRatio = BigDecimalUtil.div(fiveSub,list.get(0).getMaFive(),2);
-        }
-        if(fiveRatio > 0.1 || fiveRatio < -0.03){
+        int size = list.size() - 1;
+        //10日内必须趋势向上
+        if(list.get(0).getMaFive() -
+                list.get(size).getMaFive() < 0){
             return;
         }
-        System.out.println(fiveRatio+"*************************************"+list.get(0).getTsCode());
+
         //5K上涨连续时长
         int dwSign = 0;
         int upSign = 0;
@@ -540,7 +707,7 @@ public class ReceiveService {
             }
             pctchg = pctchg + list.get(i).getPctChg();
         }
-//        System.out.println(list.get(0).getTsCode()+"**"+ratiott0+"**"+pctchg+"**"+map);
+        System.out.println(list.get(0).getTsCode()+"**"+ratiott0+"**"+pctchg+"**"+map);
     }
 
     public List<Set<String>> dayLinePeriod(List<KLineEntity> list){
