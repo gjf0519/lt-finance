@@ -425,12 +425,19 @@ public class ReceiveService {
             return;
         }
 
+        for(int i = 0;i < 20;i++){
+            KLineEntity entity = list.get(i);
+            if(entity.getPctChg() > 5 || entity.getPctChg() < -5){
+                return;
+            }
+        }
+
         int adhesion = 0;
         for(KLineEntity entity : list){
             double rat1 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2),2);
             double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2),2);
             double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2),2);
-            if(rat1 <= 0.02 && rat2<= 0.02 && rat3<= 0.02){
+            if(rat1 <= 0.01 && rat2<= 0.01 && rat3<= 0.02){
                 adhesion++;
             }else if(adhesion >= 10){
                 break;
