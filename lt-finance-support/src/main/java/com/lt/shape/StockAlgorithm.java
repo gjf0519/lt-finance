@@ -198,6 +198,8 @@ public class StockAlgorithm {
     }
 
     public static void main(String[] args) {
-        System.out.println(calculateAngle(4.29,3.98));
+        double an = BigDecimalUtil.div(calculateAngle(5.85,5.67),8);
+        System.out.println(an);
+        System.out.println(calculateAngle(10.48,10.2));
     }
 }

@@ -78,7 +78,7 @@ public class LineInitTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        List<Map<String,Object>> result = requestDayPyData("000029.SZ");
+        List<Map<String,Object>> result = requestDayPyData("603725.SH");
         if(null == result){
             return;
         }

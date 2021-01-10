@@ -123,8 +123,9 @@ public class ReceiveService {
             return;
         }
         try {
-            angles(list);
-//            parallel(list);
+            filterKline(list);
+            //angles(list);
+//            maChange(list);
 //            filterSemesterAndYear(list);
 //            demonLine(list);
 //            parallelDay(list);
@@ -142,35 +143,294 @@ public class ReceiveService {
     }
 
     /**
-     * 粘合程度
-     * @param list
+     * 方向连续状态
+     * @param list 数据集合
+     * @param limit 过滤范围
+     * @param direction 过滤方向 1上2下
      */
-    public void cohere(List<KLineEntity> list){
-
+    public Map<String,Double> maTrend(List<KLineEntity> list,int limit,int direction){
+        double sign = 0;
+        limit = limit - 1;
+        Map<String,Double> trends = new HashMap<>();
+        if(1 == direction){
+            if(list.get(0).getMaFive() - list.get(limit).getMaFive() > 0){
+                trends.put("isTrend",1.0);
+            } else {
+                return null;
+            }
+            for(int i = 0;i < limit;i++){
+                if(list.get(i).getMaFive() -
+                        list.get(i+1).getMaFive() >= 0){
+                    sign = sign+1;
+                }else if(sign > 5){
+                    continue;
+                }else {
+                    sign = 0;
+                }
+            }
+        }else {
+            if(list.get(0).getMaFive() - list.get(limit).getMaFive() > 0){
+                trends.put("isTrend",1.0);
+            } else {
+                return null;
+            }
+            for(int i = 0;i < limit;i++){
+                if(list.get(i).getMaFive() -
+                        list.get(i+1).getMaFive() <= 0){
+                    sign = sign+1;
+                }else if(sign > 5){
+                    continue;
+                }else {
+                    sign = 0;
+                }
+            }
+        }
+        trends.put("sign",sign);
+        double change = BigDecimalUtil.sub(1,
+                BigDecimalUtil.div(list.get(0).getMaFive(),list.get(limit).getMaFive(),2),2);
+        trends.put("change",change);
+        return trends;
     }
 
     /**
-     * 平行度
+     * 振幅大小过滤
+     * @param list 数据集合
+     * @param limit 过滤范围
+     * @param chg 振幅限制
+     */
+    public int maChange(List<KLineEntity> list,int limit,double chg){
+        int sign = 0;
+        for(int i = 0;i < limit;i++){
+            if(list.get(i).getPctChg() < chg
+                    && list.get(i).getPctChg() > -chg){
+                sign++;
+            }
+        }
+        return sign;
+    }
+
+    /**
+     * 连续上涨通道
      * @param list
      */
-    public void parallel(List<KLineEntity> list){
-        Set<Double> maTwentys = new HashSet<>();
-        Set<Double> maMonths = new HashSet<>();
-        Set<Double> maQuarters = new HashSet<>();
-        Set<Double> maSemesters = new HashSet<>();
-        Set<Double> maYears = new HashSet<>();
-        for (KLineEntity entity : list) {
-            maTwentys.add(entity.getMaTwenty());
-            maMonths.add(entity.getMaMonth());
-            maQuarters.add(entity.getMaQuarter());
-            maSemesters.add(entity.getMaSemester());
-            maYears.add(entity.getMaYear());
+    public void filterKline(List<KLineEntity> list){
+        if(list.get(0).getClose() > 50){
+            return;
         }
-        System.out.println(maTwentys.size()+"================"+"20"+"================"+list.get(0).getTsCode());
-        System.out.println(maMonths.size()+"================"+"月"+"================"+list.get(0).getTsCode());
-        System.out.println(maQuarters.size()+"================="+"季"+"==============="+list.get(0).getTsCode());
-        System.out.println(maSemesters.size()+"================="+"半年"+"==============="+list.get(0).getTsCode());
-        System.out.println(maYears.size()+"==============="+"年"+"================="+list.get(0).getTsCode());
+        //3日内大浮动
+        for(int i = 0;i < 6;i++){
+            if(list.get(i).getPctChg() > 6 ||
+                    list.get(i).getPctChg() < -5){
+                return;
+            }
+        }
+
+        Map<String,Double> trends = maTrend(list,10,1);
+        if(trends == null){
+            return;
+        }
+        if(trends.get("change") > 0.03 && trends.get("sign") < 5.0){
+            return;
+        }
+        int changeSign = maChange(list,10,3);
+        if(changeSign < 5){
+            return;
+        }
+        Map<String,List<Double>> coheres = maCohere(list,10);
+        List<Double> faveTenCoheres = coheres.get("faveTenCoheres");
+        List<Double> tenTwentyCoheres = coheres.get("tenTwentyCoheres");
+        List<Double> twentyMonthCoheres = coheres.get("twentyMonthCoheres");
+        List<Double> monthQuarterCoheres = coheres.get("monthQuarterCoheres");
+        List<Double> quarterSemesterCoheres = coheres.get("quarterSemesterCoheres");
+        List<Double> semesterYearCoheres = coheres.get("semesterYearCoheres");
+        if(!isAllLower(twentyMonthCoheres)){
+            return;
+        }
+        int special = specialTrend(faveTenCoheres,tenTwentyCoheres,twentyMonthCoheres,monthQuarterCoheres);
+        if(special > 0){
+            System.out.println(list.get(0).getTsCode()+"*****************************************"+special);
+            return;
+        }
+        if(special == 0){
+            //10、20、30依次在60以下排列
+            if(!isAllLower(tenTwentyCoheres) &&
+                    !isAllLower(twentyMonthCoheres) &&
+                    !isAllLower(monthQuarterCoheres)){
+                return;
+            }
+            //过滤掉大部分时间5在10、10在20、20在30以下
+            double faveSum = faveTenCoheres.stream().mapToDouble(o -> o).sum();
+            double tenSum = tenTwentyCoheres.stream().mapToDouble(o -> o).sum();
+            double twentySum = twentyMonthCoheres.stream().mapToDouble(o -> o).sum();
+            double maSum = faveSum+tenSum+twentySum;
+            if(maSum > 0){
+                return;
+            }
+            //过滤振幅
+            for(int i = 0;i < faveTenCoheres.size();i++){
+                Double item = faveTenCoheres.get(i);
+                if(item < -0.05){
+                    return;
+                }
+                if(item > 0.01){
+                    return;
+                }
+                if(i > 4 && (item < -0.01 || item > 0.01)){
+                    return;
+                }
+            }
+            //过滤振幅
+            for(int i = 0;i < semesterYearCoheres.size();i++){
+                Double item = semesterYearCoheres.get(i);
+                if(item < -0.15 && quarterSemesterCoheres.get(i) >= 0){
+                    return;
+                }
+            }
+        }
+        System.out.println(list.get(0).getTsCode()+"=====================================");
+    }
+
+    /**
+     * 计算是否全部小于零
+     * @param masites
+     * @return
+     */
+    public boolean isAllLower(List<Double> masites){
+        for(Double item : masites){
+            if(item < 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 粘合特殊情况
+     * @param faveTenCoheres
+     * @param tenTwentyCoheres
+     * @param twentyMonthCoheres
+     * @param monthQuarterCoheres
+     * @return 0不是特殊情况，1特殊2特特殊
+     * "600189.SH","20201106"
+     * "000816.SZ","20200703"
+     */
+    public int specialTrend(List<Double> faveTenCoheres,
+                                List<Double> tenTwentyCoheres,
+                                List<Double> twentyMonthCoheres,
+                                List<Double> monthQuarterCoheres){
+        int sign = 0;
+        for(Double item : faveTenCoheres){
+            if(item < -0.01 || item > 0.01){
+                return 0;
+            }
+            if(0.0 == item){
+                sign++;
+            }
+        }
+        int result = 0;
+        if(sign >= 6){
+            result++;
+        }
+        for(Double item : tenTwentyCoheres){
+            if(item < -0.01 || item > 0.01){
+                return 0;
+            }
+        }
+        for(Double item : twentyMonthCoheres){
+            if(item < -0.01 || item > 0.01){
+                return 0;
+            }
+        }
+        result++;
+        for(Double item : monthQuarterCoheres){
+            if(item < -0.01 || item > 0.01){
+                return result;
+            }
+        }
+        result++;
+        return result;
+    }
+
+    /**
+     * 粘合程度
+     * @param list
+     */
+    public Map<String,List<Double>> maCohere(List<KLineEntity> list,int limit){
+        List<Double> faveTenCoheres = new ArrayList<>();
+        List<Double> tenTwentyCoheres = new ArrayList<>();
+        List<Double> twentyMonthCoheres = new ArrayList<>();
+        List<Double> monthQuarterCoheres = new ArrayList<>();
+        List<Double> quarterSemesterCoheres = new ArrayList<>();
+        List<Double> semesterYearCoheres = new ArrayList<>();
+        for(int i = 0;i < limit;i++){
+            KLineEntity entity = list.get(i);
+            double faveTenCohere = BigDecimalUtil.sub(1,
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2),2);
+            double faveTwentyCohere = BigDecimalUtil.sub(1,
+                    BigDecimalUtil.div(entity.getMaTen(),entity.getMaTwenty(),2),2);
+            double faveMonthCohere = BigDecimalUtil.sub(1,
+                    BigDecimalUtil.div(entity.getMaTwenty(),entity.getMaMonth(),2),2);
+            double faveQuarterCohere = BigDecimalUtil.sub(1,
+                    BigDecimalUtil.div(entity.getMaMonth(),entity.getMaQuarter(),2),2);
+            if(entity.getMaSemester() == 0){
+                continue;
+            }
+            double faveSemesterCohere = BigDecimalUtil.sub(1,
+                    BigDecimalUtil.div(entity.getMaQuarter(),entity.getMaSemester(),2),2);
+            if(entity.getMaYear() == 0){
+                continue;
+            }
+            double faveYearCohere = BigDecimalUtil.sub(1,
+                    BigDecimalUtil.div(entity.getMaSemester(),entity.getMaYear(),2),2);
+            faveTenCoheres.add(faveTenCohere);
+            tenTwentyCoheres.add(faveTwentyCohere);
+            twentyMonthCoheres.add(faveMonthCohere);
+            monthQuarterCoheres.add(faveQuarterCohere);
+            quarterSemesterCoheres.add(faveSemesterCohere);
+            semesterYearCoheres.add(faveYearCohere);
+        }
+//        System.out.println(JSON.toJSONString(faveTenCoheres));
+//        System.out.println(JSON.toJSONString(tenTwentyCoheres));
+//        System.out.println(JSON.toJSONString(twentyMonthCoheres));
+//        System.out.println(JSON.toJSONString(monthQuarterCoheres));
+//        System.out.println(JSON.toJSONString(quarterSemesterCoheres));
+//        System.out.println(JSON.toJSONString(semesterYearCoheres));
+        Map<String,List<Double>> soheres = new HashMap();
+        soheres.put("faveTenCoheres",faveTenCoheres);
+        soheres.put("tenTwentyCoheres",tenTwentyCoheres);
+        soheres.put("twentyMonthCoheres",twentyMonthCoheres);
+        soheres.put("monthQuarterCoheres",monthQuarterCoheres);
+        soheres.put("quarterSemesterCoheres",quarterSemesterCoheres);
+        soheres.put("semesterYearCoheres",semesterYearCoheres);
+        return soheres;
+    }
+
+    /**
+     * 均价振幅
+     * @param list
+     */
+    public int maChange(List<KLineEntity> list){
+        List<Double> maTens = new ArrayList<>();
+        double lineCount = 0;
+        for (KLineEntity entity : list) {
+            double count = entity.getMaFive()+entity.getMaTen()+entity.getMaTwenty()+entity.getMaMonth();
+            lineCount = lineCount+BigDecimalUtil.div(count,4,2);
+            maTens.add(entity.getMaTen());
+        }
+
+        double tenAvg = BigDecimalUtil.div(lineCount,list.size(),2);
+        int hcount = 0;
+        for (Double ten : maTens) {
+            double ratio = BigDecimalUtil.sub(1,BigDecimalUtil.div(ten,tenAvg,2),2);
+            if(ratio >= 0.02){
+                hcount++;
+            }
+        }
+        if(hcount >= 10){
+            return 0;
+        }
+        System.out.println("======================================="+list.get(0).getTsCode());
+        return hcount;
     }
 
 
@@ -196,8 +456,6 @@ public class ReceiveService {
             }
         }
         System.out.println(JSON.toJSONString(subs));
-
-
 
         List<Double> list10 = new ArrayList<>();
         List<Double> list20 = new ArrayList<>();
@@ -519,7 +777,7 @@ public class ReceiveService {
         }
         //5小于10或小于20剔除
         if(list.get(0).getMaFive() - list.get(1).getMaTen() < 0
-                || list.get(0).getMaFive() - list.get(1).getMaTwenty() <= 0){
+                || list.get(0).getMaFive() - list.get(1).getMaTwenty() < 0){
             return;
         }
         //10小于20剔除
