@@ -78,13 +78,26 @@ public class LineInitTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        List<Map<String,Object>> result = requestDayPyData("603725.SH");
-        if(null == result){
-            return;
-        }
-        expma(result);
-        for(Map<String,Object> map : result){
-            kLineService.saveDayLine(map);
+        String [] codes = new String[]{
+                "000005.SZ",
+                "000557.SZ",
+                "002246.SZ",
+                "002450.SZ",
+                "002918.SZ",
+                "600145.SH",
+                "600671.SH",
+                "601816.SH",
+                "603725.SH"
+        };
+        for(String code : codes){
+            List<Map<String,Object>> result = requestDayPyData(code);
+            if(null == result){
+                return;
+            }
+            expma(result);
+            for(Map<String,Object> map : result){
+                kLineService.saveDayLine(map);
+            }
         }
     }
 

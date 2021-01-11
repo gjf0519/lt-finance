@@ -1,6 +1,9 @@
 package com.lt;
 
 import com.alibaba.fastjson.JSONArray;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
+import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +20,9 @@ import java.util.Map;
  */
 public class Test {
     public static void main(String[] args) {
+
+        NormalDistribution normalDistributioin = new NormalDistribution(0,1);
+
         List<String> list = executePython("E:\\workspace-python\\day_line.py","002455.SH");
         for(String line : list){
                 List<String> vals = JSONArray.parseArray(line,String.class);

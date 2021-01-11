@@ -5,10 +5,14 @@ import com.lt.entity.KLineEntity;
 import com.lt.shape.StockAlgorithm;
 import com.lt.utils.BigDecimalUtil;
 import com.lt.utils.Constants;
+import com.lt.utils.Mutil;
+import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
+import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -123,7 +127,8 @@ public class ReceiveService {
             return;
         }
         try {
-            filterKline(list);
+            deviation(list);
+//            filterKline(list);
             //angles(list);
 //            maChange(list);
 //            filterSemesterAndYear(list);
@@ -403,6 +408,205 @@ public class ReceiveService {
         soheres.put("quarterSemesterCoheres",quarterSemesterCoheres);
         soheres.put("semesterYearCoheres",semesterYearCoheres);
         return soheres;
+    }
+
+    private static List<RangeResult> vectors = new Vector<>();
+
+    public void deviation(List<KLineEntity> list) {
+        double [] arr = new double[list.size()];
+        for(int i = 0;i < list.size();i++){
+            arr[i] = list.get(i).getMaFive();
+        }
+        Kurtosis kurtosis =new Kurtosis(); //峰值
+        Skewness skewness =new Skewness(); //偏态 小于0右偏
+//        System.out.println(kurtosis.evaluate(arr)+"======================"+list.get(0).getTsCode());
+//        System.out.println(skewness.evaluate(arr)+"======================"+list.get(0).getTsCode());
+//        System.out.println(range(arr)+"======================"+list.get(0).getTsCode());
+//        System.out.println(range2(arr)+"======================"+list.get(0).getTsCode());
+        double kurtosi = kurtosis.evaluate(arr);
+        if(kurtosi < -1.9 || kurtosi > 1.3){
+            return;
+        }
+        double skewnes = skewness.evaluate(arr);
+        if(skewnes > 1.5 || skewnes < -0.5){
+            return;
+        }
+        double ran = range(arr);
+        if(ran > 1.2){
+            return;
+        }
+        for(int i = 0;i < 10;i++){
+            KLineEntity entity = list.get(i);
+            if(entity.getMaFive() < entity.getMaTwenty()
+                    && entity.getMaTwenty() < entity.getMaMonth()
+                    && entity.getMaMonth() < entity.getMaQuarter()){
+                return;
+            }
+        }
+        if(list.get(0).getMaFive() - list.get(0).getMaTen() >= 0
+                && list.get(0).getMaTen() - list.get(0).getMaTwenty() >= 0
+                && list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
+                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
+                && list.get(0).getMaQuarter() - list.get(0).getMaSemester() >= 0
+                && list.get(0).getMaSemester() - list.get(0).getMaYear() >= 0){
+            ran = ran + -4;
+        }else if (list.get(0).getMaTen() - list.get(0).getMaTwenty() >= 0
+                && list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
+                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
+                && list.get(0).getMaQuarter() - list.get(0).getMaSemester() >= 0
+                && list.get(0).getMaSemester() - list.get(0).getMaYear() >= 0){
+            ran = ran + -3;
+        }else if(list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
+                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
+                && list.get(0).getMaQuarter() - list.get(0).getMaSemester() >= 0){
+            ran = ran + -2;
+        }else if(list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
+                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
+                && list.get(0).getMaSemester() - list.get(0).getMaYear() >= 0){
+            ran = ran + -1;
+        }
+        RangeResult result = new RangeResult();
+        result.setRan(ran);
+        result.setTscode(list.get(0).getTsCode());
+        vectors.add(result);
+//        synchronized (ranges){
+//            ranges.put(ran,list.get(0).getTsCode());
+//        }
+    }
+
+    public static void soutRanges(){
+//        for(Map.Entry<Double,String> entry : ranges.entrySet()){
+//            System.out.println(entry.getKey()+"=================="+entry.getValue());
+//        }
+//        System.out.println("====================================="+ranges.size());
+        vectors.stream()
+                .sorted(Comparator.comparing(RangeResult::getRan))
+                .forEach(o -> {
+            System.out.println(o.getRan()+"====================================="+o.getTscode());
+        });
+    }
+
+    class RangeResult {
+        private String tscode;
+        private Double ran;
+
+        public void setRan(Double ran) {
+            this.ran = ran;
+        }
+
+        public void setTscode(String tscode) {
+            this.tscode = tscode;
+        }
+
+        public String getTscode() {
+            return tscode;
+        }
+
+        public Double getRan() {
+            return ran;
+        }
+    }
+
+    /**
+     * 集中趋势量数：极差（不包含）
+     * @param in
+     * @return
+     */
+    public static double range(double[] in) {
+        if (in == null) {
+            throw new java.lang.NumberFormatException();
+        }
+        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < in.length; i++) {
+            max = Math.max(max, in[i]);
+            min = Math.min(min, in[i]);
+        }
+        // return max - min;
+        return Mutil.subtract(max, min);
+    }
+
+    /**
+     * 变异性量数：极差（包含）
+     * @param in
+     * @return
+     */
+    public static double range2(double[] in) {
+        if (in == null) {
+            throw new java.lang.NumberFormatException();
+        }
+        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < in.length; i++) {
+            max = Math.max(max, in[i]);
+            min = Math.min(min, in[i]);
+        }
+        // return max - min + 1;
+        return Mutil.subtract(max, min) + 1;
+    }
+
+    public static double median(double[] in) {
+        if (in == null) {
+            throw new java.lang.NumberFormatException();
+        }
+        Arrays.sort(in);
+
+        // for (int i = 0; i < in.length; i++) {
+        // log.debug("sort: "+i+":::"+in[i]);
+        // }
+        if (in.length % 2 == 1) {
+            return in[(int) Math.floor(in.length / 2)];
+        } else {
+            double[] avg = new double[2];
+            avg[0] = in[(int) Math.floor(in.length / 2) - 1];
+            avg[1] = in[(int) Math.floor(in.length / 2)];
+            return mean(avg);
+
+        }
+    }
+
+    public static double mean(double[] in) {
+        if (in == null) {
+            throw new java.lang.NumberFormatException();
+        }
+        if (in.length == 1) {
+            return in[0];
+        }
+        double sum = 0;
+        for (int i = 0; i < in.length; i++) {
+            sum = Mutil.add(sum, in[i]);
+            // sum += in[i];
+        }
+        // return sum/in.length;
+        return Mutil.divide(sum, in.length, 2);
+    }
+
+    public static List mode(double[] in) {
+        HashMap map = new HashMap();
+        double imode = 0;
+        for (int i = 0; i < in.length; i++) {
+            double x = in[i];
+            if (map.containsKey(String.valueOf(x))) {
+                // 如果出现多次，取出以前的计数，然后加1
+                int len = Integer.parseInt(map.get(String.valueOf(x)).toString());
+                map.put(String.valueOf(x), String.valueOf(len + 1));
+                imode = Math.max(imode, len + 1);
+            } else {
+                // 如果是第一次出现，计数为1
+                map.put(String.valueOf(x), String.valueOf(1));
+                imode = Math.max(imode, 1);
+            }
+        }
+        Iterator iter = map.keySet().iterator();
+        ArrayList lst = new ArrayList();
+        while (iter.hasNext()) {
+            Object key = iter.next();
+            Object v = map.get(key);
+            if (Integer.parseInt(v.toString()) == imode) {
+                lst.add(key);
+            }
+        }
+        return lst;
     }
 
     /**

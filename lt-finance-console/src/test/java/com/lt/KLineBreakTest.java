@@ -37,11 +37,12 @@ public class KLineBreakTest {
         }
         try {
             latch.await();
+            ReceiveService.soutRanges();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        receiveService.dayLineBreak("603968.SH");
-//        receiveService.dayLineBreak("603239.SH");
+//        receiveService.dayLineBreak("600170.SH");
+////        receiveService.dayLineBreak("603239.SH");
 //        receiveService.dayLineBreak("000890.SZ");
 ////        receiveService.dayLineBreak("601016.SH","20201222");
 //        //半年突破年但5 10 20 30 都在下方
