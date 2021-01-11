@@ -413,6 +413,24 @@ public class ReceiveService {
     private static List<RangeResult> vectors = new Vector<>();
 
     public void deviation(List<KLineEntity> list) {
+        if(list.get(0).getClose() > 50){
+            return;
+        }
+        //3日内大浮动
+        int lsign = 0;
+        for(int i = 0;i < 6;i++){
+            if(list.get(i).getMaFive() < list.get(i+1).getMaFive()){
+                lsign++;
+            }
+            if(lsign == 3){
+                return;
+            }
+            if(list.get(i).getPctChg() > 6 ||
+                    list.get(i).getPctChg() < -5){
+                return;
+            }
+        }
+
         double [] arr = new double[list.size()];
         for(int i = 0;i < list.size();i++){
             arr[i] = list.get(i).getMaFive();

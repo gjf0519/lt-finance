@@ -26,22 +26,22 @@ public class KLineBreakTest {
 
     @Test
     public void daybreak(){
-        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-        for(String item : Constants.STOCK_CODE){
-            threadPoolExecutor.execute(()->{
-                String flag = item.substring(0,2);
-                String code = item.substring(2,item.length());
-                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
-                latch.countDown();
-            });
-        }
-        try {
-            latch.await();
-            ReceiveService.soutRanges();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        receiveService.dayLineBreak("600170.SH");
+//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+//        for(String item : Constants.STOCK_CODE){
+//            threadPoolExecutor.execute(()->{
+//                String flag = item.substring(0,2);
+//                String code = item.substring(2,item.length());
+//                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
+//                latch.countDown();
+//            });
+//        }
+//        try {
+//            latch.await();
+//            ReceiveService.soutRanges();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        receiveService.dayLineBreak("600459.SH");
 ////        receiveService.dayLineBreak("603239.SH");
 //        receiveService.dayLineBreak("000890.SZ");
 ////        receiveService.dayLineBreak("601016.SH","20201222");
