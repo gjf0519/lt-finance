@@ -5,7 +5,9 @@ import com.lt.entity.KLineEntity;
 import com.lt.shape.StockAlgorithm;
 import com.lt.utils.BigDecimalUtil;
 import com.lt.utils.Constants;
+import com.lt.utils.KlineDistributionUtil;
 import com.lt.utils.Mutil;
+import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
 import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +129,9 @@ public class ReceiveService {
             return;
         }
         try {
-            deviation(list);
+            filterForm(list);
+//            KlineDistributionUtil.distributionTest(list);
+//            deviation(list);
 //            filterKline(list);
             //angles(list);
 //            maChange(list);
@@ -145,6 +149,68 @@ public class ReceiveService {
 //        }
 //        entity.setTsCode(tscode);
 //        kLineService.saveEmaBreak(entity);
+    }
+
+    public void filterForm(List<KLineEntity> list){
+        boolean isDisperse = disperseLevel(list);
+        if(!isDisperse){
+            return;
+        }
+        System.out.println(list.get(0).getTsCode()+"============================================");
+    }
+
+    /**
+     * 偏态
+     * @param list
+     */
+    public void deviateLevel(List<KLineEntity> list){
+
+    }
+
+    /**
+     * 离散程度
+     * @param list
+     * @return
+     */
+    public boolean disperseLevel(List<KLineEntity> list){
+        double [] arr1 = new double[list.size()];
+        for(int i = 0;i < list.size();i++){
+            arr1[i] = list.get(i).getMaFive();
+        }
+        double disperse1 = KlineDistributionUtil.distribution(arr1);
+        double [] arr2 = new double[list.size()];
+        for(int i = 0;i < list.size();i++){
+            arr2[i] = list.get(i).getMaTen();
+        }
+        double meanSub2 = StatUtils.meanDifference(arr1, arr2);
+        //平均差直接影响平均数的代表性
+        if(meanSub2 > 0.1 || meanSub2 < -0.1){
+            return false;
+        }
+        double disperse2 = KlineDistributionUtil.distribution(arr2);
+        double [] arr3 = new double[list.size()];
+        for(int i = 0;i < list.size();i++){
+            arr3[i] = list.get(i).getMaTwenty();
+        }
+        double meanSub3 = StatUtils.meanDifference(arr2, arr3);
+        double disperse3 = KlineDistributionUtil.distribution(arr3);
+        double [] arr4 = new double[list.size()];
+        for(int i = 0;i < list.size();i++){
+            arr4[i] = list.get(i).getMaMonth();
+        }
+        double meanSub4 = StatUtils.meanDifference(arr3, arr4);
+        double disperse4 = KlineDistributionUtil.distribution(arr4);
+
+        if(disperse1 > disperse2
+                || disperse2 > disperse3
+                || disperse3 > disperse4){
+            return false;
+        }
+        double fold = BigDecimalUtil.div(disperse4,disperse1,2);
+        if(fold < 2 || (disperse1 > 16 && disperse4 < 90)){
+            return false;
+        }
+        return true;
     }
 
     /**

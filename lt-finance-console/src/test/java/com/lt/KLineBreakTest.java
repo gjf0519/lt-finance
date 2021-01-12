@@ -26,24 +26,24 @@ public class KLineBreakTest {
 
     @Test
     public void daybreak(){
-//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-//        for(String item : Constants.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                String flag = item.substring(0,2);
-//                String code = item.substring(2,item.length());
-//                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//            ReceiveService.soutRanges();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        receiveService.dayLineBreak("600459.SH");
+        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+        for(String item : Constants.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+            ReceiveService.soutRanges();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        receiveService.dayLineBreak("688398.SH");
 ////        receiveService.dayLineBreak("603239.SH");
-//        receiveService.dayLineBreak("000890.SZ");
+//        receiveService.dayLineBreak("000687.SZ");//1.93-1.71 下降小于20
 ////        receiveService.dayLineBreak("601016.SH","20201222");
 //        //半年突破年但5 10 20 30 都在下方
 ////        receiveService.dayLineBreak("600644.SH","20201222");
@@ -51,7 +51,8 @@ public class KLineBreakTest {
 ////        receiveService.dayLineBreak("600292.SH","20201218");
 //
 ////        receiveService.dayLineBreak("002529.SZ","20201216");
-//        receiveService.dayLineBreak("000816.SZ","20200703");
+//        receiveService.dayLineBreak("000816.SZ","20201022");
+////        receiveService.dayLineBreak("000816.SZ","20200703");
 ////        receiveService.dayLineBreak("002342.SZ","20201113");
 //
 //        //丰乐
@@ -61,6 +62,11 @@ public class KLineBreakTest {
 
           //急速下跌
 //        receiveService.dayLineBreak("688299.SH","20210108");
+
+//        000713.SZ一组数据的离散系数为：79.64===-0.23000000000000043
+//        000713.SZ一组数据的离散系数为：111.24===0.08999999999999986
+//        000713.SZ一组数据的离散系数为：185.15===0.09999999999999964
+//        000713.SZ一组数据的离散系数为：99.59===0.35999999999999943
     }
 
     @Test
