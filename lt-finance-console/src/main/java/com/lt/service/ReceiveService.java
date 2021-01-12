@@ -131,6 +131,7 @@ public class ReceiveService {
         try {
             filterForm(list);
 //            KlineDistributionUtil.distributionTest(list);
+//            KlineDistributionUtil.peakTest(list);
 //            deviation(list);
 //            filterKline(list);
             //angles(list);
@@ -156,6 +157,10 @@ public class ReceiveService {
         if(!isDisperse){
             return;
         }
+        boolean isGather = KlineDistributionUtil.peakTest(list);
+        if(!isGather){
+            return;
+        }
         System.out.println(list.get(0).getTsCode()+"============================================");
     }
 
@@ -177,7 +182,7 @@ public class ReceiveService {
         for(int i = 0;i < list.size();i++){
             arr1[i] = list.get(i).getMaFive();
         }
-        double disperse1 = KlineDistributionUtil.distribution(arr1);
+        double disperse1 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr1),0);
         double [] arr2 = new double[list.size()];
         for(int i = 0;i < list.size();i++){
             arr2[i] = list.get(i).getMaTen();
@@ -187,19 +192,19 @@ public class ReceiveService {
         if(meanSub2 > 0.1 || meanSub2 < -0.1){
             return false;
         }
-        double disperse2 = KlineDistributionUtil.distribution(arr2);
+        double disperse2 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr2),0);
         double [] arr3 = new double[list.size()];
         for(int i = 0;i < list.size();i++){
             arr3[i] = list.get(i).getMaTwenty();
         }
-        double meanSub3 = StatUtils.meanDifference(arr2, arr3);
-        double disperse3 = KlineDistributionUtil.distribution(arr3);
+//        double meanSub3 = StatUtils.meanDifference(arr2, arr3);
+        double disperse3 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr3),0);
         double [] arr4 = new double[list.size()];
         for(int i = 0;i < list.size();i++){
             arr4[i] = list.get(i).getMaMonth();
         }
-        double meanSub4 = StatUtils.meanDifference(arr3, arr4);
-        double disperse4 = KlineDistributionUtil.distribution(arr4);
+//        double meanSub4 = StatUtils.meanDifference(arr3, arr4);
+        double disperse4 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr4),0);
 
         if(disperse1 > disperse2
                 || disperse2 > disperse3

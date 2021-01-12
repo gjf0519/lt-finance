@@ -41,7 +41,7 @@ public class KLineBreakTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        receiveService.dayLineBreak("688398.SH");
+//        receiveService.dayLineBreak("688009.SH");
 ////        receiveService.dayLineBreak("603239.SH");
 //        receiveService.dayLineBreak("000687.SZ");//1.93-1.71 下降小于20
 ////        receiveService.dayLineBreak("601016.SH","20201222");
@@ -56,8 +56,8 @@ public class KLineBreakTest {
 ////        receiveService.dayLineBreak("002342.SZ","20201113");
 //
 //        //丰乐
-//        receiveService.dayLineBreak("000713.SZ","20201217");
-////        receiveService.dayLineBreak("000713.SZ","20201209");
+////        receiveService.dayLineBreak("000713.SZ","20201217");
+//        receiveService.dayLineBreak("000713.SZ","20201209");
 //        receiveService.dayLineBreak("600189.SH","20201106");
 
           //急速下跌
