@@ -266,6 +266,9 @@ public class ReceiveService {
             if(list.get(0).getClose() > list.get(0).getMaTwenty()){
                 return level = 5;//"000713.SZ","20201217"
             }
+            if(list.get(0).getClose() < list.get(0).getMaMonth()){
+                return level = 0;
+            }
             level = 3;
         }else if(fiveSign >= 6 && tenTwentyCoheres.get(0) <= 0
                 && twentyMonthCoheres.get(0) <= 0
