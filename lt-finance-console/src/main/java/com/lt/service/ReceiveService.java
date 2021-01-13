@@ -130,8 +130,10 @@ public class ReceiveService {
         }
         try {
             filterForm(list);
-//            KlineDistributionUtil.distributionTest(list);
 //            KlineDistributionUtil.peakTest(list);
+//            KlineDistributionUtil.deviateTest(list);
+//            KlineDistributionUtil.distributionTest(list);
+//            KlineDistributionUtil.modeFilter(list);
 //            deviation(list);
 //            filterKline(list);
             //angles(list);
@@ -153,23 +155,136 @@ public class ReceiveService {
     }
 
     public void filterForm(List<KLineEntity> list){
+        Set<String> breaks = klineTrend(list);
+        if(breaks.isEmpty()){
+            return;
+        }
+        boolean isdw = klineSite(list);
+        if(!isdw){
+            return;
+        }
         boolean isDisperse = disperseLevel(list);
         if(!isDisperse){
             return;
         }
-        boolean isGather = KlineDistributionUtil.peakTest(list);
+        boolean isGather = KlineDistributionUtil.modeFilter(list);
         if(!isGather){
             return;
         }
-        System.out.println(list.get(0).getTsCode()+"============================================");
+        String dcode = KlineDistributionUtil.deviateTest(list);
+        if(null != dcode){
+            System.out.println(list.get(0).getTsCode()+"*******************************************************");
+            return;
+        }
+        String pcode = KlineDistributionUtil.peakTest(list);
+        if(null != pcode){
+            System.out.println(list.get(0).getTsCode()+"#######################################################");
+            return;
+        }
+        int cohereLevel = cohereLevel(list);
+        System.out.println(list.get(0).getTsCode()+"============================================"+cohereLevel);
+    }
+
+    public Set<String> klineTrend(List<KLineEntity> list){
+        Set<String> result = new HashSet<>();
+        int size = list.size() - 1;
+        if(list.get(size).getMaYear() < list.get(size).getMaSemester()
+                 && list.get(0).getMaYear() > list.get(0).getMaSemester()){
+            return result;
+        }
+
+        for(KLineEntity entity : list){
+            if(entity.getMaQuarter() > 0){
+                if(entity.getMaTwenty() > entity.getMaQuarter()){
+                    result.add(Constants.BREAK_20_60);
+                }
+                if(entity.getMaMonth() > entity.getMaQuarter()){
+                    result.add(Constants.BREAK_30_60);
+                }
+            }
+            if(entity.getMaSemester() > 0){
+                if(entity.getMaTwenty() > entity.getMaSemester()){
+                    result.add(Constants.BREAK_20_120);
+                }
+                if(entity.getMaMonth() > entity.getMaSemester()){
+                    result.add(Constants.BREAK_30_120);
+                }
+                if(entity.getMaMonth() > entity.getMaSemester()){
+                    result.add(Constants.BREAK_60_120);
+                }
+            }
+            if(entity.getMaYear() > 0){
+                if(entity.getMaTwenty() > entity.getMaYear()){
+                    result.add(Constants.BREAK_20_250);
+                }
+                if(entity.getMaMonth() > entity.getMaYear()){
+                    result.add(Constants.BREAK_30_250);
+                }
+                if(entity.getMaMonth() > entity.getMaYear()){
+                    result.add(Constants.BREAK_60_250);
+                }
+            }
+        }
+        return result;
     }
 
     /**
-     * 偏态
+     * 5日内位置
      * @param list
+     * @return
      */
-    public void deviateLevel(List<KLineEntity> list){
+    public boolean klineSite(List<KLineEntity> list){
+        for(int i = 0;i < 5;i++){
+            KLineEntity entity = list.get(i);
+            if(entity.getMaFive() < entity.getMaTwenty() &&
+                    entity.getMaFive() < entity.getMaTen() &&
+                    entity.getMaFive() < entity.getMaMonth()){
+                return false;
+            }
+        }
+        return true;
+    }
 
+    public int cohereLevel(List<KLineEntity> list){
+        Map<String,List<Double>> coheres = maCohere(list,10);
+        List<Double> faveTenCoheres = coheres.get("faveTenCoheres");
+        List<Double> tenTwentyCoheres = coheres.get("tenTwentyCoheres");
+        List<Double> twentyMonthCoheres = coheres.get("twentyMonthCoheres");
+        List<Double> monthQuarterCoheres = coheres.get("monthQuarterCoheres");
+        int level = 0;
+        int fiveSign = 0;
+        for(Double five : faveTenCoheres){
+            if(five == 0){
+                fiveSign++;
+            }
+        }
+
+        if((faveTenCoheres.get(0) <= 0 && faveTenCoheres.get(0) > -0.03)
+                && (tenTwentyCoheres.get(0) <= 0 && tenTwentyCoheres.get(0) > -0.03)
+                && (twentyMonthCoheres.get(0) <= 0 && twentyMonthCoheres.get(0) > -0.03)
+                && (monthQuarterCoheres.get(0) <= 0 && monthQuarterCoheres.get(0) > -0.03)){
+            if(list.get(0).getClose() > list.get(0).getMaTwenty()){
+                return level = 5;//"000713.SZ","20201217"
+            }
+            level = 3;
+        }else if(fiveSign >= 6 && tenTwentyCoheres.get(0) <= 0
+                && twentyMonthCoheres.get(0) <= 0
+                && monthQuarterCoheres.get(0) <= 0){
+            if(list.get(0).getClose() > list.get(0).getMaTwenty()){
+                return level = 5;//"600189.SH","20201106"
+            }
+            level = 3;
+        }else if(faveTenCoheres.get(0) == 0
+                || tenTwentyCoheres.get(0) == 0
+                || twentyMonthCoheres.get(0) == 0
+                || monthQuarterCoheres.get(0) == 0){
+            level = 1;
+        }
+        return level;
+//        System.out.println(JSON.toJSONString(faveTenCoheres));
+//        System.out.println(JSON.toJSONString(tenTwentyCoheres));
+//        System.out.println(JSON.toJSONString(twentyMonthCoheres));
+//        System.out.println(JSON.toJSONString(monthQuarterCoheres));
     }
 
     /**
@@ -178,13 +293,14 @@ public class ReceiveService {
      * @return
      */
     public boolean disperseLevel(List<KLineEntity> list){
-        double [] arr1 = new double[list.size()];
-        for(int i = 0;i < list.size();i++){
+        int size = 30;
+        double [] arr1 = new double[size];
+        for(int i = 0;i < size;i++){
             arr1[i] = list.get(i).getMaFive();
         }
         double disperse1 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr1),0);
-        double [] arr2 = new double[list.size()];
-        for(int i = 0;i < list.size();i++){
+        double [] arr2 = new double[size];
+        for(int i = 0;i < size;i++){
             arr2[i] = list.get(i).getMaTen();
         }
         double meanSub2 = StatUtils.meanDifference(arr1, arr2);
@@ -193,14 +309,14 @@ public class ReceiveService {
             return false;
         }
         double disperse2 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr2),0);
-        double [] arr3 = new double[list.size()];
-        for(int i = 0;i < list.size();i++){
+        double [] arr3 = new double[size];
+        for(int i = 0;i < size;i++){
             arr3[i] = list.get(i).getMaTwenty();
         }
 //        double meanSub3 = StatUtils.meanDifference(arr2, arr3);
         double disperse3 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr3),0);
-        double [] arr4 = new double[list.size()];
-        for(int i = 0;i < list.size();i++){
+        double [] arr4 = new double[size];
+        for(int i = 0;i < size;i++){
             arr4[i] = list.get(i).getMaMonth();
         }
 //        double meanSub4 = StatUtils.meanDifference(arr3, arr4);
@@ -1276,7 +1392,8 @@ public class ReceiveService {
         System.out.println(JSON.toJSONString(peeks));
         List<Set<String>> breaks = new ArrayList<>();
         for (KLineEntity entity:peeks) {
-            Set<String> bandSet = klineDistribute(entity);
+//            Set<String> bandSet = klineDistribute(entity);
+            Set<String> bandSet = null;
             breaks.add(bandSet);
         }
         System.out.println(JSON.toJSONString(breaks));
@@ -1417,86 +1534,86 @@ public class ReceiveService {
         return breaks;
     }
 
-    public Set<String> klineDistribute(KLineEntity entity){
-        Set<String> result = new HashSet<>();
-        //10日突破
-        if(entity.getMaFive() - entity.getMaTen() > 0){
-            result.add(Constants.BREAK_5_10);
-        }
-        //20日突破
-        if(entity.getMaTwenty() > 0){
-            if(entity.getMaFive() - entity.getMaTwenty() > 0){
-                result.add(Constants.BREAK_5_20);
-            }
-            if(entity.getMaTen() - entity.getMaTwenty() > 0){
-                result.add(Constants.BREAK_10_20);
-            }
-        }
-        //30日突破
-        if(entity.getMaMonth() > 0){
-            if(entity.getMaFive() - entity.getMaMonth() > 0){
-                result.add(Constants.BREAK_5_30);
-            }
-            if(entity.getMaTen() - entity.getMaMonth() > 0){
-                result.add(Constants.BREAK_10_30);
-            }
-            if(entity.getMaTwenty() - entity.getMaMonth() > 0){
-                result.add(Constants.BREAK_20_30);
-            }
-        }
-        //季突破
-        if(entity.getMaQuarter() > 0){
-            if(entity.getMaFive() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_5_60);
-            }
-            if(entity.getMaTen() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_10_60);
-            }
-            if(entity.getMaTwenty() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_20_60);
-            }
-            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_30_60);
-            }
-        }
-        //半年突破
-        if(entity.getMaSemester() > 0){
-            if(entity.getMaFive() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_5_120);
-            }
-            if(entity.getMaTen() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_10_120);
-            }
-            if(entity.getMaTwenty() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_20_120);
-            }
-            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_30_120);
-            }
-            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
-                result.add(Constants.BREAK_60_120);
-            }
-        }
-        //整年突破
-        if(entity.getMaYear() > 0){
-            if(entity.getMaFive() - entity.getMaYear() > 0){
-                result.add(Constants.BREAK_5_250);
-            }
-            if(entity.getMaTen() - entity.getMaYear() > 0){
-                result.add(Constants.BREAK_10_250);
-            }
-            if(entity.getMaTwenty() - entity.getMaYear() > 0){
-                result.add(Constants.BREAK_20_250);
-            }
-            if(entity.getMaMonth() - entity.getMaYear() > 0){
-                result.add(Constants.BREAK_30_250);
-            }
-            if(entity.getMaMonth() - entity.getMaYear() > 0){
-                result.add(Constants.BREAK_60_250);
-            }
-        }
-        return result;
-    }
+//    public Set<String> klineDistribute(KLineEntity entity){
+//        Set<String> result = new HashSet<>();
+//        //10日突破
+//        if(entity.getMaFive() - entity.getMaTen() > 0){
+//            result.add(Constants.BREAK_5_10);
+//        }
+//        //20日突破
+//        if(entity.getMaTwenty() > 0){
+//            if(entity.getMaFive() - entity.getMaTwenty() > 0){
+//                result.add(Constants.BREAK_5_20);
+//            }
+//            if(entity.getMaTen() - entity.getMaTwenty() > 0){
+//                result.add(Constants.BREAK_10_20);
+//            }
+//        }
+//        //30日突破
+//        if(entity.getMaMonth() > 0){
+//            if(entity.getMaFive() - entity.getMaMonth() > 0){
+//                result.add(Constants.BREAK_5_30);
+//            }
+//            if(entity.getMaTen() - entity.getMaMonth() > 0){
+//                result.add(Constants.BREAK_10_30);
+//            }
+//            if(entity.getMaTwenty() - entity.getMaMonth() > 0){
+//                result.add(Constants.BREAK_20_30);
+//            }
+//        }
+//        //季突破
+//        if(entity.getMaQuarter() > 0){
+//            if(entity.getMaFive() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_5_60);
+//            }
+//            if(entity.getMaTen() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_10_60);
+//            }
+//            if(entity.getMaTwenty() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_20_60);
+//            }
+//            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_30_60);
+//            }
+//        }
+//        //半年突破
+//        if(entity.getMaSemester() > 0){
+//            if(entity.getMaFive() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_5_120);
+//            }
+//            if(entity.getMaTen() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_10_120);
+//            }
+//            if(entity.getMaTwenty() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_20_120);
+//            }
+//            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_30_120);
+//            }
+//            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
+//                result.add(Constants.BREAK_60_120);
+//            }
+//        }
+//        //整年突破
+//        if(entity.getMaYear() > 0){
+//            if(entity.getMaFive() - entity.getMaYear() > 0){
+//                result.add(Constants.BREAK_5_250);
+//            }
+//            if(entity.getMaTen() - entity.getMaYear() > 0){
+//                result.add(Constants.BREAK_10_250);
+//            }
+//            if(entity.getMaTwenty() - entity.getMaYear() > 0){
+//                result.add(Constants.BREAK_20_250);
+//            }
+//            if(entity.getMaMonth() - entity.getMaYear() > 0){
+//                result.add(Constants.BREAK_30_250);
+//            }
+//            if(entity.getMaMonth() - entity.getMaYear() > 0){
+//                result.add(Constants.BREAK_60_250);
+//            }
+//        }
+//        return result;
+//    }
 
 
     public Map<String,String> ravineTrun(int index,List<KLineEntity> list){

@@ -76,11 +76,81 @@ public class KlineDistributionUtil {
         System.out.println(list.get(0).getTsCode()+"一组数据的离散系数为：" + disperse4+"==="+sub4);
     }
 
-    public static boolean peakTest(List<KLineEntity> list){
+    private static void lineValues(List<KLineEntity> list,int sign){
+    }
+
+    public static void checkArithmetic(){
+    }
+
+    public static String peakTest(List<KLineEntity> list){
+        int size = 5;
+        double [] arr1 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr1[i] = list.get(i).getMaFive();
+        }
+        double [] arr2 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr2[i] = list.get(i).getMaTen();
+        }
+        double [] arr3 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr3[i] = list.get(i).getMaTwenty();
+        }
+        double [] arr4 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr4[i] = list.get(i).getMaMonth();
+        }
+        Kurtosis kurtosis = new Kurtosis(); //峰值
+        double kurtosi1 = kurtosis.evaluate(arr1);
+        double kurtosi2 = kurtosis.evaluate(arr2);
+        double kurtosi3 = kurtosis.evaluate(arr3);
+        double kurtosi4 = kurtosis.evaluate(arr4);
+        if(Double.isNaN(kurtosi1) || Double.isNaN(kurtosi2)
+                || Double.isNaN(kurtosi3) || Double.isNaN(kurtosi4)){
+            return list.get(0).getTsCode();
+        }
+        return null;
+    }
+
+    public static String deviateTest(List<KLineEntity> list){
+        int size = 5;
+        double [] arr1 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr1[i] = list.get(i).getMaFive();
+        }
+        double [] arr2 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr2[i] = list.get(i).getMaTen();
+        }
+        double [] arr3 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr3[i] = list.get(i).getMaTwenty();
+        }
+        double [] arr4 = new double[size];
+        for(int i = 0;i < size;i++){
+            arr4[i] = list.get(i).getMaMonth();
+        }
+        Skewness skewness =new Skewness(); //偏态 小于0右偏
+        double skewnes1 = skewness.evaluate(arr1);
+        double skewnes2 = skewness.evaluate(arr2);
+        double skewnes3 = skewness.evaluate(arr3);
+        double skewnes4 = skewness.evaluate(arr4);
+        if(Double.isNaN(skewnes1) || Double.isNaN(skewnes2)
+                || Double.isNaN(skewnes3) || Double.isNaN(skewnes4)){
+            return list.get(0).getTsCode();
+        }
+        return null;
+    }
+
+    /**
+     * 众数计算集中度
+     * @param list
+     * @return
+     */
+    public static boolean modeFilter(List<KLineEntity> list){
         int [] limits = new int[]{5,10,20,30};
-        Map<Integer,List<Integer>> result = new HashMap<>();
+        int num = 0;
         for(int l = 0;l < limits.length;l++){
-            List<Integer> items = new ArrayList<>();
             int size = limits[l];
             double [] arr1 = new double[size];
             for(int i = 0;i < size;i++){
@@ -98,52 +168,36 @@ public class KlineDistributionUtil {
             for(int i = 0;i < size;i++){
                 arr4[i] = list.get(i).getMaMonth();
             }
-            Kurtosis kurtosis = new Kurtosis(); //峰值
-            Skewness skewness =new Skewness(); //偏态 小于0右偏
             double[] res1 = StatUtils.mode(arr1);//众数
-            double kurtosi1 = kurtosis.evaluate(arr1);
-            kurtosi1 = Double.isNaN(kurtosi1) ? 0.0:BigDecimalUtil.round(kurtosi1,2);
-            double skewnes1 = skewness.evaluate(arr1);
-            skewnes1 = Double.isNaN(skewnes1) ? 0.0:BigDecimalUtil.round(skewnes1,2);
-//            System.out.println(list.get(0).getTsCode()+"================="+kurtosi1+"============"+skewnes1+"==="+ JSON.toJSONString(res1));
             double[] res2 = StatUtils.mode(arr2);
-            double kurtosi2 = kurtosis.evaluate(arr2);
-            kurtosi2 = Double.isNaN(kurtosi2) ? 0.0:BigDecimalUtil.round(kurtosi2,2);
-            double skewnes2 = skewness.evaluate(arr2);
-            skewnes2 = Double.isNaN(skewnes2) ? 0.0:BigDecimalUtil.round(skewnes2,2);
-//            System.out.println(list.get(0).getTsCode()+"================="+kurtosi2+"============"+skewnes2+"==="+JSON.toJSONString(res2));
             double[] res3 = StatUtils.mode(arr3);
-            double kurtosi3 = kurtosis.evaluate(arr3);
-            kurtosi3 = Double.isNaN(kurtosi3) ? 0.0:BigDecimalUtil.round(kurtosi3,2);
-            double skewnes3 = skewness.evaluate(arr3);
-            skewnes3 = Double.isNaN(skewnes3) ? 0.0:BigDecimalUtil.round(skewnes3,2);
-//            System.out.println(list.get(0).getTsCode()+"================="+kurtosi3+"============"+skewnes3+"==="+JSON.toJSONString(res3));
             double[] res4 = StatUtils.mode(arr4);
-            double kurtosi4 = kurtosis.evaluate(arr4);
-            kurtosi4 = Double.isNaN(kurtosi4) ? 0.0:BigDecimalUtil.round(kurtosi4,2);
-            double skewnes4 = skewness.evaluate(arr4);
-            skewnes4 = Double.isNaN(skewnes4) ? 0.0:BigDecimalUtil.round(skewnes4,2);
-//            System.out.println(list.get(0).getTsCode()+"================="+kurtosi4+"============"+skewnes4+"==="+JSON.toJSONString(res4));
-            items.add(res1.length);
-            items.add(res2.length);
-            items.add(res3.length);
-            items.add(res4.length);
-            result.put(limits[l],items);
-        }
-
-        int sign = 0;
-        for (Map.Entry<Integer,List<Integer>> entry : result.entrySet()) {
-            double red = entry.getKey()/2;
-            for(Integer len : entry.getValue()){
-                if(len > red){
-                    sign++;
-                    break;
+            double redNum = size/2;
+            boolean isRed1 = res1.length > redNum ? true : false;
+            boolean isRed2 = res2.length > redNum ? true : false;
+            boolean isRed3 = res3.length > redNum ? true : false;
+            boolean isRed4 = res4.length > redNum ? true : false;
+            //如果10以上有两组众数超过5个的剔除数据
+            if(size != 5){
+                if((isRed1 && isRed2) || (isRed1 && isRed3) || (isRed1 && isRed4)){
+                    return false;
+                }
+                if((isRed2 && isRed3) || (isRed2 && isRed4) || (isRed3 && isRed4)){
+                    return false;
                 }
             }
+            if(isRed1 || isRed2 || isRed3 || isRed4){
+                continue;
+            }
+            num++;//统计5、10、20、30是否全部有大于一半以上的数据
+//            System.out.println(list.get(0).getTsCode()+"================="+ JSON.toJSONString(res1));
+//            System.out.println(list.get(0).getTsCode()+"================="+ JSON.toJSONString(res2));
+//            System.out.println(list.get(0).getTsCode()+"================="+ JSON.toJSONString(res3));
+//            System.out.println(list.get(0).getTsCode()+"================="+ JSON.toJSONString(res4));
         }
-        if (sign == limits.length)
+//        System.out.println(list.get(0).getTsCode()+"=================");
+        if (num == limits.length)
             return false;
         return true;
-//        System.out.println(list.get(0).getTsCode()+"=================");
     }
 }
