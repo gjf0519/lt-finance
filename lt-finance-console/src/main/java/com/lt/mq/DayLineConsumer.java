@@ -26,7 +26,7 @@ import java.util.Map;
  * @date 2020/12/3
  */
 @Slf4j
-//@Component
+@Component
 public class DayLineConsumer {
 
     @Value("${rocketmq.name-server}")
@@ -70,7 +70,7 @@ public class DayLineConsumer {
                     e.printStackTrace();
                 }
             }
-            System.out.println("日K数据开始消费");
+            System.out.println("DAY数据开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
     }

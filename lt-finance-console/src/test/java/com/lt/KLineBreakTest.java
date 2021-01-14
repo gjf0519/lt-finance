@@ -37,7 +37,6 @@ public class KLineBreakTest {
         }
         try {
             latch.await();
-            ReceiveService.soutRanges();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
