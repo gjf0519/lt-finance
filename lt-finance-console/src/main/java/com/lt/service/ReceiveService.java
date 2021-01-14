@@ -234,8 +234,17 @@ public class ReceiveService {
      * @return
      */
     public boolean klineSite(List<KLineEntity> list){
+        if(list.get(0).getPctChg() > 6){
+            return false;
+        }
+        if(list.get(0).getClose() < list.get(0).getMaTwenty()){
+            return false;
+        }
         for(int i = 0;i < 5;i++){
             KLineEntity entity = list.get(i);
+            if(entity.getPctChg() < -5){
+                return false;
+            }
             if(entity.getMaFive() < entity.getMaTwenty() &&
                     entity.getMaFive() < entity.getMaTen() &&
                     entity.getMaFive() < entity.getMaMonth()){
@@ -259,12 +268,23 @@ public class ReceiveService {
             }
         }
 
-        if((faveTenCoheres.get(0) <= 0 && faveTenCoheres.get(0) > -0.03)
-                && (tenTwentyCoheres.get(0) <= 0 && tenTwentyCoheres.get(0) > -0.03)
-                && (twentyMonthCoheres.get(0) <= 0 && twentyMonthCoheres.get(0) > -0.03)
-                && (monthQuarterCoheres.get(0) <= 0 && monthQuarterCoheres.get(0) > -0.03)){
-            if(list.get(0).getClose() > list.get(0).getMaTwenty()){
+        if((faveTenCoheres.get(0) <= 0 && faveTenCoheres.get(0) >= -0.03)
+                && (tenTwentyCoheres.get(0) <= 0 && tenTwentyCoheres.get(0) >= -0.03)
+                && (twentyMonthCoheres.get(0) <= 0 && twentyMonthCoheres.get(0) >= -0.03)
+                && (monthQuarterCoheres.get(0) <= 0 && monthQuarterCoheres.get(0) >= -0.03)){
+            if(list.get(0).getClose() > list.get(0).getMaTwenty()
+                    && list.get(0).getPctChg() < 0
+                    && list.get(1).getMaFive() > list.get(2).getMaFive()
+                    && list.get(2).getMaFive() > list.get(3).getMaFive()
+                    && list.get(3).getMaFive() > list.get(4).getMaFive()
+                    && list.get(4).getMaFive() > list.get(5).getMaFive()){
                 return level = 5;//"000713.SZ","20201217"
+            }
+            if(list.get(0).getMaFive() > list.get(1).getMaFive()
+                    && list.get(1).getMaFive() > list.get(2).getMaFive()
+                    && list.get(2).getMaFive() > list.get(3).getMaFive()
+                    && list.get(3).getMaFive() > list.get(4).getMaFive()){
+                return level = 4;
             }
             if(list.get(0).getClose() < list.get(0).getMaMonth()){
                 return level = 0;
@@ -324,11 +344,12 @@ public class ReceiveService {
         }
 //        double meanSub4 = StatUtils.meanDifference(arr3, arr4);
         double disperse4 = BigDecimalUtil.round(KlineDistributionUtil.distribution(arr4),0);
-
-        if(disperse1 > disperse2
-                || disperse2 > disperse3
-                || disperse3 > disperse4){
-            return false;
+        if(disperse3 < 100 && disperse4 < 100){
+            if(disperse1 > disperse2
+                    || disperse2 > disperse3
+                    || disperse3 > disperse4){
+                return false;
+            }
         }
         double fold = BigDecimalUtil.div(disperse4,disperse1,2);
         if(fold < 2 || (disperse1 > 16 && disperse4 < 90)){
