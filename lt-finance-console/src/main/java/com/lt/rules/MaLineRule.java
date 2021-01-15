@@ -9,6 +9,6 @@ import java.util.List;
  * @description
  * @date 2021/1/14
  */
-public interface MaLineRule<T,R> extends BaseRule<T,R> {
-    R verify(T list,MaLineType lineType);
+public interface MaLineRule<T,M,R> extends BaseRule<T,R> {
+    R verify(T t,M m);
 }

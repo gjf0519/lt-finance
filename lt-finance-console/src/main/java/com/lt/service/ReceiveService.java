@@ -116,6 +116,20 @@ public class ReceiveService {
      * 日K均线突破
      * @param tscode
      */
+    public List<KLineEntity> dayLineBreakRuleTest(String tscode,String tradeDate,int limit){
+        List<KLineEntity> list = null;
+        if(null == tradeDate){
+            list = kLineService.queryDayLineByLimit(tscode,limit);
+        }else {
+            list = kLineService.queryDayLineByLimitDate(tscode,limit,tradeDate);
+        }
+        return list;
+    }
+
+    /**
+     * 日K均线突破
+     * @param tscode
+     */
     public void dayLineBreak(String tscode,String tradeDate){
 //        int limit = 90;
         int limit = 30;

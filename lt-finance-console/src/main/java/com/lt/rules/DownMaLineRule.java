@@ -9,58 +9,67 @@ import java.util.Map;
 
 /**
  * @author gaijf
- * @description 回踩均线 -1下方0穿过1上方
+ * @description K线与均线位置
  * @date 2021/1/14
  */
 public class DownMaLineRule
-        extends AbstractBaseRule<KLineEntity,Map<String,Integer>> implements MaLineRule<KLineEntity,Map<String,Integer>>{
+        extends AbstractBaseRule<List<KLineEntity>,Integer>
+        implements MaLineRule<List<KLineEntity>,Integer,Integer>{
 
-    public static int [] SITES = new int[]{1,0,-1};
+    private MaLineType breakLine = MaLineType.LINE020;
+    private MaLineType directionalLine = MaLineType.LINE005;
 
-    @Override
-    public Map<String,Integer> verify(KLineEntity entity) {
-        if(null == entity){
-            return null;
-        }
-        Map<String,Integer> map = new HashMap<>();
-        for(MaLineType lineType :
-                MaLineType.values()){
-            Map<String,Integer> item = verify(entity, lineType);
-            if(null == item){
-                continue;
-            }
-            map.put(lineType.getName(),
-                            item.get(lineType.getName()));
-        }
-        return map;
+    public DownMaLineRule() {
+        super();
+    }
+
+    public DownMaLineRule(MaLineType breakLine, MaLineType directionalLine) {
+        this.breakLine = breakLine;
+        this.directionalLine = directionalLine;
     }
 
     @Override
-    public Map<String,Integer> verify(KLineEntity entity,
-                       MaLineType lineType) {
-        if(null == entity){
+    public Integer verify(List<KLineEntity> entitys) {
+        if(null == entitys || entitys.isEmpty()){
             return null;
         }
-        double kline = klineVal(entity,lineType);
-        if(0 == kline){
+        return verify(entitys,5);
+    }
+
+    /**
+     *
+     * @param entitys 数据
+     * @param limit 数据范围
+     * @return -1破线或连续下跌2次0回踩1拐头
+     */
+    @Override
+    public Integer verify(List<KLineEntity> entitys,Integer limit) {
+        if(null == entitys || entitys.isEmpty()){
             return null;
         }
-        Map<String,Integer> map = new HashMap<>();
-        double open = entity.getOpen();
-        double close = entity.getClose();
-        if(open >= kline && close >= kline){
-            map.put(lineType.getName(),SITES[0]);
-            return map;
+        double pckchg = entitys.get(0).getPctChg();
+        int num = 0;
+        double prev = 0;
+        for (int i = 0;i < limit;i++) {
+            KLineEntity entity = entitys.get(i);
+            double breakVal = klineVal(entity,this.breakLine);
+            double directional = klineVal(entity,this.directionalLine);
+            double price = entity.getPctChg() >= 0 ?
+                    entity.getOpen() : entity.getClose();
+            if(price < breakVal){
+                return -1;
+            }
+            if(0 == i){
+                prev = directional;
+                continue;
+            }
+            num = prev < directional ? (num+1) : 0;
+            if(num == 2 && pckchg < 0){
+                return -1;
+            }
+            prev = directional;
         }
-        if((open >= kline && close <= kline)
-                || (open <= kline && close >= kline)){
-            map.put(lineType.getName(),SITES[1]);
-            return map;
-        }
-        if(open <= kline && close <= kline){
-            map.put(lineType.getName(),SITES[2]);
-            return map;
-        }
-        return null;
+        int result = entitys.get(0).getClose() > entitys.get(1).getClose() ? 1 : 0;
+        return result;
     }
 }

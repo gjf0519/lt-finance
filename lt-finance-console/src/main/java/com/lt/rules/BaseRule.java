@@ -8,5 +8,5 @@ import java.util.List;
  * @date 2021/1/14
  */
 public interface BaseRule<T,R> {
-    R verify(T list);
+    R verify(T t);
 }
