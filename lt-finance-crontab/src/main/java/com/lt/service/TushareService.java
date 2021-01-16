@@ -74,7 +74,8 @@ public class TushareService {
      */
     public void requestWeekLine(String tscode) {
         try {
-            List<String> list = executePython("/home/python/week_line.py",tscode);
+            //List<String> list = executePython("/home/python/week_line.py",tscode);
+            List<String> list = executePython("D:/workspace-python/week_line.py",tscode);
             if(list.isEmpty()){
                 return;
             }
@@ -214,8 +215,8 @@ public class TushareService {
     private List<String> executePython(String pyPath,String tscode){
         List<String> list = new ArrayList<>();
         Process proc;
-        String[] args = new String[]{"/usr/local/python3.8/Python-3.8.0/python",pyPath,tscode};
-        log.info("脚本收集数据:{}",tscode);
+        String[] args = new String[]{"C:/python37/python",pyPath,tscode};
+        //String[] args = new String[]{"/usr/local/python3.8/Python-3.8.0/python",pyPath,tscode};
         try {
             proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(
@@ -231,6 +232,7 @@ public class TushareService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        log.info("脚本收集数据code:{},size:{}",tscode,list.size());
         return list;
     }
 }

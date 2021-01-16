@@ -47,11 +47,11 @@ public class RuleTest {
 //            e.printStackTrace();
 //        }
         List<KLineEntity> list = receiveService.
-                        dayLineBreakRuleTest("002040.SZ",null,30);
+                        dayLineBreakRuleTest("600428.SH","20201105",30);
         rule(list);
-        list = receiveService.
-                dayLineBreakRuleTest("002263.SZ","20210113",30);
-        rule(list);
+//        list = receiveService.
+//                dayLineBreakRuleTest("002263.SZ","20210113",30);
+//        rule(list);
 ////        receiveService.dayLineBreak("603239.SH");
 //        receiveService.dayLineBreak("000687.SZ");//1.93-1.71 下降小于20
 ////        receiveService.dayLineBreak("601016.SH","20201222");
@@ -78,35 +78,77 @@ public class RuleTest {
         //均匀排列
         MaLineArrangeRule maLineArrangeRule = new MaLineArrangeRule();
          int arrange = maLineArrangeRule.verify(list.get(0));
-        System.out.println("arrange=="+list.get(0).getTsCode()+"=="+arrange);
+         int arrangeLevel = 0;
+        if(arrange == 1){
+            arrangeLevel = 2;
+        } else if(arrange == 0){
+            arrangeLevel = 1;
+        }else {
+            return;
+        }
+//        System.out.println("arrange=="+list.get(0).getTsCode()+"=="+arrange);
         //持续性
         KlineContinueRule klineContinueRule = new KlineContinueRule();
-        int continueNum = klineContinueRule.verify(list,MaLineType.LINE005,10);
-        System.out.println("continueNum=="+list.get(0).getTsCode()+"=="+continueNum);
+        int continueNum5 = klineContinueRule.verify(list,MaLineType.LINE005,5);
+        int continueNum10 = klineContinueRule.verify(list,MaLineType.LINE005,10);
+//        System.out.println("continueNum=="+list.get(0).getTsCode()+"=="+continueNum);
+        if(continueNum10 < 5 && continueNum5 < 3){
+            return;
+        }
         //K位置
         SiteKlineMaLineRule siteKlineMaLineRule = new SiteKlineMaLineRule();
         Map<String,Integer> sites = siteKlineMaLineRule.verify(list.get(0));
-        System.out.println("sites=="+list.get(0).getTsCode()+"=="+JSON.toJSONString(sites));
+//        System.out.println("sites=="+list.get(0).getTsCode()+"=="+JSON.toJSONString(sites));
+        int siteLevel = 0;
+        if(sites.get(MaLineType.LINE005.getName()) == -1
+            && sites.get(MaLineType.LINE010.getName()) == 0
+            && sites.get(MaLineType.LINE020.getName()) == 1
+            && sites.get(MaLineType.LINE030.getName()) == 1){
+            //重点
+            siteLevel = 2;
+        }else if(sites.get(MaLineType.LINE020.getName()) == 1
+                && sites.get(MaLineType.LINE030.getName()) == 1){
+            //普通
+            siteLevel = 1;
+        }else {
+            return;
+        }
         //K距离
         KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
         double km = kmKlineMaLineRule.verify(list.get(0));
-        System.out.println("km=="+list.get(0).getTsCode()+"=="+km);
+        if(km > 0.01 || km < -0.01){
+            return;
+        }
+//        System.out.println("km=="+list.get(0).getTsCode()+"=="+km);
         //5日内回踩或拐头
         DownMaLineRule downMaLineRule = new DownMaLineRule();
-        int dw = downMaLineRule.verify(list);
-        System.out.println("dw=="+list.get(0).getTsCode()+"=="+dw);
+        int dw = downMaLineRule.verify(list);//-1破线或连续下跌2次0回踩1拐头
+        if(dw == -1){
+            return;
+        }
+//        System.out.println("dw=="+list.get(0).getTsCode()+"=="+dw);
         //均线振幅过滤
         LineRoseRule mlineRoseRule = new LineRoseRule(0.08,-0.03);
         int mrose = mlineRoseRule.verify(list,10);
-        System.out.println("mrose=="+list.get(0).getTsCode()+"=="+mrose);
+        if(mrose == 0){
+            return;
+        }
+//        System.out.println("mrose=="+list.get(0).getTsCode()+"=="+mrose);
         //K线振幅过滤
         LineRoseRule klineRoseRule = new LineRoseRule(2,5.9,-4.9);
         int krose = klineRoseRule.verify(list,10);
-        System.out.println("krose=="+list.get(0).getTsCode()+"=="+krose);
+        if(krose == 0){
+            return;
+        }
+//        System.out.println("krose=="+list.get(0).getTsCode()+"=="+krose);
         //振幅小于3大于-3数量
         LineRoseRule roseNums = new LineRoseRule(1,3,-3);
         int nums = roseNums.verify(list,10);
-        System.out.println("nums=="+list.get(0).getTsCode()+"=="+nums);
+//        System.out.println("nums=="+list.get(0).getTsCode()+"=="+nums);
+        if(nums < 6){
+            return;
+        }
         //重要突破
+        System.out.println(list.get(0).getTsCode()+"======================"+arrangeLevel+"==========================="+siteLevel);
     }
 }

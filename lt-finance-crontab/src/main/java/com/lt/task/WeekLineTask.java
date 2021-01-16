@@ -20,7 +20,7 @@ public class WeekLineTask {
     @Autowired
     TushareService tushareService;
 
-    @Scheduled(cron = "0 0 20 * * ? ")// 0/1 * * * * *
+    @Scheduled(cron = "0 34 21 * * ? ")// 0/1 * * * * *
     public void execute() {
         DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
         if(dayOfWeek != DayOfWeek.FRIDAY){
@@ -36,5 +36,6 @@ public class WeekLineTask {
             String code = item.substring(2,item.length());
             tushareService.requestWeekLine(code+"."+flag.toUpperCase());
         }
+        log.info("==========================周线收集数据完成======================");
     }
 }

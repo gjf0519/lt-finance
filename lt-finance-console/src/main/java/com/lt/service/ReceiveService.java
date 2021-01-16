@@ -143,7 +143,7 @@ public class ReceiveService {
             return;
         }
         try {
-            filterForm(list);
+//            filterForm(list);
 //            KlineDistributionUtil.peakTest(list);
 //            KlineDistributionUtil.deviateTest(list);
 //            KlineDistributionUtil.distributionTest(list);
@@ -153,7 +153,7 @@ public class ReceiveService {
             //angles(list);
 //            maChange(list);
 //            filterSemesterAndYear(list);
-//            demonLine(list);
+            demonLine(list);
 //            parallelDay(list);
 //            dayLinePeriod(list);
         }catch (Exception e){
@@ -203,7 +203,7 @@ public class ReceiveService {
         Set<String> result = new HashSet<>();
         int size = list.size() - 1;
         if(list.get(size).getMaYear() < list.get(size).getMaSemester()
-                 && list.get(0).getMaYear() > list.get(0).getMaSemester()){
+                && list.get(0).getMaYear() > list.get(0).getMaSemester()){
             return result;
         }
 
@@ -256,7 +256,7 @@ public class ReceiveService {
         }
         for(int i = 0;i < 5;i++){
             KLineEntity entity = list.get(i);
-            if(entity.getPctChg() < -5){
+            if(entity.getPctChg() > 5 || entity.getPctChg() < -5){
                 return false;
             }
             if(entity.getMaFive() < entity.getMaTwenty() &&
@@ -287,8 +287,16 @@ public class ReceiveService {
                 && (twentyMonthCoheres.get(0) <= 0 && twentyMonthCoheres.get(0) >= -0.03)
                 && (monthQuarterCoheres.get(0) <= 0 && monthQuarterCoheres.get(0) >= -0.03)){
             if(list.get(0).getClose() > list.get(0).getMaTwenty()
-                    && list.get(0).getPctChg() < 0
+                    && list.get(0).getMaFive() < list.get(1).getMaFive()
                     && list.get(1).getMaFive() > list.get(2).getMaFive()
+                    && list.get(2).getMaFive() > list.get(3).getMaFive()
+                    && list.get(3).getMaFive() > list.get(4).getMaFive()
+                    && list.get(4).getMaFive() > list.get(5).getMaFive()){
+                return level = 5;//"000713.SZ","20201217"
+            }
+            if(list.get(0).getClose() > list.get(0).getMaTwenty()
+                    && list.get(0).getMaFive() > list.get(1).getMaFive()
+                    && list.get(1).getMaFive() < list.get(2).getMaFive()
                     && list.get(2).getMaFive() > list.get(3).getMaFive()
                     && list.get(3).getMaFive() > list.get(4).getMaFive()
                     && list.get(4).getMaFive() > list.get(5).getMaFive()){
@@ -545,9 +553,9 @@ public class ReceiveService {
      * "000816.SZ","20200703"
      */
     public int specialTrend(List<Double> faveTenCoheres,
-                                List<Double> tenTwentyCoheres,
-                                List<Double> twentyMonthCoheres,
-                                List<Double> monthQuarterCoheres){
+                            List<Double> tenTwentyCoheres,
+                            List<Double> twentyMonthCoheres,
+                            List<Double> monthQuarterCoheres){
         int sign = 0;
         for(Double item : faveTenCoheres){
             if(item < -0.01 || item > 0.01){
@@ -725,8 +733,8 @@ public class ReceiveService {
         vectors.stream()
                 .sorted(Comparator.comparing(RangeResult::getRan))
                 .forEach(o -> {
-            System.out.println(o.getRan()+"====================================="+o.getTscode());
-        });
+                    System.out.println(o.getRan()+"====================================="+o.getTscode());
+                });
     }
 
     class RangeResult {
@@ -1164,10 +1172,10 @@ public class ReceiveService {
                 prev = "前五";
             }
             if(entity1.getPctChg() > 5 && entity1.getPctChg() < 9){
-               if(entity1.getOpen() > entity1.getMaFive()
-                       || entity1.getClose() < entity1.getMaFive()){
-                   return;
-               }
+                if(entity1.getOpen() > entity1.getMaFive()
+                        || entity1.getClose() < entity1.getMaFive()){
+                    return;
+                }
             }
             if(entity1.getPctChg() <= -5){
                 return;
