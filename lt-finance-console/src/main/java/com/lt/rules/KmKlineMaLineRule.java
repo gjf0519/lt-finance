@@ -37,6 +37,9 @@ public class KmKlineMaLineRule
         }
         double ratio = BigDecimalUtil.sub(
                 BigDecimalUtil.div(entity.getLow(),kline,2), 1,2);
+        double ratio2 = BigDecimalUtil.sub(
+                BigDecimalUtil.div(entity.getClose(),kline,2), 1,2);
+        ratio = ratio < -0.01 && (ratio2 == 0.01 || ratio2 == 0) ? ratio2 : ratio;
         return ratio;
     }
 }
