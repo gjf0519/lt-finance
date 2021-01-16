@@ -30,51 +30,43 @@ public class RuleTest {
 
     @Test
     public void daybreak(){
-//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-//        for(String item : Constants.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                String flag = item.substring(0,2);
-//                String code = item.substring(2,item.length());
-//                List<KLineEntity> list = receiveService.
-//                        dayLineBreakRuleTest(code+"."+flag.toUpperCase(),null,30);
-//                rule(list);
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        List<KLineEntity> list = receiveService.
-                        dayLineBreakRuleTest("600428.SH","20201105",30);
-        rule(list);
+        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+        for(String item : Constants.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                List<KLineEntity> list = receiveService.
+                        dayLineBreakRuleTest(code+"."+flag.toUpperCase(),null,30);
+                rule(list);
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        List<KLineEntity> list = receiveService.
+//                        dayLineBreakRuleTest("601288.SH","20201126",30);
+//        rule(list);
+//        list = receiveService.
+//                dayLineBreakRuleTest("000678.SZ",null,30);
+//        rule(list);
+//        list = receiveService.
+//                dayLineBreakRuleTest("601288.SH",null,30);
+//        rule(list);
+//        list = receiveService.
+//                dayLineBreakRuleTest("600873.SH",null,30);
+//        rule(list);
 //        list = receiveService.
 //                dayLineBreakRuleTest("002263.SZ","20210113",30);
 //        rule(list);
-////        receiveService.dayLineBreak("603239.SH");
-//        receiveService.dayLineBreak("000687.SZ");//1.93-1.71 下降小于20
-////        receiveService.dayLineBreak("601016.SH","20201222");
-//        //半年突破年但5 10 20 30 都在下方
-////        receiveService.dayLineBreak("600644.SH","20201222");
-//
-////        receiveService.dayLineBreak("600292.SH","20201218");
-//
-////        receiveService.dayLineBreak("002529.SZ","20201216");
-//        receiveService.dayLineBreak("000816.SZ","20201022");
-////        receiveService.dayLineBreak("000816.SZ","20200703");
-////        receiveService.dayLineBreak("002342.SZ","20201113");
-//
-//        //丰乐
-//        receiveService.dayLineBreak("000713.SZ","20201217");
-////        receiveService.dayLineBreak("000713.SZ","20201209");
-//        receiveService.dayLineBreak("600189.SH","20201106");
-
-        //急速下跌
-//        receiveService.dayLineBreak("688299.SH","20210108");
     }
 
     public static void rule(List<KLineEntity> list){
+        //凝聚程度
+        MaLineCohereRule maLineCohereRule = new MaLineCohereRule();
+        int cohere = maLineCohereRule.verify(list);
         //均匀排列
         MaLineArrangeRule maLineArrangeRule = new MaLineArrangeRule();
          int arrange = maLineArrangeRule.verify(list.get(0));
@@ -123,7 +115,7 @@ public class RuleTest {
         //5日内回踩或拐头
         DownMaLineRule downMaLineRule = new DownMaLineRule();
         int dw = downMaLineRule.verify(list);//-1破线或连续下跌2次0回踩1拐头
-        if(dw == -1){
+        if(dw == -1 && cohere == 0){
             return;
         }
 //        System.out.println("dw=="+list.get(0).getTsCode()+"=="+dw);

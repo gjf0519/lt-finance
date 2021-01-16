@@ -39,7 +39,7 @@ public class KlineContinueRule
                 prev = kline;
                 continue;
             }
-            num = prev > kline ? (num+1) : 0;
+            num = prev >= kline ? (num+1) : 0;
             maxNum = num > maxNum ? num : maxNum;
             prev = kline;
         }

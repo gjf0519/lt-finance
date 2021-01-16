@@ -143,7 +143,7 @@ public class ReceiveService {
             return;
         }
         try {
-//            filterForm(list);
+            filterForm(list);
 //            KlineDistributionUtil.peakTest(list);
 //            KlineDistributionUtil.deviateTest(list);
 //            KlineDistributionUtil.distributionTest(list);
@@ -153,7 +153,7 @@ public class ReceiveService {
             //angles(list);
 //            maChange(list);
 //            filterSemesterAndYear(list);
-            demonLine(list);
+//            demonLine(list);
 //            parallelDay(list);
 //            dayLinePeriod(list);
         }catch (Exception e){

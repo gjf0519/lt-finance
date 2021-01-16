@@ -13,6 +13,14 @@ import java.util.List;
  */
 public abstract class AbstractBaseRule<T,R> implements BaseRule<T,R> {
 
+    public List<Double> klineVals(KLineEntity kLineEntity){
+        List<Double> values = new ArrayList<>();
+        for(MaLineType lineType : MaLineType.values()){
+            values.add(klineVal(kLineEntity,lineType));
+        }
+        return values;
+    }
+
     public List<Double> klineVals(List<KLineEntity> list,
                                    MaLineType lineType){
         List<Double> values = new ArrayList<>();

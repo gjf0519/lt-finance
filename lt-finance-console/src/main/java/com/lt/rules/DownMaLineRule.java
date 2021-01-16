@@ -56,10 +56,10 @@ public class DownMaLineRule
             double directional = klineVal(entity,this.directionalLine);
             double price = entity.getPctChg() >= 0 ?
                     entity.getOpen() : entity.getClose();
-            if(price < breakVal){
-                return -1;
-            }
             if(0 == i){
+                if(price < breakVal){
+                    return -1;
+                }
                 prev = directional;
                 continue;
             }
@@ -71,15 +71,5 @@ public class DownMaLineRule
         }
         int result = entitys.get(0).getClose() > entitys.get(1).getClose() ? 1 : 0;
         return result;
-    }
-
-    //均线聚集
-    private void gather(){
-
-    }
-
-    //均线平行
-    private void parallel(){
-
     }
 }
