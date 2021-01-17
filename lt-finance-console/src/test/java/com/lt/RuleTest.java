@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -30,25 +29,25 @@ public class RuleTest {
 
     @Test
     public void daybreak(){
-//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-//        for(String item : Constants.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                String flag = item.substring(0,2);
-//                String code = item.substring(2,item.length());
-//                List<KLineEntity> list = receiveService.
-//                        dayLineBreakRuleTest(code+"."+flag.toUpperCase(),null,30);
-//                rule(list);
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        List<KLineEntity> list = receiveService.
-                        dayLineBreakRuleTest("603607.SH","20210113",30);
-        rule(list);
+        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
+        for(String item : Constants.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                String flag = item.substring(0,2);
+                String code = item.substring(2,item.length());
+                List<KLineEntity> list = receiveService.
+                        dayLineBreakRuleTest(code+"."+flag.toUpperCase(),null,30);
+                rule(list);
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        List<KLineEntity> list = receiveService.
+//                        dayLineBreakRuleTest("603607.SH","20210113",30);
+//        rule(list);
 //        list = receiveService.
 //                dayLineBreakRuleTest("000678.SZ",null,30);
 //        rule(list);
