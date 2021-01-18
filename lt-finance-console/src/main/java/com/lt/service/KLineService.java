@@ -88,4 +88,9 @@ public class KLineService {
     public void saveMonthLine(Map map) {
         kLineMapper.saveMonthLine(map);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteWeekByCode(String tscode) {
+        kLineMapper.deleteWeekByCode(tscode);
+    }
 }

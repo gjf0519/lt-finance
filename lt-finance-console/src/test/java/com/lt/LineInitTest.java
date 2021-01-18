@@ -50,12 +50,10 @@ public class LineInitTest {
 
     @Test
     public void initDay(){
-//        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-//        for(String item : Constants.STOCK_CODE){
+//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+//        for(String item : TsCodes.STOCK_CODE){
 //            threadPoolExecutor.execute(()->{
-//                String flag = item.substring(0,2);
-//                String code = item.substring(2,item.length());
-//                List<Map<String,Object>> result = requestDayPyData(code+"."+flag.toUpperCase());
+//                List<Map<String,Object>> result = requestDayPyData(item);
 //                System.out.println("============="+latch.getCount());
 //                if(null == result){
 //                latch.countDown();
@@ -79,7 +77,25 @@ public class LineInitTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        for(String code : TsCodes.STOCK_CODE){
+
+        String [] codes = new String[]{
+                "002966.SZ",
+                "003022.SZ",
+                "003026.SZ",
+                "003030.SZ",
+                "003032.SZ",
+                "003031.SZ",
+                "003033.SZ",
+                "003035.SZ",
+                "300787.SZ",
+                "300925.SZ",
+                "300928.SZ",
+                "300927.SZ",
+                "300926.SZ",
+                "605005.SH",
+                "605277.SH"
+        };
+        for(String code : codes){
             List<Map<String,Object>> result = requestDayPyData(code);
             if(null == result){
                 return;
@@ -93,28 +109,30 @@ public class LineInitTest {
 
     @Test
     public void initWeek(){
-        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-        for(String item : Constants.STOCK_CODE){
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
-                String flag = item.substring(0,2);
-                String code = item.substring(2,item.length());
-                List<Map<String,Object>> result = requestWeekPyData(code+"."+flag.toUpperCase());
-                //全量初始化
-                if(null == result){
-                    latch.countDown();
-                    return;
-                }
-                //均线计算
-                expma(result);
-                for(Map<String,Object> map : result){
-                    kLineService.saveWeekLine(map);
-                }
-                //数据补充
+                try{
+                    List<Map<String,Object>> result = requestWeekPyData(item);
+                    //全量初始化
+                    if(null == result){
+                        latch.countDown();
+                        return;
+                    }
+                    //均线计算
+                    expma(result);
+                    for(Map<String,Object> map : result){
+                        kLineService.saveWeekLine(map);
+                    }
+                    //数据补充
 //                if(null == result || result.isEmpty()){
 //                    latch.countDown();
 //                    return;
 //                }
 //                receiveService.receiveWeekLine(result.get(0));
+                }catch (Exception e){
+                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!"+item);
+                }
                 latch.countDown();
                 System.out.println("============="+latch.getCount());
             });
@@ -124,6 +142,31 @@ public class LineInitTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+//        for(String item : TsCodes.STOCK_CODE){
+//            receiveService.deleteWeekByCode(item);
+//        }
+//        String [] codes = new String[]{
+//                "300159.SZ",
+//                "300162.SZ",
+//                "300163.SZ",
+//                "300166.SZ",
+//                "300169.SZ",
+//                "300170.SZ",
+//                "300168.SZ",
+//                "300161.SZ",
+//                "300160.SZ"
+//        };
+//        for(String code : codes){
+//            List<Map<String,Object>> result = requestWeekPyData(code);
+//            if(null == result){
+//                return;
+//            }
+//            expma(result);
+//            for(Map<String,Object> map : result){
+//                kLineService.saveWeekLine(map);
+//            }
+//        }
     }
 
     @Test

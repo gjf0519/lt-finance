@@ -89,6 +89,9 @@ public class ReceiveService {
         }
     }
 
+    public void deleteWeekByCode(String item) {
+        kLineService.deleteWeekByCode(item);
+    }
     /**
      * 计算均线价格
      * @param closes

@@ -2,10 +2,7 @@ package com.lt.mapper;
 
 import com.lt.entity.KLineEntity;
 import com.lt.entity.EmaBreakEntity;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Map;
@@ -64,4 +61,7 @@ public interface KLineMapper {
     List<KLineEntity> queryWeekLineByLimitDate(@Param("code") String tscode,
                                                @Param("limit") int limit,
                                                @Param("trade_date") String tradeDate);
+
+    @Delete({"delete from lt_week_line where ts_code = #{code}"})
+    void deleteWeekByCode(@Param("code") String tscode);
 }
