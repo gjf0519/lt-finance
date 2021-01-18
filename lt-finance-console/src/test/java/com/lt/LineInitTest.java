@@ -8,6 +8,7 @@ import com.lt.service.ReceiveService;
 import com.lt.shape.StockAlgorithm;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,18 +79,7 @@ public class LineInitTest {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        String [] codes = new String[]{
-                "000005.SZ",
-                "000557.SZ",
-                "002246.SZ",
-                "002450.SZ",
-                "002918.SZ",
-                "600145.SH",
-                "600671.SH",
-                "601816.SH",
-                "603725.SH"
-        };
-        for(String code : codes){
+        for(String code : TsCodes.STOCK_CODE){
             List<Map<String,Object>> result = requestDayPyData(code);
             if(null == result){
                 return;
