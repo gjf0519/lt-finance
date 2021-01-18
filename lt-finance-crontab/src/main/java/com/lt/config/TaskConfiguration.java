@@ -2,6 +2,7 @@ package com.lt.config;
 
 import com.lt.task.DailyBasicTask;
 import com.lt.task.DayLineTask;
+import com.lt.task.StockBasicTask;
 import com.lt.task.WeekLineTask;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,16 @@ public class TaskConfiguration implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.setScheduler(Executors.newScheduledThreadPool(2));
+    }
+
+    /**
+     * 每日指标
+     * @return
+     */
+    @Bean
+    public StockBasicTask stockBasicTask(){
+        StockBasicTask stockBasicTask = new StockBasicTask();
+        return stockBasicTask;
     }
 
     /**

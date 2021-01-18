@@ -1,6 +1,5 @@
 package com.lt;
 
-import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import com.lt.rules.*;
 import com.lt.service.ReceiveService;
@@ -10,7 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -51,17 +51,9 @@ public class RuleTest {
 //        list = receiveService.
 //                dayLineBreakRuleTest("000678.SZ",null,30);
 //        rule(list);
-//        list = receiveService.
-//                dayLineBreakRuleTest("601288.SH",null,30);
-//        rule(list);
-//        list = receiveService.
-//                dayLineBreakRuleTest("600873.SH",null,30);
-//        rule(list);
-//        list = receiveService.
-//                dayLineBreakRuleTest("002263.SZ","20210113",30);
-//        rule(list);
     }
 
+    //上升通道
     public static void rule(List<KLineEntity> list){
         //凝聚程度
         MaLineCohereRule maLineCohereRule = new MaLineCohereRule();

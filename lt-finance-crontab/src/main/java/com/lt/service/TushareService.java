@@ -32,6 +32,51 @@ public class TushareService {
     @Autowired
     private DefaultMQProducer defaultMQProducer;
 
+    @Async
+    public void requestStockBasic() {
+        try {
+            String fields = "ts_code,symbol,name,area,industry,market,list_status,is_hs";
+            TushareResult tushareResult = requestData(null,"stock_basic",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            List<String> codes = new ArrayList<>();
+            for(Map<String,Object> map : list){
+                if("主板".equals(map.get("market"))){
+                    codes.add(map.get("ts_code").toString());
+                    continue;
+                };
+                if("中小板".equals(map.get("market"))){
+                    codes.add(map.get("ts_code").toString());
+                    continue;
+                };
+                if("创业板".equals(map.get("market"))){
+                    codes.add(map.get("ts_code").toString());
+                    continue;
+                };
+            }
+//            List<String> codes2 = new ArrayList<>();
+//            for(String item : Constants.STOCK_CODE){
+//                String flag = item.substring(0,2);
+//                String code = item.substring(2,item.length());
+//                codes2.add(code+"."+flag.toUpperCase());
+//            }
+//            List<String> codes3 = new ArrayList<>();
+//            for (String code:codes) {
+//                if(!codes2.contains(code)){
+//                    codes3.add(code);
+//                }
+//            }
+            System.out.println(JSON.toJSONString(codes));
+
+//            System.out.println(list.get(0));
+//            MqConfiguration.send(Constants.TUSHARE_BASIC_TOPIC,list.get(0),defaultMQProducer);
+        }catch (Exception e){
+            log.info("获取市场代码数据异常 Exception:{}",e);
+        }
+    }
+
     /**
      * 获取每日基本信息
      * @param tscode
@@ -116,7 +161,9 @@ public class TushareService {
     public TushareResult requestData(String tscode,String apiname,String fields){
         Map<String,Object> params = new HashMap<>();
         Map<String,Object> item = new HashMap<>();
-        item.put("ts_code", tscode);
+        if(null != tscode){
+            item.put("ts_code", tscode);
+        }
         String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
 //        String trade_date = "20201215";
         item.put("start_date", trade_date);
