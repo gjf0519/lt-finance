@@ -144,18 +144,7 @@ public class ReceiveService {
         }
         try {
             filterForm(list);
-//            KlineDistributionUtil.peakTest(list);
-//            KlineDistributionUtil.deviateTest(list);
-//            KlineDistributionUtil.distributionTest(list);
-//            KlineDistributionUtil.modeFilter(list);
-//            deviation(list);
-//            filterKline(list);
-            //angles(list);
-//            maChange(list);
-//            filterSemesterAndYear(list);
 //            demonLine(list);
-//            parallelDay(list);
-//            dayLinePeriod(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
             e.printStackTrace();
@@ -326,10 +315,6 @@ public class ReceiveService {
             level = 1;
         }
         return level;
-//        System.out.println(JSON.toJSONString(faveTenCoheres));
-//        System.out.println(JSON.toJSONString(tenTwentyCoheres));
-//        System.out.println(JSON.toJSONString(twentyMonthCoheres));
-//        System.out.println(JSON.toJSONString(monthQuarterCoheres));
     }
 
     /**
@@ -448,87 +433,6 @@ public class ReceiveService {
     }
 
     /**
-     * 连续上涨通道
-     * @param list
-     */
-    public void filterKline(List<KLineEntity> list){
-        if(list.get(0).getClose() > 50){
-            return;
-        }
-        //3日内大浮动
-        for(int i = 0;i < 6;i++){
-            if(list.get(i).getPctChg() > 6 ||
-                    list.get(i).getPctChg() < -5){
-                return;
-            }
-        }
-
-        Map<String,Double> trends = maTrend(list,10,1);
-        if(trends == null){
-            return;
-        }
-        if(trends.get("change") > 0.03 && trends.get("sign") < 5.0){
-            return;
-        }
-        int changeSign = maChange(list,10,3);
-        if(changeSign < 5){
-            return;
-        }
-        Map<String,List<Double>> coheres = maCohere(list,10);
-        List<Double> faveTenCoheres = coheres.get("faveTenCoheres");
-        List<Double> tenTwentyCoheres = coheres.get("tenTwentyCoheres");
-        List<Double> twentyMonthCoheres = coheres.get("twentyMonthCoheres");
-        List<Double> monthQuarterCoheres = coheres.get("monthQuarterCoheres");
-        List<Double> quarterSemesterCoheres = coheres.get("quarterSemesterCoheres");
-        List<Double> semesterYearCoheres = coheres.get("semesterYearCoheres");
-        if(!isAllLower(twentyMonthCoheres)){
-            return;
-        }
-        int special = specialTrend(faveTenCoheres,tenTwentyCoheres,twentyMonthCoheres,monthQuarterCoheres);
-        if(special > 0){
-            System.out.println(list.get(0).getTsCode()+"*****************************************"+special);
-            return;
-        }
-        if(special == 0){
-            //10、20、30依次在60以下排列
-            if(!isAllLower(tenTwentyCoheres) &&
-                    !isAllLower(twentyMonthCoheres) &&
-                    !isAllLower(monthQuarterCoheres)){
-                return;
-            }
-            //过滤掉大部分时间5在10、10在20、20在30以下
-            double faveSum = faveTenCoheres.stream().mapToDouble(o -> o).sum();
-            double tenSum = tenTwentyCoheres.stream().mapToDouble(o -> o).sum();
-            double twentySum = twentyMonthCoheres.stream().mapToDouble(o -> o).sum();
-            double maSum = faveSum+tenSum+twentySum;
-            if(maSum > 0){
-                return;
-            }
-            //过滤振幅
-            for(int i = 0;i < faveTenCoheres.size();i++){
-                Double item = faveTenCoheres.get(i);
-                if(item < -0.05){
-                    return;
-                }
-                if(item > 0.01){
-                    return;
-                }
-                if(i > 4 && (item < -0.01 || item > 0.01)){
-                    return;
-                }
-            }
-            //过滤振幅
-            for(int i = 0;i < semesterYearCoheres.size();i++){
-                Double item = semesterYearCoheres.get(i);
-                if(item < -0.15 && quarterSemesterCoheres.get(i) >= 0){
-                    return;
-                }
-            }
-        }
-        System.out.println(list.get(0).getTsCode()+"=====================================");
-    }
-
-    /**
      * 计算是否全部小于零
      * @param masites
      * @return
@@ -627,12 +531,6 @@ public class ReceiveService {
             quarterSemesterCoheres.add(faveSemesterCohere);
             semesterYearCoheres.add(faveYearCohere);
         }
-//        System.out.println(JSON.toJSONString(faveTenCoheres));
-//        System.out.println(JSON.toJSONString(tenTwentyCoheres));
-//        System.out.println(JSON.toJSONString(twentyMonthCoheres));
-//        System.out.println(JSON.toJSONString(monthQuarterCoheres));
-//        System.out.println(JSON.toJSONString(quarterSemesterCoheres));
-//        System.out.println(JSON.toJSONString(semesterYearCoheres));
         Map<String,List<Double>> soheres = new HashMap();
         soheres.put("faveTenCoheres",faveTenCoheres);
         soheres.put("tenTwentyCoheres",tenTwentyCoheres);
@@ -642,8 +540,6 @@ public class ReceiveService {
         soheres.put("semesterYearCoheres",semesterYearCoheres);
         return soheres;
     }
-
-    private static List<RangeResult> vectors = new Vector<>();
 
     public void deviation(List<KLineEntity> list) {
         if(list.get(0).getClose() > 50){
@@ -719,22 +615,6 @@ public class ReceiveService {
         RangeResult result = new RangeResult();
         result.setRan(ran);
         result.setTscode(list.get(0).getTsCode());
-        vectors.add(result);
-//        synchronized (ranges){
-//            ranges.put(ran,list.get(0).getTsCode());
-//        }
-    }
-
-    public static void soutRanges(){
-//        for(Map.Entry<Double,String> entry : ranges.entrySet()){
-//            System.out.println(entry.getKey()+"=================="+entry.getValue());
-//        }
-//        System.out.println("====================================="+ranges.size());
-        vectors.stream()
-                .sorted(Comparator.comparing(RangeResult::getRan))
-                .forEach(o -> {
-                    System.out.println(o.getRan()+"====================================="+o.getTscode());
-                });
     }
 
     class RangeResult {
@@ -775,45 +655,6 @@ public class ReceiveService {
         }
         // return max - min;
         return Mutil.subtract(max, min);
-    }
-
-    /**
-     * 变异性量数：极差（包含）
-     * @param in
-     * @return
-     */
-    public static double range2(double[] in) {
-        if (in == null) {
-            throw new java.lang.NumberFormatException();
-        }
-        double max = Double.MIN_VALUE;
-        double min = Double.MAX_VALUE;
-        for (int i = 0; i < in.length; i++) {
-            max = Math.max(max, in[i]);
-            min = Math.min(min, in[i]);
-        }
-        // return max - min + 1;
-        return Mutil.subtract(max, min) + 1;
-    }
-
-    public static double median(double[] in) {
-        if (in == null) {
-            throw new java.lang.NumberFormatException();
-        }
-        Arrays.sort(in);
-
-        // for (int i = 0; i < in.length; i++) {
-        // log.debug("sort: "+i+":::"+in[i]);
-        // }
-        if (in.length % 2 == 1) {
-            return in[(int) Math.floor(in.length / 2)];
-        } else {
-            double[] avg = new double[2];
-            avg[0] = in[(int) Math.floor(in.length / 2) - 1];
-            avg[1] = in[(int) Math.floor(in.length / 2)];
-            return mean(avg);
-
-        }
     }
 
     public static double mean(double[] in) {
@@ -889,46 +730,6 @@ public class ReceiveService {
     }
 
 
-    public void angles(List<KLineEntity> list){
-        Double [] fiveArrays = list.stream().map(o -> o.getMaFive()).collect(Collectors.toList()).toArray(new Double[list.size()]);
-        Map<String,Integer> bands = StockAlgorithm.calculateBand(4,fiveArrays);
-        List<Integer> subs = new ArrayList<>();
-        int prev = -1;
-        for(Map.Entry<String,Integer> entry : bands.entrySet()){
-            if("最高".equals(entry.getKey())){
-                continue;
-            }
-            if("最低".equals(entry.getKey())){
-                continue;
-            }
-            if(prev == -1){
-                prev = entry.getValue();
-                continue;
-            }else {
-                int sub = entry.getValue() - prev;
-                subs.add(sub);
-                prev = entry.getValue();
-            }
-        }
-        System.out.println(JSON.toJSONString(subs));
-
-        List<Double> list10 = new ArrayList<>();
-        List<Double> list20 = new ArrayList<>();
-        List<Double> list30 = new ArrayList<>();
-        List<Double> list40 = new ArrayList<>();
-        List<Double> list50 = new ArrayList<>();
-        Collections.reverse(list);
-        for (int i = 1;i < list.size();i++) {
-            KLineEntity entity1 = list.get(i);
-            KLineEntity entity2 = list.get(i-1);
-            double angle = StockAlgorithm.calculateAngle(entity1.getMaFive(),entity2.getMaFive());
-            if(angle <= 30 && angle >= -30){
-                list20.add(angle);
-            }
-        }
-        System.out.println(list.get(0).getTsCode()+"==="+JSON.toJSONString(list20));
-    }
-
     /**
      * 周K均线突破
      * @param tscode
@@ -961,254 +762,6 @@ public class ReceiveService {
 //        }
 //        entity.setTsCode(tscode);
 //        kLineService.saveEmaBreak(entity);
-    }
-
-
-    /**
-     * 过滤出突破半年或年线的数据
-     */
-    public void filterSemesterAndYear(List<KLineEntity> list){
-        if(list.get(0).getClose() > 50){
-            return;
-        }
-        if(list.get(0).getMaFive() -  list.get(0).getMaSemester() < 0
-                && list.get(0).getMaFive() -  list.get(0).getMaYear() < 0){
-            return;
-        }
-        double sy = list.get(0).getMaSemester() - list.get(0).getMaYear();
-        if(0 == list.get(0).getMaSemester()){
-            return;
-        }
-        double syradio = BigDecimalUtil.div(sy,list.get(0).getMaSemester(),4);
-        if(syradio < -0.1 || syradio > 0.2){
-            return;
-        }
-        double ys1 = list.get(0).getMaYear() - list.get(0).getMaSemester();
-        double ysradio1 = BigDecimalUtil.div(ys1,list.get(0).getMaSemester(),4);
-
-        double ys2 = list.get(10).getMaYear() - list.get(10).getMaSemester();
-        double ysradio2 = BigDecimalUtil.div(ys2,list.get(10).getMaSemester(),4);
-
-
-        if(ysradio1 - ysradio2 > 0){
-            return;
-        }
-        int sindex = 0;
-        for(int i = 0;i < list.size();i++){
-            if(list.get(i).getMaFive() - list.get(i).getMaSemester() < 0){
-                break;
-            }
-            sindex = i;
-        }
-
-        int yindex = 0;
-        for(int i = 0;i < list.size();i++){
-            if(list.get(i).getMaFive() - list.get(i).getMaYear() < 0){
-                break;
-            }
-            yindex = i;
-        }
-
-        int ysindex = 0;
-        for(int i = 0;i < list.size();i++){
-            if(list.get(i).getMaYear() - list.get(i).getMaSemester() > 0){
-                break;
-            }
-            ysindex = i;
-        }
-
-        int stime = sindex+1;
-        double ssub = list.get(0).getClose() - list.get(sindex).getClose();
-        double sratio = BigDecimalUtil.div(ssub,list.get(sindex).getClose(),4);
-
-        int ytime = yindex+1;
-        double ysub = list.get(0).getClose() - list.get(yindex).getClose();
-        double yratio = BigDecimalUtil.div(ysub,list.get(yindex).getClose(),4);
-
-        int ystime = ysindex+1;
-        double yssub = list.get(0).getClose() - list.get(ysindex).getClose();
-        double ysratio = BigDecimalUtil.div(yssub,list.get(ysindex).getClose(),4);
-        if(stime == 1 && ytime == 1){
-            return;
-        }
-        if(ytime == 1 && sratio > 0.1){
-            return;
-        }
-        if(ytime != 1 && yratio > 0.3){
-            return;
-        }
-        if(ystime != 1 && ysratio > 0.5){
-            return;
-        }
-        //5日均线在20日以下剔除
-        if(list.get(0).getMaFive() - list.get(0).getMaTwenty() < 0){
-            return;
-        }
-        //10日20日都在30日以下剔除并且30日在60日以下
-        if(list.get(0).getMaTen() - list.get(0).getMaMonth() < 0 ||
-                list.get(0).getMaTwenty() - list.get(0).getMaMonth() < 0 ||
-                list.get(0).getMaMonth() - list.get(0).getMaQuarter() < 0 ){
-            return;
-        }
-        System.out.println(list.get(0).getTsCode()+"=========="+sratio+"======="+stime+"======"+yratio+"========"+ytime+"=========="+ystime);
-    }
-
-    public void parallelWeek(List<KLineEntity> list){
-        if(list.isEmpty() || list.size() < 10){
-            return;
-        }
-
-        //小于20日均线全部剔除
-        if(list.get(0).getPctChg() <= 0){
-            if(list.get(0).getMaFive() - list.get(0).getMaTwenty() < 0 ||
-                    list.get(0).getMaFive() - list.get(0).getMaTen() < 0){
-                return;
-            }
-        }else {
-            if(list.get(0).getMaFive() - list.get(1).getMaTen() < 0){
-                return;
-            }
-            if(list.get(0).getMaFive() - list.get(1).getMaTwenty() < 0){
-                return;
-            }
-        }
-        for(int i =0;i < 5;i++){
-            //当前5日内10日均线必须在20日均线以上
-            if(list.get(i).getMaFive() - list.get(i).getMaTwenty()<0){
-                return;
-            }
-            if(list.get(i).getMaTen() - list.get(i).getMaTwenty()<0){
-                return;
-            }
-            double sub = list.get(i).getMaFive() - list.get(i).getMaTwenty();
-            double ratio = BigDecimalUtil.div(sub,list.get(0).getMaTwenty(),2);
-            if(ratio > 0.04){
-                return;
-            }
-        }
-        int sing = 0;
-        double pctchg = 0.0;
-        for(int i = 0;i < (list.size()-1);i++){
-            KLineEntity entity1 = list.get(i);
-            KLineEntity entity2 = list.get(i+1);
-            if(entity1.getMaFive() - entity2.getMaFive() >= 0){
-                sing++;
-            }else {
-                sing = 0;
-            }
-            if(entity1.getPctChg() > 10 || entity1.getPctChg() <= -10){
-                return;
-            }
-            pctchg = pctchg+entity1.getPctChg();
-        }
-        if(sing < 3){
-            return;
-        }
-        double ratio1 = 0.0;
-        if(list.get(0).getPctChg() < 0){
-            double sub = list.get(0).getClose() - list.get(0).getMaTwenty();
-            ratio1 = BigDecimalUtil.div(sub,list.get(0).getMaTwenty(),2);
-        }else {
-            double sub = list.get(0).getOpen() - list.get(0).getMaTwenty();
-            ratio1 = BigDecimalUtil.div(sub,list.get(0).getMaTwenty(),2);
-        }
-        System.out.println(list.get(0).getTsCode()+"======"+pctchg+"========"+sing+"============"+ratio1);
-    }
-
-    public void parallelDay(List<KLineEntity> list){
-        if(list.isEmpty() || list.size() < 10){
-            return;
-        }
-
-        if(list.get(0).getPctChg() <= 0){
-            //5日均线在20日以下剔除
-            if(list.get(0).getMaFive() - list.get(1).getMaTwenty() < 0){
-                return;
-            }
-            //5日10日20日都在30日以下剔除
-            if(list.get(0).getMaFive() - list.get(0).getMaMonth() < 0 &&
-                    list.get(0).getMaTen() - list.get(0).getMaMonth() < 0 &&
-                    list.get(0).getMaTwenty() - list.get(0).getMaMonth() < 0 ){
-                return;
-            }
-            //当前连续三日下跌剔除
-            if(list.get(0).getMaFive() - list.get(1).getMaFive() < 0 &&
-                    list.get(1).getMaFive() - list.get(2).getMaFive() < 0 &&
-                    list.get(2).getMaFive() - list.get(3).getMaFive() < 0){
-                return;
-            }
-        }else {
-            if(list.get(0).getMaFive() - list.get(1).getMaTwenty() < 0){
-                return;
-            }
-        }
-        for(int i =0;i < 5;i++){
-            //当前5日内10日均线必须在20日均线以上
-            if(list.get(i).getMaFive() - list.get(i).getMaTwenty()<0){
-                return;
-            }
-            if(list.get(i).getMaTen() - list.get(i).getMaTwenty()<0){
-                return;
-            }
-            double sub = list.get(i).getMaFive() - list.get(i).getMaTwenty();
-            double ratio = BigDecimalUtil.div(sub,list.get(0).getMaTwenty(),2);
-            if(ratio > 0.04){
-                return;
-            }
-        }
-
-        int sing = 0;
-        double pctchg = 0.0;
-        String prev = "后五";
-        for(int i = 0;i < (list.size()-1);i++){
-            KLineEntity entity1 = list.get(i);
-            KLineEntity entity2 = list.get(i+1);
-            if(entity1.getMaFive() - entity2.getMaFive() >= 0){
-                sing++;
-            }else if(sing < 3) {
-                sing = 0;
-            }
-            if(sing>=3 && i < 5){
-                prev = "前五";
-            }
-            if(entity1.getPctChg() > 5 && entity1.getPctChg() < 9){
-                if(entity1.getOpen() > entity1.getMaFive()
-                        || entity1.getClose() < entity1.getMaFive()){
-                    return;
-                }
-            }
-            if(entity1.getPctChg() <= -5){
-                return;
-            }
-            pctchg = pctchg+entity1.getPctChg();
-        }
-        if(sing < 3 || pctchg < 0){
-            return;
-        }
-        if(sing < 7 || pctchg < 0 || pctchg > 4){
-            return;
-        }
-        double ratio1 = 0.0;
-        if(list.get(0).getPctChg() < 0){
-            double sub = list.get(0).getClose() - list.get(0).getMaTwenty();
-            ratio1 = BigDecimalUtil.div(sub,list.get(0).getMaTwenty(),2);
-        }else {
-            double sub = list.get(0).getOpen() - list.get(0).getMaTwenty();
-            ratio1 = BigDecimalUtil.div(sub,list.get(0).getMaTwenty(),2);
-        }
-        if(ratio1 > 0.03){
-            return;
-        }
-        System.out.println(list.get(0).getTsCode()+"======="+pctchg+"======="+sing+"==========="+prev+"==========="+ratio1);
-    }
-
-    public void adhesionDegree(KLineEntity entity){
-        double rat1 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2),2);
-//        double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2),2);
-//        double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2),2);
-        double rat2 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaTen(),entity.getMaTwenty(),2),2);
-        double rat3 = BigDecimalUtil.sub(1,BigDecimalUtil.div(entity.getMaTwenty(),entity.getMaMonth(),2),2);
-        System.out.println(rat1+"======="+rat2+"============"+rat3);
     }
 
     /**
@@ -1423,150 +976,6 @@ public class ReceiveService {
         System.out.println(list.get(0).getTsCode()+"**"+ratiott0+"**"+pctchg+"**"+map);
     }
 
-    public List<Set<String>> dayLinePeriod(List<KLineEntity> list){
-        Double [] fiveArrays = list.stream().map(o -> o.getMaFive()).collect(Collectors.toList()).toArray(new Double[list.size()]);
-        Map<String,Integer> bands = StockAlgorithm.calculateBand(4,fiveArrays);
-        List<KLineEntity> peeks = new ArrayList<>();
-        List<KLineEntity> ravines = new ArrayList<>();
-        for(Map.Entry<String,Integer> entry : bands.entrySet()){
-            if(entry.getKey().startsWith("波峰")){
-                peeks.add(list.get(entry.getValue()));
-            }else if(entry.getKey().startsWith("波谷")){
-                ravines.add(list.get(entry.getValue()));
-            }
-        }
-        System.out.println(JSON.toJSONString(peeks));
-        List<Set<String>> breaks = new ArrayList<>();
-        for (KLineEntity entity:peeks) {
-//            Set<String> bandSet = klineDistribute(entity);
-            Set<String> bandSet = null;
-            breaks.add(bandSet);
-        }
-        System.out.println(JSON.toJSONString(breaks));
-
-        //对比波峰突破均线
-//        List<Set<String>> breaks = new ArrayList<>();
-//        for(int i = 0;i < (lineStatus.size()-1);i++){
-//            Set<String> item = new HashSet<>();
-//            Set<String> line1 = lineStatus.get(i);
-//            Set<String> line2 = lineStatus.get(i+1);
-//            item.addAll(line1);
-//            item.removeAll(line2);
-//            if(!item.isEmpty()){
-//                breaks.add(item);
-//            }
-//        }
-
-        //记录波峰突破记录
-//        Map<String,Set<String>> result = new HashMap<>();
-//        for (int i = 0;i < breaks.size();i++) {
-//            result.put(peeks.get(i).getTradeDate(),breaks.get(i));
-//        }
-        return breaks;
-    }
-
-    public void weekLinePeriod(List<KLineEntity> list){
-        Double [] fiveArrays = list.stream().map(o -> o.getMaFive()).collect(Collectors.toList()).toArray(new Double[list.size()]);
-        Map<String,Integer> bands = StockAlgorithm.calculateBand(4,fiveArrays);
-        int size = list.size() - 1;
-        if(size == bands.get("最高")){
-            return;
-        }
-        if(size == bands.get("最低")){
-            return;
-        }
-        String lastKey = "";
-        int lastPeekIndex = 0;
-        int lastRavineIndex = 0;
-        List<KLineEntity> peeks = new ArrayList<>();
-        List<KLineEntity> ravines = new ArrayList<>();
-        for(Map.Entry<String,Integer> entry : bands.entrySet()){
-            lastKey = entry.getKey();
-            if(entry.getKey().startsWith("波峰")){
-                lastPeekIndex = entry.getValue();
-                peeks.add(list.get(entry.getValue()));
-            }else if(entry.getKey().startsWith("波谷")){
-                lastRavineIndex = entry.getValue();
-                ravines.add(list.get(entry.getValue()));
-            }
-        }
-
-        int num = 1;//上涨或下跌趋势中第几次波段
-        for(int i = (ravines.size() - 1);i > 0;i--){
-            if(ravines.get(i).getMaFive()
-                    - ravines.get(i - 1).getMaFive() < 0){
-                break;
-            }
-            num++;
-        }
-
-        Map<String,String> trunMap = null;
-        if(lastKey.startsWith("波谷")){
-            if(lastPeekIndex == 0){
-                return;
-            }
-            trunMap = ravineTrun(lastPeekIndex,list);
-        }else {
-            if(lastRavineIndex == 0){
-                return;
-            }
-            trunMap = peekTrun(lastRavineIndex,list);
-        }
-
-        KLineEntity entity = list.get(size);
-        KLineEntity bandEntity = list.get(bands.get(lastKey));
-        double rose = entity.getMaFive() - bandEntity.getMaFive();
-        //上涨幅度
-        double roseRatio = BigDecimalUtil.div(rose,bandEntity.getMaFive(),2);
-        //本次上涨次数
-        int alt = size - bands.get(lastKey);
-//        if(num < 2 ){
-//            return;
-//        }
-//        if(alt < 4){
-//            return;
-//        }
-        if(lastKey.startsWith("波峰")){
-            if("0".equals(trunMap.get("isTrun"))){
-                return;
-            }
-            if("1".equals(trunMap.get("isBreak")) && entity.getPctChg() > 0.1){
-                return;
-            }
-        }else {
-            if("0".equals(trunMap.get("isBreak"))){
-                return;
-            }
-        }
-        if(roseRatio > 0.1){
-            return;
-        }
-        System.out.println(entity.getTsCode()+"========="+num+"========="+alt+"====="+trunMap.get("isTrun")+"========"+trunMap.get("isBreak")+"======"+roseRatio);
-        klineStatus(bandEntity,list);
-    }
-
-    /**
-     * 判断当前K线状态
-     * @param list
-     */
-    public void klineStatus(KLineEntity bandEntity,List<KLineEntity> list){
-        //是否拐头向下 向下天数 是否跌破20日均线 当前上涨下跌幅度
-        int size = list.size() - 1;
-        int day = 0;
-        for(int i = size;i > -1;i--){
-            if(list.get(i).getMaFive() - list.get(i-1).getMaFive() > 0){
-                day++;
-                continue;
-            }
-            break;
-        }
-        //均线变化
-//        Map<String,String> bandMap = klineDistribute(bandEntity);
-//        Map<String,String> realMap = klineDistribute(list.get(size));
-//        Map<String,String> breaks = thanKline(bandMap,realMap);
-//        System.out.println(bandEntity.getTsCode()+"========"+day+"========="+breaks);
-        // 当前均线状态 例如多头向上
-    }
 
     public Map<String,String> thanKline(Map<String,String> bandMap,Map<String,String> realMap){
         Map<String,String> breaks = new HashMap<>();
@@ -1579,88 +988,6 @@ public class ReceiveService {
         }
         return breaks;
     }
-
-//    public Set<String> klineDistribute(KLineEntity entity){
-//        Set<String> result = new HashSet<>();
-//        //10日突破
-//        if(entity.getMaFive() - entity.getMaTen() > 0){
-//            result.add(Constants.BREAK_5_10);
-//        }
-//        //20日突破
-//        if(entity.getMaTwenty() > 0){
-//            if(entity.getMaFive() - entity.getMaTwenty() > 0){
-//                result.add(Constants.BREAK_5_20);
-//            }
-//            if(entity.getMaTen() - entity.getMaTwenty() > 0){
-//                result.add(Constants.BREAK_10_20);
-//            }
-//        }
-//        //30日突破
-//        if(entity.getMaMonth() > 0){
-//            if(entity.getMaFive() - entity.getMaMonth() > 0){
-//                result.add(Constants.BREAK_5_30);
-//            }
-//            if(entity.getMaTen() - entity.getMaMonth() > 0){
-//                result.add(Constants.BREAK_10_30);
-//            }
-//            if(entity.getMaTwenty() - entity.getMaMonth() > 0){
-//                result.add(Constants.BREAK_20_30);
-//            }
-//        }
-//        //季突破
-//        if(entity.getMaQuarter() > 0){
-//            if(entity.getMaFive() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_5_60);
-//            }
-//            if(entity.getMaTen() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_10_60);
-//            }
-//            if(entity.getMaTwenty() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_20_60);
-//            }
-//            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_30_60);
-//            }
-//        }
-//        //半年突破
-//        if(entity.getMaSemester() > 0){
-//            if(entity.getMaFive() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_5_120);
-//            }
-//            if(entity.getMaTen() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_10_120);
-//            }
-//            if(entity.getMaTwenty() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_20_120);
-//            }
-//            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_30_120);
-//            }
-//            if(entity.getMaMonth() - entity.getMaQuarter() > 0){
-//                result.add(Constants.BREAK_60_120);
-//            }
-//        }
-//        //整年突破
-//        if(entity.getMaYear() > 0){
-//            if(entity.getMaFive() - entity.getMaYear() > 0){
-//                result.add(Constants.BREAK_5_250);
-//            }
-//            if(entity.getMaTen() - entity.getMaYear() > 0){
-//                result.add(Constants.BREAK_10_250);
-//            }
-//            if(entity.getMaTwenty() - entity.getMaYear() > 0){
-//                result.add(Constants.BREAK_20_250);
-//            }
-//            if(entity.getMaMonth() - entity.getMaYear() > 0){
-//                result.add(Constants.BREAK_30_250);
-//            }
-//            if(entity.getMaMonth() - entity.getMaYear() > 0){
-//                result.add(Constants.BREAK_60_250);
-//            }
-//        }
-//        return result;
-//    }
-
 
     public Map<String,String> ravineTrun(int index,List<KLineEntity> list){
         Map<String,String> map = new HashMap<>();
