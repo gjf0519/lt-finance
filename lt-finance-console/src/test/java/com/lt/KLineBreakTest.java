@@ -2,6 +2,7 @@ package com.lt;
 
 import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
+import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,12 +27,10 @@ public class KLineBreakTest {
 
     @Test
     public void daybreak(){
-        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-        for(String item : Constants.STOCK_CODE){
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
-                String flag = item.substring(0,2);
-                String code = item.substring(2,item.length());
-                receiveService.dayLineBreak(code+"."+flag.toUpperCase());
+                receiveService.dayLineBreak(item);
                 latch.countDown();
             });
         }

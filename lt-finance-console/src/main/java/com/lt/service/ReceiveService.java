@@ -146,8 +146,8 @@ public class ReceiveService {
             return;
         }
         try {
-            filterForm(list);
-//            demonLine(list);
+//            filterForm(list);
+            demonLine(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
             e.printStackTrace();
