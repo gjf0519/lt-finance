@@ -2,6 +2,7 @@ package com.lt.task;
 
 import com.lt.service.TushareService;
 import com.lt.utils.Constants;
+import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,15 +27,13 @@ public class DayLineTask {
         if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
             return;
         }
-        for(String item : Constants.STOCK_CODE){
+        for(String item : TsCodes.STOCK_CODE){
             try {
                 Thread.sleep(150);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-            tushareService.requestDayLine(code+"."+flag.toUpperCase());
+            tushareService.requestDayLine(item);
         }
         log.info("==========================日线收集数据完成======================");
     }

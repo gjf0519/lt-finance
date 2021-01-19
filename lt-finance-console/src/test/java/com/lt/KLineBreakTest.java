@@ -64,12 +64,10 @@ public class KLineBreakTest {
 
     @Test
     public void weekbreak(){
-        CountDownLatch latch = new CountDownLatch(Constants.STOCK_CODE.size());
-        for(String item : Constants.STOCK_CODE){
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
-                String flag = item.substring(0,2);
-                String code = item.substring(2,item.length());
-                receiveService.weekLineBreak(code+"."+flag.toUpperCase());
+                receiveService.weekLineBreak(item);
                 latch.countDown();
             });
         }

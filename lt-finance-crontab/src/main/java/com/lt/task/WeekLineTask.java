@@ -2,6 +2,7 @@ package com.lt.task;
 
 import com.lt.service.TushareService;
 import com.lt.utils.Constants;
+import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,15 +27,13 @@ public class WeekLineTask {
         if(dayOfWeek != DayOfWeek.FRIDAY){
             return;
         }
-        for(String item : Constants.STOCK_CODE){
+        for(String item : TsCodes.STOCK_CODE){
             try {
                 Thread.sleep(300);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            String flag = item.substring(0,2);
-            String code = item.substring(2,item.length());
-            tushareService.requestWeekLine(code+"."+flag.toUpperCase());
+            tushareService.requestWeekLine(item);
         }
         log.info("==========================周线收集数据完成======================");
     }
