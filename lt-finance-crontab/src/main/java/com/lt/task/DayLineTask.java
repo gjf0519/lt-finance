@@ -21,12 +21,13 @@ public class DayLineTask {
     @Autowired
     TushareService tushareService;
 
-    @Scheduled(cron = "0 0 17 * * ? ")// 0/1 * * * * *
+    @Scheduled(cron = "0 30 16 * * ? ")// 0/1 * * * * *
     public void execute() {
         DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
         if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
             return;
         }
+        log.info("==========================日线收集数据开始======================");
         for(String item : TsCodes.STOCK_CODE){
             try {
                 Thread.sleep(150);
