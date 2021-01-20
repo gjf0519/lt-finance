@@ -21,10 +21,10 @@ public class WeekLineTask {
     @Autowired
     TushareService tushareService;
 
-    @Scheduled(cron = "0 34 21 * * ? ")// 0/1 * * * * *
+    @Scheduled(cron = "0 0 10 * * ? ")// 0/1 * * * * *
     public void execute() {
         DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        if(dayOfWeek != DayOfWeek.FRIDAY){
+        if(dayOfWeek != DayOfWeek.SATURDAY){
             return;
         }
         for(String item : TsCodes.STOCK_CODE){
