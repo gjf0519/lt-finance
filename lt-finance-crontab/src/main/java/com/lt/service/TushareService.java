@@ -100,6 +100,7 @@ public class TushareService {
      * 获取日K数据
      * @param tscode
      */
+    @Async
     public void requestDayLine(String tscode){
         try {
             List<String> list = executePython("/home/python/day_line.py",tscode);
@@ -117,6 +118,7 @@ public class TushareService {
      * 获取周K线
      * @param tscode
      */
+    @Async
     public void requestWeekLine(String tscode) {
         try {
             List<String> list = executePython("/home/python/week_line.py",tscode);

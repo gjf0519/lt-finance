@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 public class RestConfiguration {
-    private static final int corePoolSize = 8;
+    private static final int corePoolSize = 4;
     private static final int maximumPoolSize = 50;
     private static final long keepAliveTime = 200;
     private static final int capacity = 10000;

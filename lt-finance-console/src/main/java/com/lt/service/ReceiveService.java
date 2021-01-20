@@ -65,6 +65,10 @@ public class ReceiveService {
         }
     }
 
+    /**
+     * 消费周K数据
+     * @param map
+     */
     public void receiveWeekLine(Map map) {
         try {
             String tscode = map.get("ts_code").toString();
@@ -146,7 +150,7 @@ public class ReceiveService {
             return;
         }
         try {
-//            filterForm(list);
+            filterForm(list);
             demonLine(list);
         }catch (Exception e){
             System.out.println(tscode+"=========================================");
@@ -273,7 +277,6 @@ public class ReceiveService {
                 fiveSign++;
             }
         }
-
         if((faveTenCoheres.get(0) <= 0 && faveTenCoheres.get(0) >= -0.03)
                 && (tenTwentyCoheres.get(0) <= 0 && tenTwentyCoheres.get(0) >= -0.03)
                 && (twentyMonthCoheres.get(0) <= 0 && twentyMonthCoheres.get(0) >= -0.03)
@@ -369,134 +372,6 @@ public class ReceiveService {
     }
 
     /**
-     * 方向连续状态
-     * @param list 数据集合
-     * @param limit 过滤范围
-     * @param direction 过滤方向 1上2下
-     */
-    public Map<String,Double> maTrend(List<KLineEntity> list,int limit,int direction){
-        double sign = 0;
-        limit = limit - 1;
-        Map<String,Double> trends = new HashMap<>();
-        if(1 == direction){
-            if(list.get(0).getMaFive() - list.get(limit).getMaFive() > 0){
-                trends.put("isTrend",1.0);
-            } else {
-                return null;
-            }
-            for(int i = 0;i < limit;i++){
-                if(list.get(i).getMaFive() -
-                        list.get(i+1).getMaFive() >= 0){
-                    sign = sign+1;
-                }else if(sign > 5){
-                    continue;
-                }else {
-                    sign = 0;
-                }
-            }
-        }else {
-            if(list.get(0).getMaFive() - list.get(limit).getMaFive() > 0){
-                trends.put("isTrend",1.0);
-            } else {
-                return null;
-            }
-            for(int i = 0;i < limit;i++){
-                if(list.get(i).getMaFive() -
-                        list.get(i+1).getMaFive() <= 0){
-                    sign = sign+1;
-                }else if(sign > 5){
-                    continue;
-                }else {
-                    sign = 0;
-                }
-            }
-        }
-        trends.put("sign",sign);
-        double change = BigDecimalUtil.sub(1,
-                BigDecimalUtil.div(list.get(0).getMaFive(),list.get(limit).getMaFive(),2),2);
-        trends.put("change",change);
-        return trends;
-    }
-
-    /**
-     * 振幅大小过滤
-     * @param list 数据集合
-     * @param limit 过滤范围
-     * @param chg 振幅限制
-     */
-    public int maChange(List<KLineEntity> list,int limit,double chg){
-        int sign = 0;
-        for(int i = 0;i < limit;i++){
-            if(list.get(i).getPctChg() < chg
-                    && list.get(i).getPctChg() > -chg){
-                sign++;
-            }
-        }
-        return sign;
-    }
-
-    /**
-     * 计算是否全部小于零
-     * @param masites
-     * @return
-     */
-    public boolean isAllLower(List<Double> masites){
-        for(Double item : masites){
-            if(item < 0){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 粘合特殊情况
-     * @param faveTenCoheres
-     * @param tenTwentyCoheres
-     * @param twentyMonthCoheres
-     * @param monthQuarterCoheres
-     * @return 0不是特殊情况，1特殊2特特殊
-     * "600189.SH","20201106"
-     * "000816.SZ","20200703"
-     */
-    public int specialTrend(List<Double> faveTenCoheres,
-                            List<Double> tenTwentyCoheres,
-                            List<Double> twentyMonthCoheres,
-                            List<Double> monthQuarterCoheres){
-        int sign = 0;
-        for(Double item : faveTenCoheres){
-            if(item < -0.01 || item > 0.01){
-                return 0;
-            }
-            if(0.0 == item){
-                sign++;
-            }
-        }
-        int result = 0;
-        if(sign >= 6){
-            result++;
-        }
-        for(Double item : tenTwentyCoheres){
-            if(item < -0.01 || item > 0.01){
-                return 0;
-            }
-        }
-        for(Double item : twentyMonthCoheres){
-            if(item < -0.01 || item > 0.01){
-                return 0;
-            }
-        }
-        result++;
-        for(Double item : monthQuarterCoheres){
-            if(item < -0.01 || item > 0.01){
-                return result;
-            }
-        }
-        result++;
-        return result;
-    }
-
-    /**
      * 粘合程度
      * @param list
      */
@@ -544,103 +419,6 @@ public class ReceiveService {
         return soheres;
     }
 
-    public void deviation(List<KLineEntity> list) {
-        if(list.get(0).getClose() > 50){
-            return;
-        }
-        //3日内大浮动
-        int lsign = 0;
-        for(int i = 0;i < 6;i++){
-            if(list.get(i).getMaFive() < list.get(i+1).getMaFive()){
-                lsign++;
-            }
-            if(lsign == 3){
-                return;
-            }
-            if(list.get(i).getPctChg() > 6 ||
-                    list.get(i).getPctChg() < -5){
-                return;
-            }
-        }
-
-        double [] arr = new double[list.size()];
-        for(int i = 0;i < list.size();i++){
-            arr[i] = list.get(i).getMaFive();
-        }
-        Kurtosis kurtosis =new Kurtosis(); //峰值
-        Skewness skewness =new Skewness(); //偏态 小于0右偏
-//        System.out.println(kurtosis.evaluate(arr)+"======================"+list.get(0).getTsCode());
-//        System.out.println(skewness.evaluate(arr)+"======================"+list.get(0).getTsCode());
-//        System.out.println(range(arr)+"======================"+list.get(0).getTsCode());
-//        System.out.println(range2(arr)+"======================"+list.get(0).getTsCode());
-        double kurtosi = kurtosis.evaluate(arr);
-        if(kurtosi < -1.9 || kurtosi > 1.3){
-            return;
-        }
-        double skewnes = skewness.evaluate(arr);
-        if(skewnes > 1.5 || skewnes < -0.5){
-            return;
-        }
-        double ran = range(arr);
-        if(ran > 1.2){
-            return;
-        }
-        for(int i = 0;i < 10;i++){
-            KLineEntity entity = list.get(i);
-            if(entity.getMaFive() < entity.getMaTwenty()
-                    && entity.getMaTwenty() < entity.getMaMonth()
-                    && entity.getMaMonth() < entity.getMaQuarter()){
-                return;
-            }
-        }
-        if(list.get(0).getMaFive() - list.get(0).getMaTen() >= 0
-                && list.get(0).getMaTen() - list.get(0).getMaTwenty() >= 0
-                && list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
-                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
-                && list.get(0).getMaQuarter() - list.get(0).getMaSemester() >= 0
-                && list.get(0).getMaSemester() - list.get(0).getMaYear() >= 0){
-            ran = ran + -4;
-        }else if (list.get(0).getMaTen() - list.get(0).getMaTwenty() >= 0
-                && list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
-                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
-                && list.get(0).getMaQuarter() - list.get(0).getMaSemester() >= 0
-                && list.get(0).getMaSemester() - list.get(0).getMaYear() >= 0){
-            ran = ran + -3;
-        }else if(list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
-                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
-                && list.get(0).getMaQuarter() - list.get(0).getMaSemester() >= 0){
-            ran = ran + -2;
-        }else if(list.get(0).getMaTwenty() - list.get(0).getMaMonth() >= 0
-                && list.get(0).getMaMonth() - list.get(0).getMaQuarter() >= 0
-                && list.get(0).getMaSemester() - list.get(0).getMaYear() >= 0){
-            ran = ran + -1;
-        }
-        RangeResult result = new RangeResult();
-        result.setRan(ran);
-        result.setTscode(list.get(0).getTsCode());
-    }
-
-    class RangeResult {
-        private String tscode;
-        private Double ran;
-
-        public void setRan(Double ran) {
-            this.ran = ran;
-        }
-
-        public void setTscode(String tscode) {
-            this.tscode = tscode;
-        }
-
-        public String getTscode() {
-            return tscode;
-        }
-
-        public Double getRan() {
-            return ran;
-        }
-    }
-
     /**
      * 集中趋势量数：极差（不包含）
      * @param in
@@ -658,22 +436,6 @@ public class ReceiveService {
         }
         // return max - min;
         return Mutil.subtract(max, min);
-    }
-
-    public static double mean(double[] in) {
-        if (in == null) {
-            throw new java.lang.NumberFormatException();
-        }
-        if (in.length == 1) {
-            return in[0];
-        }
-        double sum = 0;
-        for (int i = 0; i < in.length; i++) {
-            sum = Mutil.add(sum, in[i]);
-            // sum += in[i];
-        }
-        // return sum/in.length;
-        return Mutil.divide(sum, in.length, 2);
     }
 
     public static List mode(double[] in) {
@@ -703,35 +465,6 @@ public class ReceiveService {
         }
         return lst;
     }
-
-    /**
-     * 均价振幅
-     * @param list
-     */
-    public int maChange(List<KLineEntity> list){
-        List<Double> maTens = new ArrayList<>();
-        double lineCount = 0;
-        for (KLineEntity entity : list) {
-            double count = entity.getMaFive()+entity.getMaTen()+entity.getMaTwenty()+entity.getMaMonth();
-            lineCount = lineCount+BigDecimalUtil.div(count,4,2);
-            maTens.add(entity.getMaTen());
-        }
-
-        double tenAvg = BigDecimalUtil.div(lineCount,list.size(),2);
-        int hcount = 0;
-        for (Double ten : maTens) {
-            double ratio = BigDecimalUtil.sub(1,BigDecimalUtil.div(ten,tenAvg,2),2);
-            if(ratio >= 0.02){
-                hcount++;
-            }
-        }
-        if(hcount >= 10){
-            return 0;
-        }
-        System.out.println("======================================="+list.get(0).getTsCode());
-        return hcount;
-    }
-
 
     /**
      * 周K均线突破
@@ -977,82 +710,5 @@ public class ReceiveService {
             pctchg = pctchg + list.get(i).getPctChg();
         }
         System.out.println(list.get(0).getTsCode()+"**"+ratiott0+"**"+pctchg+"**"+map);
-    }
-
-
-    public Map<String,String> thanKline(Map<String,String> bandMap,Map<String,String> realMap){
-        Map<String,String> breaks = new HashMap<>();
-        for (Map.Entry<String,String> entry : bandMap.entrySet()) {
-            String v = entry.getValue();
-            String k = entry.getKey();
-            if("0".equals(v) && "1".equals(realMap.get(k))){
-                breaks.put(k,"1");
-            }
-        }
-        return breaks;
-    }
-
-    public Map<String,String> ravineTrun(int index,List<KLineEntity> list){
-        Map<String,String> map = new HashMap<>();
-        //波峰最高价
-        double price = limitMax(index,list);
-        int size = list.size() - 1;
-        double sub = list.get(size).getMaFive() - price;
-        String isBreak = "0";
-        //突破上次波峰
-        if(sub > 0){
-            isBreak = "1";
-        }
-        String isTrun = "0";
-        //开始转头
-        if(list.get(size).getMaFive() - list.get(size-1).getMaFive() < 0){
-            isTrun = "1";
-        }
-        map.put("isTrun",isTrun);
-        map.put("isBreak",isBreak);
-        return map;
-    }
-
-    public Map<String,String> peekTrun(int index,List<KLineEntity> list){
-        Map<String,String> map = new HashMap<>();
-        //波谷最低价
-        double price = limitMin(index,list);
-        int size = list.size() - 1;
-        double sub = list.get(size).getMaFive() - price;
-        String isBreak = "0";
-        //突破上次波谷
-        if(sub > 0){
-            isBreak = "1";
-        }
-        String isTrun = "0";
-        //开始转头
-        if(list.get(size).getMaFive() - list.get(size-1).getMaFive() > 0){
-            isTrun = "1";
-        }
-        map.put("isTrun",isTrun);
-        map.put("isBreak",isBreak);
-        return map;
-    }
-
-    private double limitMin(int index,List<KLineEntity> list){
-        int end = index > 4 ? 5 : index;
-        double min = list.get(index).getMaFive();
-        for(int i = 1;i < end;i++){
-            if(min > list.get(index-i).getMaFive()){
-                min = list.get(index-i).getMaFive();
-            }
-        }
-        return min;
-    }
-
-    private double limitMax(int index,List<KLineEntity> list){
-        int end = index > 4 ? 5 : index;
-        double min = list.get(index).getMaFive();
-        for(int i = 1;i < end;i++){
-            if(min < list.get(index-i).getMaFive()){
-                min = list.get(index-i).getMaFive();
-            }
-        }
-        return min;
     }
 }

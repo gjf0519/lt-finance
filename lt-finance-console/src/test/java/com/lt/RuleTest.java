@@ -38,7 +38,8 @@ public class RuleTest {
                             dayLineBreakRuleTest(item,null,30);
                     rule(list);
                 }catch (Exception e){
-                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+item);
+                    e.printStackTrace();
+                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 }
                 latch.countDown();
             });
@@ -49,7 +50,7 @@ public class RuleTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = receiveService.
-//                        dayLineBreakRuleTest("603607.SH","20210113",30);
+//                        dayLineBreakRuleTest("600495.SH",null,30);
 //        rule(list);
 //        list = receiveService.
 //                dayLineBreakRuleTest("000678.SZ",null,30);
@@ -102,8 +103,14 @@ public class RuleTest {
         //K距离
         KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
         double km = kmKlineMaLineRule.verify(list.get(0));
-        if(km > 0.01 || km < -0.01){
-            return;
+        if(arrangeLevel == 2){
+            if(km > 0.03 || km < -0.01){
+                return;
+            }
+        }else {
+            if(km > 0.01 || km < -0.01){
+                return;
+            }
         }
 //        System.out.println("km=="+list.get(0).getTsCode()+"=="+km);
         //5日内回踩或拐头
@@ -114,15 +121,29 @@ public class RuleTest {
         }
 //        System.out.println("dw=="+list.get(0).getTsCode()+"=="+dw);
         //均线振幅过滤
-        LineRoseRule mlineRoseRule = new LineRoseRule(0.08,-0.03);
-        int mrose = mlineRoseRule.verify(list,10);
-        if(mrose == 0){
-            return;
+        if(arrangeLevel == 2){
+            LineRoseRule mlineRoseRule = new LineRoseRule(0.12,-0.03);
+            int mrose = mlineRoseRule.verify(list,10);
+            if(mrose == 0){
+                return;
+            }
+        }else {
+            LineRoseRule mlineRoseRule = new LineRoseRule(0.08,-0.03);
+            int mrose = mlineRoseRule.verify(list,10);
+            if(mrose == 0){
+                return;
+            }
         }
 //        System.out.println("mrose=="+list.get(0).getTsCode()+"=="+mrose);
         //K线振幅过滤
-        LineRoseRule klineRoseRule = new LineRoseRule(2,5.9,-4.9);
-        int krose = klineRoseRule.verify(list,10);
+        int krose = 0;
+        if(arrangeLevel == 2){
+            LineRoseRule klineRoseRule = new LineRoseRule(2,8,-8);
+            krose = klineRoseRule.verify(list,10);
+        }else {
+            LineRoseRule klineRoseRule = new LineRoseRule(2,5.9,-4.9);
+            krose = klineRoseRule.verify(list,10);
+        }
         if(krose == 0){
             return;
         }
@@ -135,6 +156,6 @@ public class RuleTest {
             return;
         }
         //重要突破
-        System.out.println(list.get(0).getTsCode()+"======================"+arrangeLevel+"==========================="+siteLevel);
+        System.out.println(list.get(0).getTsCode()+"======================"+siteLevel+"==========================="+arrangeLevel);
     }
 }
