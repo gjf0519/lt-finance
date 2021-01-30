@@ -61,7 +61,4 @@ public interface KLineMapper {
     List<KLineEntity> queryWeekLineByLimitDate(@Param("code") String tscode,
                                                @Param("limit") int limit,
                                                @Param("trade_date") String tradeDate);
-
-    @Delete({"delete from lt_week_line where ts_code = #{code}"})
-    void deleteWeekByCode(@Param("code") String tscode);
 }

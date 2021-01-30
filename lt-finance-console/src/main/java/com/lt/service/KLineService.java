@@ -22,6 +22,34 @@ public class KLineService {
     private KLineMapper kLineMapper;
 
     /**
+     * 查询日K数据
+     * @param tscode
+     */
+    public List<KLineEntity> queryDayLineList(String tscode,String tradeDate,int limit){
+        List<KLineEntity> list = null;
+        if(null == tradeDate){
+            list = this.queryDayLineByLimit(tscode,limit);
+        }else {
+            list = this.queryDayLineByLimitDate(tscode,limit,tradeDate);
+        }
+        return list;
+    }
+
+    /**
+     * 查询周K数据
+     * @param tscode
+     */
+    public List<KLineEntity> queryWeekLineList(String tscode,String tradeDate,int limit){
+        List<KLineEntity> list = null;
+        if(null == tradeDate){
+            list = this.queryWeekLineByLimit(tscode,limit);
+        }else {
+            list = this.queryWeekLineByLimitDate(tscode,limit,tradeDate);
+        }
+        return list;
+    }
+
+    /**
      * 保存日K线数据
      * @param map
      */
@@ -87,10 +115,5 @@ public class KLineService {
     @Transactional(rollbackFor = Exception.class)
     public void saveMonthLine(Map map) {
         kLineMapper.saveMonthLine(map);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteWeekByCode(String tscode) {
-        kLineMapper.deleteWeekByCode(tscode);
     }
 }

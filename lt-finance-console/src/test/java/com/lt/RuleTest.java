@@ -1,17 +1,21 @@
 package com.lt;
 
 import com.lt.entity.KLineEntity;
-import com.lt.rules.*;
+import com.lt.rules.GreatBreakRule;
+import com.lt.rules.LineRoseRule;
+import com.lt.rules.MaLineArrangeRule;
+import com.lt.screen.RiseFormFilter;
+import com.lt.screen.day.DayRiseFormFilter;
+import com.lt.service.KLineService;
 import com.lt.service.ReceiveService;
 import com.lt.shape.MaLineType;
-import com.lt.utils.Constants;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -24,19 +28,24 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class RuleTest {
 
     @Autowired
-    ReceiveService receiveService;
+    KLineService kLineService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Test
     public void daybreak(){
+        RiseFormFilter riseFormFilter = new DayRiseFormFilter();
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
                 try {
-                    List<KLineEntity> list = receiveService.
-                            dayLineBreakRuleTest(item,null,30);
-                    rule(list);
+                    List<KLineEntity> list = kLineService
+                            .queryDayLineList(item,null,30);
+                    int riseNum = riseFormFilter.execute(list);
+                    if(riseNum > 0){
+                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+                    }
+//                    dayGreatRule(list);
                 }catch (Exception e){
                     e.printStackTrace();
                     System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -49,113 +58,64 @@ public class RuleTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        List<KLineEntity> list = receiveService.
-//                        dayLineBreakRuleTest("600495.SH",null,30);
-//        rule(list);
-//        list = receiveService.
-//                dayLineBreakRuleTest("000678.SZ",null,30);
-//        rule(list);
+//        List<KLineEntity> list = kLineService.
+//                        queryDayLineList("600328.SH",null,30);
+//        int riseNum = riseFormFilter.execute(list);
+//        if(riseNum > 0){
+//            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//        }
     }
 
-    //上升通道
-    public static void rule(List<KLineEntity> list){
-        //凝聚程度
-        MaLineCohereRule maLineCohereRule = new MaLineCohereRule();
-        int cohere = maLineCohereRule.verify(list);
-        //均匀排列
+    @Test
+    public void weekbreak(){
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                try {
+                    List<KLineEntity> list = kLineService
+                            .queryWeekLineList(item,null,30);
+                    weekUprule(list);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                }
+                latch.countDown();
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void weekUprule(List<KLineEntity> list){
+        //新股过滤
+        if(list.size() < 30){
+            return;
+        }
         MaLineArrangeRule maLineArrangeRule = new MaLineArrangeRule();
-         int arrange = maLineArrangeRule.verify(list.get(0));
-         int arrangeLevel = 0;
-        if(arrange == 1){
-            arrangeLevel = 2;
-        } else if(arrange == 0){
-            arrangeLevel = 1;
-        }else {
-            return;
-        }
-//        System.out.println("arrange=="+list.get(0).getTsCode()+"=="+arrange);
-        //持续性
-        KlineContinueRule klineContinueRule = new KlineContinueRule();
-        int continueNum5 = klineContinueRule.verify(list,MaLineType.LINE005,5);
-        int continueNum10 = klineContinueRule.verify(list,MaLineType.LINE005,10);
-//        System.out.println("continueNum=="+list.get(0).getTsCode()+"=="+continueNum);
-        if(continueNum10 < 5 && continueNum5 < 3){
-            return;
-        }
-        //K位置
-        SiteKlineMaLineRule siteKlineMaLineRule = new SiteKlineMaLineRule();
-        Map<String,Integer> sites = siteKlineMaLineRule.verify(list.get(0));
-//        System.out.println("sites=="+list.get(0).getTsCode()+"=="+JSON.toJSONString(sites));
-        int siteLevel = 0;
-        if(sites.get(MaLineType.LINE005.getName()) == -1
-            && sites.get(MaLineType.LINE010.getName()) == 0
-            && sites.get(MaLineType.LINE020.getName()) == 1
-            && sites.get(MaLineType.LINE030.getName()) == 1){
-            //重点
-            siteLevel = 2;
-        }else if(sites.get(MaLineType.LINE020.getName()) == 1
-                && sites.get(MaLineType.LINE030.getName()) == 1){
-            //普通
-            siteLevel = 1;
-        }else {
-            return;
-        }
-        //K距离
-        KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
-        double km = kmKlineMaLineRule.verify(list.get(0));
-        if(arrangeLevel == 2){
-            if(km > 0.03 || km < -0.01){
-                return;
-            }
-        }else {
-            if(km > 0.01 || km < -0.01){
+        List<MaLineType> maLineTypes = Arrays.asList(MaLineType.LINE010,MaLineType.LINE020,MaLineType.LINE030);
+        if(list.get(0).getMaQuarter() > list.get(0).getMaMonth()){
+            int arrange = maLineArrangeRule.verify(list.get(0),maLineTypes);
+            if(arrange != 1){
                 return;
             }
         }
-//        System.out.println("km=="+list.get(0).getTsCode()+"=="+km);
-        //5日内回踩或拐头
-        DownMaLineRule downMaLineRule = new DownMaLineRule();
-        int dw = downMaLineRule.verify(list);//-1破线或连续下跌2次0回踩1拐头
-        if(dw == -1 && cohere == 0){
+        System.out.println(list.get(0).getTsCode()+"======================");
+    }
+
+    public static void dayGreatRule(List<KLineEntity> list){
+        GreatBreakRule greatBreakRule = new GreatBreakRule();
+        int breakNum = greatBreakRule.verify(list);
+        if(breakNum < 1){
             return;
         }
-//        System.out.println("dw=="+list.get(0).getTsCode()+"=="+dw);
-        //均线振幅过滤
-        if(arrangeLevel == 2){
-            LineRoseRule mlineRoseRule = new LineRoseRule(0.12,-0.03);
-            int mrose = mlineRoseRule.verify(list,10);
-            if(mrose == 0){
-                return;
-            }
-        }else {
-            LineRoseRule mlineRoseRule = new LineRoseRule(0.08,-0.03);
-            int mrose = mlineRoseRule.verify(list,10);
-            if(mrose == 0){
-                return;
-            }
-        }
-//        System.out.println("mrose=="+list.get(0).getTsCode()+"=="+mrose);
-        //K线振幅过滤
-        int krose = 0;
-        if(arrangeLevel == 2){
-            LineRoseRule klineRoseRule = new LineRoseRule(2,8,-8);
-            krose = klineRoseRule.verify(list,10);
-        }else {
-            LineRoseRule klineRoseRule = new LineRoseRule(2,5.9,-4.9);
-            krose = klineRoseRule.verify(list,10);
-        }
-        if(krose == 0){
+        LineRoseRule klineRoseRule = new LineRoseRule(2,2.1,-2.1);
+        int rose = klineRoseRule.verify(list,5);
+        if(rose == 0){
             return;
         }
-//        System.out.println("krose=="+list.get(0).getTsCode()+"=="+krose);
-        //振幅小于3大于-3数量
-        LineRoseRule roseNums = new LineRoseRule(1,3,-3);
-        int nums = roseNums.verify(list,10);
-//        System.out.println("nums=="+list.get(0).getTsCode()+"=="+nums);
-        if(nums < 6){
-            return;
-        }
-        //重要突破
-        System.out.println(list.get(0).getTsCode()+"======================"+siteLevel+"==========================="+arrangeLevel);
+        System.out.println(list.get(0).getTsCode()+"======================"+breakNum);
     }
 }
