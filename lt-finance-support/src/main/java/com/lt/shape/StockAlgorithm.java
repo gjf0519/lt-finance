@@ -26,7 +26,7 @@ public class StockAlgorithm {
             double avg = prices.get(i);
             int stopy = i-day+1;
             for(int y = (i-1);y >= stopy;y--){
-                avg = BigDecimalUtil.add(avg,prices.get(y),2);
+                avg = BigDecimalUtil.add(avg,prices.get(y),4);
             }
             avg = BigDecimalUtil.div(avg,day,2);
             result.add(avg);

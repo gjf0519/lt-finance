@@ -22,6 +22,15 @@ public class KLineService {
     private KLineMapper kLineMapper;
 
     /**
+     * 列表日K数据
+     * @param tradeDate
+     */
+    public List<KLineEntity> queryDayLineList(String tradeDate){
+        List<KLineEntity> list = kLineMapper.queryDayLineList(tradeDate);
+        return list;
+    }
+
+    /**
      * 查询日K数据
      * @param tscode
      */

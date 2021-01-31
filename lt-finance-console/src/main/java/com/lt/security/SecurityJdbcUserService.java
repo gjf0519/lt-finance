@@ -1,6 +1,7 @@
 package com.lt.security;
 
 import com.lt.service.UserService;
+import com.lt.web.ResultCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ public class SecurityJdbcUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         LoginUserEntity loginUser = userService.loadUserByUsername(name);
         if(null == loginUser){
-            throw new BadCredentialsException("用户不存在");
+            throw new BadCredentialsException(ResultCode.AUTH_401_1.getVal());
         }
         return loginUser;
     }
@@ -29,7 +30,7 @@ public class SecurityJdbcUserService implements UserDetailsService {
     public LoginUserEntity loadUserByNameEmail(String name) throws UsernameNotFoundException {
         LoginUserEntity loginUser = userService.loadUserByNameEmail(name);
         if(null == loginUser){
-            throw new BadCredentialsException("用户不存在");
+            throw new BadCredentialsException(ResultCode.AUTH_401_1.getVal());
         }
         return loginUser;
     }
@@ -37,7 +38,7 @@ public class SecurityJdbcUserService implements UserDetailsService {
     public LoginUserEntity loadUserByMobile(String mobile) throws UsernameNotFoundException {
         LoginUserEntity loginUser = userService.loadUserByMobile(mobile);
         if(null == loginUser){
-            throw new BadCredentialsException("用户不存在");
+            throw new BadCredentialsException(ResultCode.AUTH_401_1.getVal());
         }
         return loginUser;
     }

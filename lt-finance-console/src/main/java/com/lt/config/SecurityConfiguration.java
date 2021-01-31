@@ -88,6 +88,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
+                .headers().frameOptions().sameOrigin()
+                .httpStrictTransportSecurity().disable()
+                .and()
                 .authorizeRequests()
                 .antMatchers(ConsoleConstants.ROUTES).permitAll()
                 .anyRequest().authenticated()

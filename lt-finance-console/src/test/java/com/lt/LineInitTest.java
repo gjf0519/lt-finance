@@ -109,64 +109,47 @@ public class LineInitTest {
 
     @Test
     public void initWeek(){
-        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-        for(String item : TsCodes.STOCK_CODE){
-            threadPoolExecutor.execute(()->{
-                try{
-                    List<Map<String,Object>> result = requestWeekPyData(item);
-                    //全量初始化
-                    if(null == result){
-                        latch.countDown();
-                        return;
-                    }
-                    //均线计算
-                    expma(result);
-                    for(Map<String,Object> map : result){
-                        kLineService.saveWeekLine(map);
-                    }
-                    //数据补充
-//                if(null == result || result.isEmpty()){
-//                    latch.countDown();
-//                    return;
-//                }
-//                receiveService.receiveWeekLine(result.get(0));
-                }catch (Exception e){
-                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!"+item);
-                }
-                latch.countDown();
-                System.out.println("============="+latch.getCount());
-            });
-        }
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
 //        for(String item : TsCodes.STOCK_CODE){
-//            receiveService.deleteWeekByCode(item);
+//            threadPoolExecutor.execute(()->{
+//                try{
+//                    List<Map<String,Object>> result = requestWeekPyData(item);
+//                    //全量初始化
+//                    if(null == result){
+//                        latch.countDown();
+//                        return;
+//                    }
+//                    //均线计算
+//                    expma(result);
+//                    for(Map<String,Object> map : result){
+//                        kLineService.saveWeekLine(map);
+//                    }
+//                    //数据补充
+////                if(null == result || result.isEmpty()){
+////                    latch.countDown();
+////                    return;
+////                }
+////                receiveService.receiveWeekLine(result.get(0));
+//                }catch (Exception e){
+//                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!"+item);
+//                }
+//                latch.countDown();
+//                System.out.println("============="+latch.getCount());
+//            });
 //        }
-//        String [] codes = new String[]{
-//                "300159.SZ",
-//                "300162.SZ",
-//                "300163.SZ",
-//                "300166.SZ",
-//                "300169.SZ",
-//                "300170.SZ",
-//                "300168.SZ",
-//                "300161.SZ",
-//                "300160.SZ"
-//        };
-//        for(String code : codes){
-//            List<Map<String,Object>> result = requestWeekPyData(code);
-//            if(null == result){
-//                return;
-//            }
-//            expma(result);
-//            for(Map<String,Object> map : result){
-//                kLineService.saveWeekLine(map);
-//            }
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
 //        }
+        List<Map<String,Object>> result = requestWeekPyData("000001.SZ");
+        if(null == result){
+            return;
+        }
+        expma(result);
+        for(Map<String,Object> map : result){
+            kLineService.saveWeekLine(map);
+        }
     }
 
     @Test

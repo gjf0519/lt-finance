@@ -15,9 +15,9 @@ spring:
         login-username: gailt
         login-password: gailt
   redis:
-    host: 10.10.16.63
+    host: 192.168.1.68
     port: 6379
-    password: rdata123
+    password: gjf*#123
     jedis:
       pool:
         max-active: 8

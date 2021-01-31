@@ -10,6 +10,9 @@ import java.util.Map;
 @Mapper
 public interface KLineMapper {
 
+    @Select({"SELECT * from lt_day_line m WHERE m.trade_date = #{tradeDate} LIMIT 10"})
+    List<KLineEntity> queryDayLineList(@Param("tradeDate") String tradeDate);
+
     @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
             "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
