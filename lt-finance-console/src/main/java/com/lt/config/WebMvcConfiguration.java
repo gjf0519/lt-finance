@@ -15,9 +15,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         //在security执行之后执行
-        registry.addViewController("/").setViewName("login.html");
+        registry.addViewController("/").setViewName("redirect:login.html");
     }
-
 
     /**
      * 添加静态资源，过滤swagger-api

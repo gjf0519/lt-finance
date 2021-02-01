@@ -24,7 +24,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
         log.info("未开通权限:{}",accessDeniedException);
-        ResultCode resultCode = ResultCode.AUTH_403_1;
+        ResultCode resultCode = ResultCode.AUTH_403_3;
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(JSON.toJSONString(ResultEntity.fail(resultCode.getCode(),resultCode.getVal())));
     }

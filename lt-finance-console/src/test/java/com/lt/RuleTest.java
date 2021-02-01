@@ -59,7 +59,7 @@ public class RuleTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("600328.SH",null,30);
+//                        queryDayLineList("600707.SH","20201124",30);
 //        int riseNum = riseFormFilter.execute(list);
 //        if(riseNum > 0){
 //            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);

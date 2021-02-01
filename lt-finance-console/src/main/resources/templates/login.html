@@ -118,11 +118,13 @@
                         return;
                     }
                     if(result.code == 200){
+                        sessionStorage.removeItem("token");
                         sessionStorage.setItem("token",result.data);
                         $(location).attr("href","./pages/index.html");
                     }
                 },
                 error: function (e) {
+                    console.log(e)
                 }
             })
         });

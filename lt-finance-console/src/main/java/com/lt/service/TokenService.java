@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TokenService {
 
-    private static final int timeout = 60 * 8;
+    private static final int timeout = 60 * 60 * 2;
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
 

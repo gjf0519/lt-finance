@@ -26,15 +26,14 @@
       <div id="logo" class="sidebar-header">
         <a href="index.html"><img src="../../static/images/logo-sidebar.png" title="LightYear" alt="LightYear" /></a>
       </div>
-      <div class="lyear-layout-sidebar-info lyear-scroll"> 
-        
+      <div class="lyear-layout-sidebar-info lyear-scroll">
         <nav class="sidebar-main">
           <ul class="nav-drawer">
             <li class="nav-item active"> <a class="multitabs" href="main.html"><i class="mdi mdi-home"></i> <span>后台首页</span></a> </li>
             <li class="nav-item nav-item-has-subnav">
               <a href="javascript:void(0)"><i class="mdi mdi-chart-line"></i> <span>K线管理</span></a>
               <ul class="nav nav-subnav">
-                <li> <a class="multitabs" href="./kline/day_line_list.html">日K数据</a> </li>
+                <li> <a class="multitabs" href="./kline/day_line_list.html" target="_blank" onclick="return skip()">日K数据</a> </li>
                 <li> <a class="multitabs" href="./kline/week_line_list.html">周K数据</a> </li>
               </ul>
             </li>
@@ -241,26 +240,13 @@
 <script type="text/javascript" src="../../static/js/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="../../static/js/index.min.js"></script>
 <script type="text/javascript">
-  $(document).ready(function(){
-  });
-  function userLogin() {
-    $('#login-btn').on('click', function() {
-      $.ajax({
-        type: 'post',
-        url: '/oauth/user/token',
-        data: $('#user-form').serialize(),
-        dataType: 'json',
-        success: function (result) {
-          if(result.code == 200){
-            sessionStorage.setItem("token",result.data);
-            $(location).attr("href","./pages/index.html");
-          }
-        },
-        error: function (e) {
+    function skip(){
+        if(null == sessionStorage.getItem("token")){
+            $(location).attr("href","../login.html");
+            return false;
         }
-      })
-    });
-  }
+        return true;
+    }
 </script>
 </body>
 </html>

@@ -19,6 +19,16 @@ public class KlineContinueRule
         extends AbstractBaseRule<List<KLineEntity>,Integer>
         implements MaLineRule<List<KLineEntity>,MaLineType,Integer>{
 
+    private boolean isContinue = false;
+
+    public boolean isContinue() {
+        return isContinue;
+    }
+
+    public void setContinue(boolean aContinue) {
+        isContinue = aContinue;
+    }
+
     @Override
     public Integer verify(List<KLineEntity> entitys) {
         return null;
@@ -39,7 +49,11 @@ public class KlineContinueRule
                 prev = kline;
                 continue;
             }
-            num = prev >= kline ? (num+1) : 0;
+            if(isContinue){
+                num = prev >= kline ? (num+1) : num;
+            }else {
+                num = prev >= kline ? (num+1) : 0;
+            }
             maxNum = num > maxNum ? num : maxNum;
             prev = kline;
         }

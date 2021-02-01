@@ -29,9 +29,6 @@ public class AccessAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 //        System.out.println(request.getRequestURI()+"======================");
-//        if("/day-line/line-list".equals(request.getRequestURI())){
-//            System.out.println(request.getRequestURI()+"======================");
-//        }
         if(SecurityContextHolder.getContext().getAuthentication() != null){
             chain.doFilter(request, response);
             return;
