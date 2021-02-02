@@ -1,7 +1,7 @@
 package com.lt.controller;
 
 import com.lt.service.UserService;
-import com.lt.web.ResultEntity;
+import com.lt.view.ResultEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;

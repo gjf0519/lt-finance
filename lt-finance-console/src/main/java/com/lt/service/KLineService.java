@@ -1,8 +1,11 @@
 package com.lt.service;
 
-import com.lt.entity.KLineEntity;
+import com.lt.dto.DayLineDto;
 import com.lt.entity.EmaBreakEntity;
+import com.lt.entity.KLineEntity;
 import com.lt.mapper.KLineMapper;
+import com.lt.view.PageData;
+import com.lt.vo.DayLineVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +26,12 @@ public class KLineService {
 
     /**
      * 列表日K数据
-     * @param tradeDate
+     * @param dayLineVo
      */
-    public List<KLineEntity> queryDayLineList(String tradeDate){
-        List<KLineEntity> list = kLineMapper.queryDayLineList(tradeDate);
-        return list;
+    public PageData<List<DayLineDto>> queryDayLineList(DayLineVo dayLineVo){
+        int total = kLineMapper.queryDayLineCount(dayLineVo);
+        List<DayLineDto> dayLineDtos = kLineMapper.queryDayLineList(dayLineVo);
+        return PageData.build(total,dayLineDtos);
     }
 
     /**

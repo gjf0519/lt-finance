@@ -2,14 +2,13 @@ package com.lt.security.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.lt.common.ConsoleConstants;
-import com.lt.web.ResultCode;
-import com.lt.web.ResultEntity;
+import com.lt.view.ResultCode;
+import com.lt.view.ResultEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

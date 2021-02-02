@@ -12,16 +12,20 @@ import java.util.Collection;
  */
 public class PasswordAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final String userId;
-    private final Object principal;
-    private final Object credentials;
+    private String userId;
+    private Object principal;
+    private Object credentials;
+
+    public PasswordAuthenticationToken(){
+        super(null);
+    }
 
     public PasswordAuthenticationToken(String mobile, String credentials) {
         super(null);
         this.userId = null;
         this.principal = mobile;
         this.credentials = credentials;
-        setAuthenticated(false);
+        super.setAuthenticated(false);
     }
 
     public PasswordAuthenticationToken(Object principal, Object credentials, String userId,
@@ -47,17 +51,24 @@ public class PasswordAuthenticationToken extends AbstractAuthenticationToken {
         return userId;
     }
 
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        if (isAuthenticated) {
-            throw new IllegalArgumentException(
-                    "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
-        }
-
-        super.setAuthenticated(false);
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    @Override
-    public void eraseCredentials() {
-        super.eraseCredentials();
+    public void setPrincipal(Object principal) {
+        this.principal = principal;
     }
+
+    public void setCredentials(Object credentials) {
+        this.credentials = credentials;
+    }
+
+    public boolean getAuthenticated() {
+        return super.isAuthenticated();
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        super.setAuthenticated(authenticated);
+    }
+
 }

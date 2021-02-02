@@ -1,8 +1,13 @@
 package com.lt.mapper;
 
-import com.lt.entity.KLineEntity;
+import com.lt.dto.DayLineDto;
 import com.lt.entity.EmaBreakEntity;
-import org.apache.ibatis.annotations.*;
+import com.lt.entity.KLineEntity;
+import com.lt.vo.DayLineVo;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -10,8 +15,11 @@ import java.util.Map;
 @Mapper
 public interface KLineMapper {
 
-    @Select({"SELECT * from lt_day_line m WHERE m.trade_date = #{tradeDate} LIMIT 10"})
-    List<KLineEntity> queryDayLineList(@Param("tradeDate") String tradeDate);
+    @Select({"SELECT count(0) from lt_day_line m WHERE m.trade_date = #{tradeDate}"})
+    int queryDayLineCount(DayLineVo dayLineVo);
+
+    @Select({"SELECT * from lt_day_line m WHERE m.trade_date = #{tradeDate} LIMIT #{offset},#{limit}"})
+    List<DayLineDto> queryDayLineList(DayLineVo dayLineVo);
 
     @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
             "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +

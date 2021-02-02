@@ -1,4 +1,4 @@
-package com.lt.web;
+package com.lt.view;
 
 public class ResultEntity<T> {
     private int code;

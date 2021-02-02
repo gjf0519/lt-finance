@@ -1,4 +1,4 @@
-package com.lt.web;
+package com.lt.view;
 
 /**
  * @author gaijf

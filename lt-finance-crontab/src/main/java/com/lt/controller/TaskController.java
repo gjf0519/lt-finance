@@ -1,8 +1,7 @@
 package com.lt.controller;
 
 import com.lt.service.TushareService;
-import com.lt.utils.Constants;
-import com.lt.web.ResultEntity;
+import com.lt.view.ResultEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

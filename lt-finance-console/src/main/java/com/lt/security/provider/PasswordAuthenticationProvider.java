@@ -3,7 +3,7 @@ package com.lt.security.provider;
 import com.lt.security.LoginUserEntity;
 import com.lt.security.SecurityJdbcUserService;
 import com.lt.security.token.PasswordAuthenticationToken;
-import com.lt.web.ResultCode;
+import com.lt.view.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;

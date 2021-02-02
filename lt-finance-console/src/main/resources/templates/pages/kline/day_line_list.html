@@ -21,21 +21,26 @@
         <div class="col-lg-12">
             <div class="card">
                 <header class="card-header">
-                    <div class="card-title">表格插件</div>
+                    <div class="card-title">日K数据</div>
                 </header>
                 <div class="card-body">
-                    <div id="toolbar" class="toolbar-btn-action">
-                        <form class="search-bar ml-md-auto" method="get" action="#!" role="form">
-                            <input type="hidden" name="search_field" id="search-field" value="title" />
-                            <div class="input-group ml-md-auto">
+                    <div id="toolbar">
+                        <form class="form-inline" id="dayLineForm">
+                            <div class="input-group mb-2 mr-sm-2">
                                 <div class="input-group-prepend">
-                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="search-btn">标题</button>
-                                    <div class="dropdown-menu" style="">
-                                        <a class="dropdown-item" href="#!" data-field="title">标题</a>
-                                        <a class="dropdown-item" href="#!" data-field="cat_name">栏目</a>
-                                    </div>
+                                    <div class="input-group-text">股票代码</div>
                                 </div>
-                                <input type="text" class="form-control" name="keyword" placeholder="请输入名称">
+                                <input type="text" class="form-control" id="tsCode" name="tsCode">
+                            </div>
+                            <div class="input-group mb-2 mr-sm-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">交易日期</div>
+                                </div>
+                                <input class="form-control" type="text" data-provide="datetimepicker"
+                                       id="tradeDate" name="tradeDate" value="" data-side-by-side="true" data-format="YYYYMMDD" />
+                            </div>
+                            <div class="input-group mb-2 mr-sm-2">
+                                <button type="button" class="btn btn-default" onclick="queryForm()">查询</button>
                             </div>
                         </form>
                     </div>
@@ -55,6 +60,7 @@
 <script type="text/javascript" src="../../../static/js/jquery-confirm/jquery-confirm.min.js"></script>
 <script type="text/javascript" src="../../../static/js/bootstrap-table/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../../../static/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="../../../static/custom/js/lt-common.js"></script>
 <script type="text/javascript" src="../../../static/custom/js/day-line-list.js"></script>
 </body>
 </html>

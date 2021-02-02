@@ -8,6 +8,7 @@ import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,24 +22,24 @@ import java.util.Map;
 public class Test {
     public static void main(String[] args) {
 
-        NormalDistribution normalDistributioin = new NormalDistribution(0,1);
-
-        List<String> list = executePython("E:\\workspace-python\\day_line.py","002455.SH");
-        for(String line : list){
-                List<String> vals = JSONArray.parseArray(line,String.class);
-                Map<String,Object> result = new HashMap<>();
-                result.put("ts_code",vals.get(0));
-                result.put("trade_date",vals.get(1));
-                result.put("close",vals.get(2));
-                result.put("open",vals.get(3));
-                result.put("high",vals.get(4));
-                result.put("low",vals.get(5));
-                result.put("pre_close",vals.get(6));
-                result.put("change",vals.get(7));
-                result.put("pct_chg",vals.get(8));
-                result.put("vol",vals.get(9));
-        }
-        System.out.println(list);
+//        NormalDistribution normalDistributioin = new NormalDistribution(0,1);
+//
+//        List<String> list = executePython("E:\\workspace-python\\day_line.py","002455.SH");
+//        for(String line : list){
+//                List<String> vals = JSONArray.parseArray(line,String.class);
+//                Map<String,Object> result = new HashMap<>();
+//                result.put("ts_code",vals.get(0));
+//                result.put("trade_date",vals.get(1));
+//                result.put("close",vals.get(2));
+//                result.put("open",vals.get(3));
+//                result.put("high",vals.get(4));
+//                result.put("low",vals.get(5));
+//                result.put("pre_close",vals.get(6));
+//                result.put("change",vals.get(7));
+//                result.put("pct_chg",vals.get(8));
+//                result.put("vol",vals.get(9));
+//        }
+//        System.out.println(list);
 //        for(String item : Constants.STOCK_CODE){
 //            String flag = item.substring(0,2);
 //            String code = item.substring(2,item.length());
@@ -59,6 +60,8 @@ public class Test {
 //                result.put("vol",vals.get(9));
 //            }
 //        }
+        LocalDate date = LocalDate.now();
+        System.out.println(date.toString());
     }
 
     public static List<Map<String,Object>> getPyData(String tscode){

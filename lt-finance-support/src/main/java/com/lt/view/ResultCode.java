@@ -1,4 +1,4 @@
-package com.lt.web;
+package com.lt.view;
 
 public enum ResultCode {
     SUCCESS(200,"操作成功"),
