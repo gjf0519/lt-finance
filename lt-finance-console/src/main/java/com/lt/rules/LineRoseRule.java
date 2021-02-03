@@ -64,6 +64,51 @@ public class LineRoseRule extends AbstractBaseRule<List<KLineEntity>,Integer>
         return 1;
     }
 
+    private Integer kLineRoseNum(List<KLineEntity> entitys){
+        int num = 0;
+        for(KLineEntity entity : entitys){
+            if(entity.getPctChg() >= high
+                    && entity.getPctChg() <= low){
+                num++;
+            }
+        }
+        return num;
+    }
+
+    private Integer kLineRoseNum(List<KLineEntity> entitys,int limit){
+        int num = 0;
+        for(int i = 0;i < limit;i++){
+            KLineEntity entity = entitys.get(i);
+            if(entity.getPctChg() >= high
+                    && entity.getPctChg() <= low){
+                num++;
+            }
+        }
+        return num;
+    }
+
+    private Integer kLineRoseSite(List<KLineEntity> entitys){
+        for(int i = 0;i < entitys.size();i++){
+            KLineEntity entity = entitys.get(i);
+            if(entity.getPctChg() >= high
+                    && entity.getPctChg() <= low){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private Integer kLineRoseSite(List<KLineEntity> entitys,int limit){
+        for(int i = 0;i < limit;i++){
+            KLineEntity entity = entitys.get(i);
+            if(entity.getPctChg() >= high
+                    && entity.getPctChg() <= low){
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private Integer maLineRose(List<KLineEntity> entitys){
         double fline = klineVal(entitys.get(0),this.roseLine);
         double lline = klineVal(entitys.get(entitys.size()-1),this.roseLine);
@@ -118,6 +163,12 @@ public class LineRoseRule extends AbstractBaseRule<List<KLineEntity>,Integer>
                 break;
             case 2:
                 result = limit <= 0 ?kLineRose(kLineEntities):kLineRose(kLineEntities,limit);
+                break;
+            case 3:
+                result = limit <= 0 ?kLineRoseNum(kLineEntities):kLineRoseNum(kLineEntities,limit);
+                break;
+            case 4:
+                result = limit <= 0 ?kLineRoseSite(kLineEntities):kLineRoseSite(kLineEntities,limit);
                 break;
             default:
                 result = limit <= 0 ?maLineRose(kLineEntities):maLineRose(kLineEntities,limit);

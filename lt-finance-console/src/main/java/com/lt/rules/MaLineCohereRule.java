@@ -25,8 +25,6 @@ public class MaLineCohereRule extends AbstractBaseRule<List<KLineEntity>,Integer
     public Integer verify(List<KLineEntity> kLineEntities) {
         double chgRatio = filterRose(kLineEntities);
         List<Integer> thrns = filterThrn(kLineEntities);
-//        System.out.println(chgRatio+"======================"+kLineEntities.get(0).getTsCode());
-//        System.out.println(JSON.toJSONString(thrns));
         boolean isMatter = false;//一阳穿5线以上
         List<Integer> list = filterThrn(kLineEntities);
         for(int item : thrns){
@@ -37,7 +35,6 @@ public class MaLineCohereRule extends AbstractBaseRule<List<KLineEntity>,Integer
                 isMatter = true;
             }
         }
-        //        System.out.println("############################"+list.size());
         if(isMatter && list.size() >= 9 && chgRatio > 0.8){
             return 1;
         }

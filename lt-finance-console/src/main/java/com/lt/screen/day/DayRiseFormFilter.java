@@ -2,7 +2,7 @@ package com.lt.screen.day;
 
 import com.lt.entity.KLineEntity;
 import com.lt.rules.*;
-import com.lt.screen.RiseFormFilter;
+import com.lt.screen.LineFormFilter;
 import com.lt.shape.MaLineType;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Map;
  * @description 连续上升形态过滤
  * @date 2021/1/30
  */
-public class DayRiseFormFilter implements RiseFormFilter {
+public class DayRiseFormFilter implements LineFormFilter {
 
     @Override
     public int execute(List<KLineEntity> kLineEntities) {
@@ -57,6 +57,9 @@ public class DayRiseFormFilter implements RiseFormFilter {
                 && sites.get(MaLineType.LINE030.getName()) == 1){
             //普通
             siteLevel = 1;
+        }else if(continueNum10 >=7 && sites.get(MaLineType.LINE020.getName()) == 1){
+            //普通
+            siteLevel = 1;
         }else {
             return 0;
         }
@@ -78,9 +81,18 @@ public class DayRiseFormFilter implements RiseFormFilter {
         if(dw == -1 && cohere == 0){
             return 0;
         }
+        //15日内是否有过涨停
+        LineRoseRule longSunRule = new LineRoseRule(4,4.9,21);
+        int site = longSunRule.verify(kLineEntities,15);
         //均线振幅过滤
         if(arrangeLevel == 2){
             LineRoseRule mlineRoseRule = new LineRoseRule(0.12,-0.03);
+            int mrose = mlineRoseRule.verify(kLineEntities,10);
+            if(mrose == 0){
+                return 0;
+            }
+        }else if(site > 6){
+            LineRoseRule mlineRoseRule = new LineRoseRule(0.1,-0.03);
             int mrose = mlineRoseRule.verify(kLineEntities,10);
             if(mrose == 0){
                 return 0;

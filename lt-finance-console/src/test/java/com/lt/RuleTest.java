@@ -4,10 +4,9 @@ import com.lt.entity.KLineEntity;
 import com.lt.rules.GreatBreakRule;
 import com.lt.rules.LineRoseRule;
 import com.lt.rules.MaLineArrangeRule;
-import com.lt.screen.RiseFormFilter;
+import com.lt.screen.LineFormFilter;
 import com.lt.screen.day.DayRiseFormFilter;
 import com.lt.service.KLineService;
-import com.lt.service.ReceiveService;
 import com.lt.shape.MaLineType;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
@@ -34,36 +33,36 @@ public class RuleTest {
 
     @Test
     public void daybreak(){
-        RiseFormFilter riseFormFilter = new DayRiseFormFilter();
-        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-        for(String item : TsCodes.STOCK_CODE){
-            threadPoolExecutor.execute(()->{
-                try {
-                    List<KLineEntity> list = kLineService
-                            .queryDayLineList(item,null,30);
-                    int riseNum = riseFormFilter.execute(list);
-                    if(riseNum > 0){
-                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
-                    }
-//                    dayGreatRule(list);
-                }catch (Exception e){
-                    e.printStackTrace();
-                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                }
-                latch.countDown();
-            });
-        }
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("600707.SH","20201124",30);
-//        int riseNum = riseFormFilter.execute(list);
-//        if(riseNum > 0){
-//            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+        LineFormFilter lineFormFilter = new DayRiseFormFilter();
+//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+//        for(String item : TsCodes.STOCK_CODE){
+//            threadPoolExecutor.execute(()->{
+//                try {
+//                    List<KLineEntity> list = kLineService
+//                            .queryDayLineList(item,null,30);
+//                    int riseNum = lineFormFilter.execute(list);
+//                    if(riseNum > 0){
+//                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//                    }
+////                    dayGreatRule(list);
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//                }
+//                latch.countDown();
+//            });
 //        }
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        List<KLineEntity> list = kLineService.
+                        queryDayLineList("002707.SZ",null,30);
+        int riseNum = lineFormFilter.execute(list);
+        if(riseNum > 0){
+            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+        }
     }
 
     @Test

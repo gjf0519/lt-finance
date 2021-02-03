@@ -4,6 +4,6 @@ import com.lt.entity.KLineEntity;
 
 import java.util.List;
 
-public interface RiseFormFilter {
+public interface LineFormFilter {
     int execute(List<KLineEntity> kLineEntities);
 }
