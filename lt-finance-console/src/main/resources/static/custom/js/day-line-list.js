@@ -27,7 +27,15 @@ function initTable() {
         pageList: [10, 25, 50, 100],
         columns: [{
             field: 'id',
-            checkbox: true
+            checkbox: true,
+            formatter : function (value, row) {
+                if (row.id == 0)
+                    return {
+                        disabled : true,//设置是否可用
+                        checked : true//设置选中
+                    };
+                return value;
+            }
         }, {
             field: 'tsCode',
             title: '股票代码'
