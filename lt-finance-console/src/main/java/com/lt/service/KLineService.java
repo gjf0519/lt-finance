@@ -1,6 +1,8 @@
 package com.lt.service;
 
 import com.lt.dto.DayLineDto;
+import com.lt.dto.KLineDto;
+import com.lt.dto.KlineChartsDto;
 import com.lt.entity.EmaBreakEntity;
 import com.lt.entity.KLineEntity;
 import com.lt.mapper.KLineMapper;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -128,5 +131,23 @@ public class KLineService {
     @Transactional(rollbackFor = Exception.class)
     public void saveMonthLine(Map map) {
         kLineMapper.saveMonthLine(map);
+    }
+
+    public KlineChartsDto queryDayLineByCode(String tsCode) {
+        List<KLineDto> klineDtos = kLineMapper.queryDayLineByCode(tsCode);
+        List<List<Object>> result = new ArrayList<>();
+        for(KLineDto dto : klineDtos){
+            List<Object> item = new ArrayList<>();
+            item.add(dto.getTradeDate());
+            item.add(dto.getOpen());
+            item.add(dto.getClose());
+            item.add(dto.getLow());
+            item.add(dto.getHigh());
+            result.add(item);
+        }
+        KlineChartsDto klineChartsDto = KlineChartsDto.builder()
+                .tsCode(klineDtos.get(0).getTsCode())
+                .lines(result).build();
+        return klineChartsDto;
     }
 }

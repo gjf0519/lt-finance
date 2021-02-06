@@ -1,6 +1,8 @@
 package com.lt.controller;
 
 import com.lt.dto.DayLineDto;
+import com.lt.dto.KLineDto;
+import com.lt.dto.KlineChartsDto;
 import com.lt.service.KLineService;
 import com.lt.utils.TimeUtil;
 import com.lt.view.PageData;
@@ -8,12 +10,8 @@ import com.lt.view.ResultEntity;
 import com.lt.vo.DayLineVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -32,5 +30,11 @@ public class DayLineController {
         }
         PageData<List<DayLineDto>> result = kLineService.queryDayLineList(dayLineVo);
         return ResultEntity.success(result);
+    }
+
+    @PostMapping("/line/{tsCode}")
+    public ResultEntity<KlineChartsDto> queryDayLineByCode(@PathVariable(value="tsCode") String tsCode){
+        KlineChartsDto klineChartsDto = kLineService.queryDayLineByCode(tsCode);
+        return ResultEntity.success(klineChartsDto);
     }
 }

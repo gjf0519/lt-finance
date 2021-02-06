@@ -1,6 +1,7 @@
 package com.lt.mapper;
 
 import com.lt.dto.DayLineDto;
+import com.lt.dto.KLineDto;
 import com.lt.entity.EmaBreakEntity;
 import com.lt.entity.KLineEntity;
 import com.lt.vo.DayLineVo;
@@ -72,4 +73,7 @@ public interface KLineMapper {
     List<KLineEntity> queryWeekLineByLimitDate(@Param("code") String tscode,
                                                @Param("limit") int limit,
                                                @Param("trade_date") String tradeDate);
+
+    @Select({"SELECT id,ts_code,trade_date,open,high,low,close from lt_day_line m WHERE m.ts_code=#{tsCode}"})
+    List<KLineDto> queryDayLineByCode(@Param("tsCode") String tsCode);
 }

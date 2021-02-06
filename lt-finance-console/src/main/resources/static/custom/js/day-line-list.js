@@ -26,16 +26,12 @@ function initTable() {
         pageSize: 10,
         pageList: [10, 25, 50, 100],
         columns: [{
+            field: 'chk',
+            checkbox: true
+        }, {
             field: 'id',
-            checkbox: true,
-            formatter : function (value, row) {
-                if (row.id == 0)
-                    return {
-                        disabled : true,//设置是否可用
-                        checked : true//设置选中
-                    };
-                return value;
-            }
+            title: 'id',
+            visible: false
         }, {
             field: 'tsCode',
             title: '股票代码'
@@ -50,13 +46,13 @@ function initTable() {
             title: '操作',
             formatter: btnGroup,
             events: {
-                'click .edit-btn': function (event, value, row, index) {
+                'click .edit-btn': function (event, value, row) {
                     editEvent(row);
                 },
-                'click .del-btn': function (event, value, row, index) {
+                'click .del-btn': function (event, value, row) {
                     delEvent(row);
                 },
-                'click .modal-btn': function (event, value, row, index) {
+                'click .modal-btn': function (event, value, row) {
                     modalEvent(row);
                 }
             }
@@ -92,55 +88,283 @@ function collectForm() {
 
 // 操作按钮
 function btnGroup() {
-    var operation =
+    var operations =
         '<a href="#!" class="btn btn-xs btn-default m-r-5 edit-btn" title="编辑"><i class="mdi mdi-pencil"></i></a>' +
         '<a href="#!" class="btn btn-xs btn-default m-r-5 del-btn" title="删除"><i class="mdi mdi-window-close"></i></a>' +
         '<a href="#!" class="btn btn-xs btn-default modal-btn" title="K图"><i class="mdi mdi-chart-line"></i></a>';
-    return operation;
+    return operations;
 }
 
 // 操作方法 - 编辑
-function editEvent() {
+function editEvent(row) {
     alert('跳转修改信息');
 }
 
 // 操作方法 - 删除
-function delEvent() {
+function delEvent(row) {
     alert('信息删除成功');
 }
 
 //模态窗口打开时间
 function modalEvent(row){
-    var idlist = $('#day-line-table').bootstrapTable('getAllSelections');
-    for (var i = 0; i < idlist.length; i++) {
-        alert(idlist[i].ID);
-    }
-    // alert(JSON.stringify(row));
-    // $('#myLargeModal').on('show.bs.modal', function (event) {
-    //     klineData();
-    // })
+    $('#myLargeModal').on('shown.bs.modal', function () {
+        klineData(row.tsCode);
+    })
+    $('#myLargeModal').modal("show");
 }
 
-function klineData() {
-    var $dashChartLinesCnt = jQuery( '.js-chartjs-lines' )[0].getContext( '2d' );
+function klineData(tsCode) {
+    $.ajax({
+        type: 'post',
+        url: '/day-line/line/'+tsCode,
+        dataType: 'json',
+        contentType: "application/json",
+        success: function (result) {
+            if(result.code == 401){
+                return;
+            }
+            if(result.code == 200){
+                var kdatas = splitData(result.data.lines);
+                lineChartInit(kdatas);
+            }
+        },
+        error: function (e) {
+            console.log(e);
+            return;
+        },
+        beforeSend: function (XMLHttpRequest) {
+            XMLHttpRequest.setRequestHeader("Access_Token", sessionStorage.getItem("token"));
+        }
+    })
+}
 
-    var $dashChartLinesData = {
-        labels: ['2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014'],
-        datasets: [
+function splitData(rawData) {
+    var categoryData = [];
+    var values = []
+    for (var i = 0; i < rawData.length; i++) {
+        categoryData.push(rawData[i].splice(0, 1)[0]);
+        values.push(rawData[i])
+    }
+    return {
+        categoryData: categoryData,
+        values: values
+    };
+}
+
+function calculateMA(dayCount,kdatas) {
+    var result = [];
+    for (var i = 0, len = kdatas.values.length; i < len; i++) {
+        if (i < dayCount) {
+            result.push('-');
+            continue;
+        }
+        var sum = 0;
+        for (var j = 0; j < dayCount; j++) {
+            sum += kdatas.values[i - j][1];
+        }
+        result.push(sum / dayCount);
+    }
+    return result;
+}
+
+function lineChartInit(kdatas) {
+    var upColor = '#ec0000';
+    var upBorderColor = '#8A0000';
+    var downColor = '#00da3c';
+    var downBorderColor = '#008F28';
+    var option = {
+        title: {
+            text: '上证指数',
+            left: 0
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        legend: {
+            data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+        },
+        grid: {
+            left: '10%',
+            right: '10%',
+            bottom: '15%'
+        },
+        xAxis: {
+            type: 'category',
+            data: kdatas.categoryData,
+            scale: true,
+            boundaryGap: false,
+            axisLine: {onZero: false},
+            splitLine: {show: false},
+            splitNumber: 20,
+            min: 'dataMin',
+            max: 'dataMax'
+        },
+        yAxis: {
+            scale: true,
+            splitArea: {
+                show: true
+            }
+        },
+        dataZoom: [
             {
-                label: '交易资金',
-                data: [20, 25, 40, 30, 45, 40, 55, 40, 48, 40, 42, 50],
-                borderColor: '#358ed7',
-                backgroundColor: 'rgba(53, 142, 215, 0.175)',
-                borderWidth: 1,
-                fill: false,
-                lineTension: 0.5
+                type: 'inside',
+                start: 50,
+                end: 100
+            },
+            {
+                show: true,
+                type: 'slider',
+                top: '90%',
+                start: 50,
+                end: 100
+            }
+        ],
+        series: [
+            {
+                name: '日K',
+                type: 'candlestick',
+                data: kdatas.values,
+                itemStyle: {
+                    color: upColor,
+                    color0: downColor,
+                    borderColor: upBorderColor,
+                    borderColor0: downBorderColor
+                },
+                markPoint: {
+                    label: {
+                        normal: {
+                            formatter: function (param) {
+                                return param != null ? Math.round(param.value) : '';
+                            }
+                        }
+                    },
+                    data: [
+                        {
+                            name: 'XX标点',
+                            coord: ['20130531', 2300],
+                            value: 2300,
+                            itemStyle: {
+                                color: 'rgb(41,60,85)'
+                            }
+                        },
+                        {
+                            name: 'highest value',
+                            type: 'max',
+                            valueDim: 'highest'
+                        },
+                        {
+                            name: 'lowest value',
+                            type: 'min',
+                            valueDim: 'lowest'
+                        },
+                        {
+                            name: 'average value on close',
+                            type: 'average',
+                            valueDim: 'close'
+                        }
+                    ],
+                    tooltip: {
+                        formatter: function (param) {
+                            alert(param.name)
+                            alert(param.data.coord)
+                            return param.name + '<br>' + (param.data.coord || '');
+                        }
+                    }
+                },
+                markLine: {
+                    symbol: ['none', 'none'],
+                    data: [
+                        [
+                            {
+                                name: 'from lowest to highest',
+                                type: 'min',
+                                valueDim: 'lowest',
+                                symbol: 'circle',
+                                symbolSize: 10,
+                                label: {
+                                    show: false
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: false
+                                    }
+                                }
+                            },
+                            {
+                                type: 'max',
+                                valueDim: 'highest',
+                                symbol: 'circle',
+                                symbolSize: 10,
+                                label: {
+                                    show: false
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: false
+                                    }
+                                }
+                            }
+                        ],
+                        {
+                            name: 'min line on close',
+                            type: 'min',
+                            valueDim: 'close'
+                        },
+                        {
+                            name: 'max line on close',
+                            type: 'max',
+                            valueDim: 'close'
+                        }
+                    ]
+                }
+            },
+            {
+                name: 'MA5',
+                type: 'line',
+                data: calculateMA(5,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA10',
+                type: 'line',
+                data: calculateMA(10,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA20',
+                type: 'line',
+                data: calculateMA(20,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA30',
+                type: 'line',
+                data: calculateMA(30,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
             }
         ]
     };
 
-    var myLineChart = new Chart($dashChartLinesCnt, {
-        type: 'line',
-        data: $dashChartLinesData,
-    });
+    var klineChart = echarts.init(document.getElementById('kline-echart'));
+    klineChart.clear();
+    // 使用刚指定的配置项和数据显示图表。
+    klineChart.setOption(option);
+    var chartWidth = $('#kline-echart').width()+'px';
+    var chartHeight = $('#kline-echart').height()+'px';
+    klineChart.resize({width: chartWidth,height: chartHeight});
 }
