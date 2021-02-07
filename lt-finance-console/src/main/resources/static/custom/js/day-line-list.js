@@ -1,12 +1,13 @@
-// var klineChart = echarts.init(document.getElementById('kline-echart'));
+var klineChart = echarts.init(
+    document.getElementById('kline-echart'),
+    'dark',
+    {width: 'auto',height: 'auto'});
 
 //加载列表数据
 $(document).ready(function () {
     initTable();
     window.addEventListener("resize", function () {
-        var chartWidth = $('#kline-echart').width()+'px';
-        var chartHeight = $('#kline-echart').height()+'px';
-        klineChart.resize({width: chartWidth,height: chartHeight});
+        this.klineResize();
     });
 });
 
@@ -116,7 +117,8 @@ function delEvent(row) {
 //操作方法-K图
 function modalEvent(row){
     $('#myLargeModal').on('shown.bs.modal', function () {
-        klineData(row.tsCode);
+        klintOpen();
+        // klineData(row.tsCode);
     })
     $( '#myLargeModal' ).on( 'hidden.bs.modal' ,function(){
         $("#myLargeModal").unbind("shown.bs.modal");
@@ -173,7 +175,8 @@ function calculateMA(dayCount,kdatas) {
         for (var j = 0; j < dayCount; j++) {
             sum += kdatas.values[i - j][1];
         }
-        result.push(sum / dayCount);
+        var ma = sum / dayCount;
+        result.push(keepTwoDecimalFull(ma));
     }
     return result;
 }
@@ -195,7 +198,7 @@ function lineChartInit(kdatas) {
             }
         },
         legend: {
-            data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+            data: ['日K','MA5','MA10','MA20','MA30','MA60','MA120','MA250']
         },
         grid: {
             left: '10%',
@@ -233,8 +236,7 @@ function lineChartInit(kdatas) {
                 end: 100
             }
         ],
-        series: [
-            {
+        series: [{
                 name: '日K',
                 type: 'candlestick',
                 data: kdatas.values,
@@ -255,7 +257,7 @@ function lineChartInit(kdatas) {
                     data: [
                         {
                             name: 'XX标点',
-                            coord: ['20130531', 2300],
+                            coord: ['20200606', 2300],
                             value: 2300,
                             itemStyle: {
                                 color: 'rgb(41,60,85)'
@@ -367,12 +369,42 @@ function lineChartInit(kdatas) {
                 lineStyle: {
                     opacity: 0.5
                 }
+            },
+            {
+                name: 'MA60',
+                type: 'line',
+                data: calculateMA(60,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA120',
+                type: 'line',
+                data: calculateMA(120,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
+            },
+            {
+                name: 'MA250',
+                type: 'line',
+                data: calculateMA(250,kdatas),
+                smooth: true,
+                lineStyle: {
+                    opacity: 0.5
+                }
             }
         ]
     };
     klineChart.clear();
-    // 使用刚指定的配置项和数据显示图表。
+    this.klineResize();
     klineChart.setOption(option);
+}
+
+function klineResize() {
     var chartWidth = $('#kline-echart').width()+'px';
     var chartHeight = $('#kline-echart').height()+'px';
     klineChart.resize({width: chartWidth,height: chartHeight});

@@ -16,10 +16,10 @@ import java.util.Map;
 @Mapper
 public interface KLineMapper {
 
-    @Select({"SELECT count(0) from lt_day_line m WHERE m.trade_date = #{tradeDate}"})
+//    @Select({"SELECT count(0) from lt_day_line m WHERE m.trade_date = #{tradeDate}"})
     int queryDayLineCount(DayLineVo dayLineVo);
 
-    @Select({"SELECT * from lt_day_line m WHERE m.trade_date = #{tradeDate} LIMIT #{offset},#{limit}"})
+//    @Select({"SELECT * from lt_day_line m WHERE m.trade_date = #{tradeDate} LIMIT #{offset},#{limit}"})
     List<DayLineDto> queryDayLineList(DayLineVo dayLineVo);
 
     @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +

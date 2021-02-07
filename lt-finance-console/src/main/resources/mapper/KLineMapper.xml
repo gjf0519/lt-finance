@@ -1,0 +1,38 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lt.mapper.KLineMapper">
+
+    <select id="queryDayLineCount" resultType="int">
+        select
+          count(1)
+        from lt_day_line f
+        <where>
+            1 = 1
+            <if test="tsCode !=null">
+                and f.ts_code = #{tsCode}
+            </if>
+            <if test="tradeDate !=null ">
+                and f.trade_date = #{tradeDate}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryDayLineList" resultType="com.lt.dto.DayLineDto">
+		select
+            ts_code,trade_date,pct_chg
+        from lt_day_line f
+        <where>
+            1 = 1
+            <if test="tsCode !=null">
+                and f.ts_code = #{tsCode}
+            </if>
+            <if test="tradeDate !=null ">
+                and f.trade_date = #{tradeDate}
+            </if>
+        </where>
+        <if test ="offset !=null and limit != null">
+            LIMIT #{offset},#{limit}
+        </if>
+	</select>
+</mapper>
