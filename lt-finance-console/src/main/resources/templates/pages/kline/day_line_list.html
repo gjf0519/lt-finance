@@ -59,7 +59,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <canvas class="js-chartjs-lines" style="height: 100%;width: 100%" id="kline-echart"></canvas>
+                    <div style="height: 100%;width: 100%" id="kline-echart"></div>
+                    <!--<canvas class="js-chartjs-lines" style="height: 100%;width: 100%" id="kline-echart"></canvas>-->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
@@ -78,7 +79,42 @@
 <script type="text/javascript" src="../../../static/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
 <script type="text/javascript" src="../../../static/custom/js/lt-common.js"></script>
 <script type="text/javascript" src="../../../static/js/echarts.min.js"></script>
-<script type="text/javascript" src="../../../static/js/Chart.min.js"></script>
+<!--<script type="text/javascript" src="../../../static/js/Chart.min.js"></script>-->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.0.1/dist/echarts.min.js"></script>
 <script type="text/javascript" src="../../../static/custom/js/day-line-list.js"></script>
+<script type="text/javascript">
+
+    var klineChart = echarts.init(document.getElementById('kline-echart'),'dark');
+
+    // 指定图表的配置项和数据
+    var option = {
+        title: {
+            text: 'ECharts 入门示例'
+        },
+        tooltip: {},
+        legend: {
+            data:['销量']
+        },
+        xAxis: {
+            data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+        },
+        yAxis: {},
+        series: [{
+            name: '销量',
+            type: 'bar',
+            data: [5, 20, 36, 10, 10, 20]
+        }]
+    };
+
+    function klintOpen() {
+        alert("=================================");
+        // klineChart.clear();
+        // 使用刚指定的配置项和数据显示图表。
+        var chartWidth = $('#kline-echart').width()+'px';
+        var chartHeight = $('#kline-echart').height()+'px';
+        klineChart.resize({width: chartWidth,height: chartHeight});
+        klineChart.setOption(option);
+    }
+</script>
 </body>
 </html>

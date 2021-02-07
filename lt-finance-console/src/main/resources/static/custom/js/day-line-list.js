@@ -1,6 +1,13 @@
+// var klineChart = echarts.init(document.getElementById('kline-echart'));
+
 //加载列表数据
 $(document).ready(function () {
     initTable();
+    window.addEventListener("resize", function () {
+        var chartWidth = $('#kline-echart').width()+'px';
+        var chartHeight = $('#kline-echart').height()+'px';
+        klineChart.resize({width: chartWidth,height: chartHeight});
+    });
 });
 
 function initTable() {
@@ -44,16 +51,16 @@ function initTable() {
         }, {
             field: 'operate',
             title: '操作',
-            formatter: btnGroup,
+            formatter: operateFormatter,
             events: {
-                'click .edit-btn': function (event, value, row) {
-                    editEvent(row);
+                'click .modal-btn': function (event, value, row) {
+                    modalEvent(row);
                 },
                 'click .del-btn': function (event, value, row) {
                     delEvent(row);
                 },
-                'click .modal-btn': function (event, value, row) {
-                    modalEvent(row);
+                'click .edit-btn': function (event, value, row) {
+                    editEvent(row);
                 }
             }
         }],
@@ -67,6 +74,16 @@ function initTable() {
             };
         }
     });
+}
+
+function operateFormatter() {
+    return [
+        '<div class="btn-group">',
+        '<button title="编辑" type="button" class="btn btn-xs btn-default m-r-5 edit-btn"  singleSelected=true><i class="mdi mdi-pencil"></i></button>',
+        '<button title="删除" type="button" class="btn btn-xs btn-default m-r-5 del-btn" singleSelected=true><i class="mdi mdi-window-close"></i></button>',
+        '<button title="K图" type="button" class="btn btn-xs btn-default modal-btn" singleSelected=true><i class="mdi mdi-chart-line"></i></button>',
+        '</div>'
+    ].join('');
 }
 
 //检索数据
@@ -86,15 +103,6 @@ function collectForm() {
     return data;
 }
 
-// 操作按钮
-function btnGroup() {
-    var operations =
-        '<a href="#!" class="btn btn-xs btn-default m-r-5 edit-btn" title="编辑"><i class="mdi mdi-pencil"></i></a>' +
-        '<a href="#!" class="btn btn-xs btn-default m-r-5 del-btn" title="删除"><i class="mdi mdi-window-close"></i></a>' +
-        '<a href="#!" class="btn btn-xs btn-default modal-btn" title="K图"><i class="mdi mdi-chart-line"></i></a>';
-    return operations;
-}
-
 // 操作方法 - 编辑
 function editEvent(row) {
     alert('跳转修改信息');
@@ -105,11 +113,14 @@ function delEvent(row) {
     alert('信息删除成功');
 }
 
-//模态窗口打开时间
+//操作方法-K图
 function modalEvent(row){
     $('#myLargeModal').on('shown.bs.modal', function () {
         klineData(row.tsCode);
     })
+    $( '#myLargeModal' ).on( 'hidden.bs.modal' ,function(){
+        $("#myLargeModal").unbind("shown.bs.modal");
+    });
     $('#myLargeModal').modal("show");
 }
 
@@ -268,9 +279,9 @@ function lineChartInit(kdatas) {
                     ],
                     tooltip: {
                         formatter: function (param) {
-                            alert(param.name)
-                            alert(param.data.coord)
-                            return param.name + '<br>' + (param.data.coord || '');
+                            var result = param.name + '<br>' + (param.data.coord || '');
+                            console.log(result)
+                            return result;
                         }
                     }
                 },
@@ -359,8 +370,6 @@ function lineChartInit(kdatas) {
             }
         ]
     };
-
-    var klineChart = echarts.init(document.getElementById('kline-echart'));
     klineChart.clear();
     // 使用刚指定的配置项和数据显示图表。
     klineChart.setOption(option);
