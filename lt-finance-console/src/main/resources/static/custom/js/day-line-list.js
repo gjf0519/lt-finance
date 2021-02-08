@@ -1,6 +1,6 @@
 var klineChart = echarts.init(
     document.getElementById('kline-echart'),
-    'dark',
+    'light',
     {width: 'auto',height: 'auto'});
 
 //加载列表数据
@@ -153,249 +153,276 @@ function klineData(tsCode) {
 
 function splitData(rawData) {
     var categoryData = [];
-    var values = []
+    var values = [];
+    var volumns = [];
     for (var i = 0; i < rawData.length; i++) {
         categoryData.push(rawData[i].splice(0, 1)[0]);
-        values.push(rawData[i])
+        values.push(rawData[i]);
+        volumns.push(rawData[i][4]);
     }
     return {
         categoryData: categoryData,
-        values: values
+        values: values,
+        volumns: volumns
     };
 }
 
-function calculateMA(dayCount,kdatas) {
+function calculateMA(dayCount, data) {
     var result = [];
-    for (var i = 0, len = kdatas.values.length; i < len; i++) {
+    for (var i = 0, len = data.values.length; i < len; i++) {
         if (i < dayCount) {
             result.push('-');
             continue;
         }
         var sum = 0;
         for (var j = 0; j < dayCount; j++) {
-            sum += kdatas.values[i - j][1];
+            sum += data.values[i - j][1];
         }
-        var ma = sum / dayCount;
-        result.push(keepTwoDecimalFull(ma));
+        result.push(+(sum / dayCount).toFixed(2));
     }
     return result;
 }
 
 function lineChartInit(kdatas) {
-    var upColor = '#ec0000';
-    var upBorderColor = '#8A0000';
-    var downColor = '#00da3c';
-    var downBorderColor = '#008F28';
     var option = {
+        animation: false,
         title: {
-            text: '上证指数',
-            left: 0
+            text: '大连圣亚',
+            textStyle: {
+                fontSize: 16,
+                fontWeight: 'lighter'
+            }
+        },
+        legend: {
+            left: 'center',
+            data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30', 'MA60', 'MA120', 'MA250']
         },
         tooltip: {
             trigger: 'axis',
             axisPointer: {
                 type: 'cross'
+            },
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            position: function (pos, params, el, elRect, size) {
+                var obj = {top: 10};
+                obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                return obj;
+            },
+            extraCssText: 'width: 170px'
+        },
+        axisPointer: {
+            link: {xAxisIndex: 'all'},
+            label: {
+                backgroundColor: '#777'
             }
         },
-        legend: {
-            data: ['日K','MA5','MA10','MA20','MA30','MA60','MA120','MA250']
-        },
-        grid: {
-            left: '10%',
-            right: '10%',
-            bottom: '15%'
-        },
-        xAxis: {
-            type: 'category',
-            data: kdatas.categoryData,
-            scale: true,
-            boundaryGap: false,
-            axisLine: {onZero: false},
-            splitLine: {show: false},
-            splitNumber: 20,
-            min: 'dataMin',
-            max: 'dataMax'
-        },
-        yAxis: {
-            scale: true,
-            splitArea: {
-                show: true
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: false
+                },
+                brush: {
+                    type: ['lineX', 'clear']
+                }
             }
         },
+        brush: {
+            xAxisIndex: 'all',
+            brushLink: 'all',
+            outOfBrush: {
+                colorAlpha: 0.1
+            }
+        },
+        grid: [
+            {
+                left: '10%',
+                right: '8%',
+                height: '50%'
+            },
+            {
+                left: '10%',
+                right: '8%',
+                bottom: '20%',
+                height: '15%'
+            }
+        ],
+        xAxis: [
+            {
+                type: 'category',
+                data: kdatas.categoryData,
+                scale: true,
+                boundaryGap : false,
+                axisLine: {onZero: false},
+                splitLine: {show: false},
+                splitNumber: 20,
+                min: 'dataMin',
+                max: 'dataMax',
+                axisPointer: {
+                    z: 100
+                }
+            },
+            {
+                type: 'category',
+                gridIndex: 1,
+                data: kdatas.categoryData,
+                scale: true,
+                boundaryGap : false,
+                axisLine: {onZero: false},
+                axisTick: {show: false},
+                splitLine: {show: false},
+                axisLabel: {show: false},
+                splitNumber: 20,
+                min: 'dataMin',
+                max: 'dataMax',
+                axisPointer: {
+                    label: {
+                        formatter: function (params) {
+                            var seriesValue = (params.seriesData[0] || {}).value;
+                            return params.value
+                                + (seriesValue != null
+                                        ? '\n' + echarts.format.addCommas(seriesValue)
+                                        : ''
+                                );
+                        }
+                    }
+                }
+            }
+        ],
+        yAxis: [
+            {
+                scale: true,
+                splitArea: {
+                    show: true
+                }
+            },
+            {
+                scale: true,
+                gridIndex: 1,
+                splitNumber: 2,
+                axisLabel: {show: false},
+                axisLine: {show: false},
+                axisTick: {show: false},
+                splitLine: {show: false}
+            }
+        ],
         dataZoom: [
             {
                 type: 'inside',
-                start: 50,
+                xAxisIndex: [0, 1],
+                start: 98,
                 end: 100
             },
             {
                 show: true,
+                xAxisIndex: [0, 1],
                 type: 'slider',
-                top: '90%',
-                start: 50,
+                top: '85%',
+                start: 98,
                 end: 100
             }
         ],
-        series: [{
+        series: [
+            {
                 name: '日K',
                 type: 'candlestick',
                 data: kdatas.values,
                 itemStyle: {
-                    color: upColor,
-                    color0: downColor,
-                    borderColor: upBorderColor,
-                    borderColor0: downBorderColor
-                },
-                markPoint: {
-                    label: {
-                        normal: {
-                            formatter: function (param) {
-                                return param != null ? Math.round(param.value) : '';
-                            }
-                        }
-                    },
-                    data: [
-                        {
-                            name: 'XX标点',
-                            coord: ['20200606', 2300],
-                            value: 2300,
-                            itemStyle: {
-                                color: 'rgb(41,60,85)'
-                            }
-                        },
-                        {
-                            name: 'highest value',
-                            type: 'max',
-                            valueDim: 'highest'
-                        },
-                        {
-                            name: 'lowest value',
-                            type: 'min',
-                            valueDim: 'lowest'
-                        },
-                        {
-                            name: 'average value on close',
-                            type: 'average',
-                            valueDim: 'close'
-                        }
-                    ],
-                    tooltip: {
-                        formatter: function (param) {
-                            var result = param.name + '<br>' + (param.data.coord || '');
-                            console.log(result)
-                            return result;
-                        }
+                    normal: {
+                        color: '#06B800',
+                        color0: '#FA0000',
+                        borderColor: null,
+                        borderColor0: null
                     }
                 },
-                markLine: {
-                    symbol: ['none', 'none'],
-                    data: [
-                        [
-                            {
-                                name: 'from lowest to highest',
-                                type: 'min',
-                                valueDim: 'lowest',
-                                symbol: 'circle',
-                                symbolSize: 10,
-                                label: {
-                                    show: false
-                                },
-                                emphasis: {
-                                    label: {
-                                        show: false
-                                    }
-                                }
-                            },
-                            {
-                                type: 'max',
-                                valueDim: 'highest',
-                                symbol: 'circle',
-                                symbolSize: 10,
-                                label: {
-                                    show: false
-                                },
-                                emphasis: {
-                                    label: {
-                                        show: false
-                                    }
-                                }
-                            }
-                        ],
-                        {
-                            name: 'min line on close',
-                            type: 'min',
-                            valueDim: 'close'
-                        },
-                        {
-                            name: 'max line on close',
-                            type: 'max',
-                            valueDim: 'close'
-                        }
-                    ]
+                tooltip: {
+                    formatter: function (param) {
+                        param = param[0];
+                        return [
+                            'Date: ' + param.name + '<hr size=1 style="margin: 3px 0">',
+                            'Open: ' + param.data[0] + '<br/>',
+                            'Close: ' + param.data[1] + '<br/>',
+                            'Lowest: ' + param.data[2] + '<br/>',
+                            'Highest: ' + param.data[3] + '<br/>'
+                        ].join('');
+                    }
                 }
             },
             {
                 name: 'MA5',
                 type: 'line',
-                data: calculateMA(5,kdatas),
+                data: calculateMA(5, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
             },
             {
                 name: 'MA10',
                 type: 'line',
-                data: calculateMA(10,kdatas),
+                data: calculateMA(10, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
             },
             {
                 name: 'MA20',
                 type: 'line',
-                data: calculateMA(20,kdatas),
+                data: calculateMA(20, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
             },
             {
                 name: 'MA30',
                 type: 'line',
-                data: calculateMA(30,kdatas),
+                data: calculateMA(30, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
             },
             {
                 name: 'MA60',
                 type: 'line',
-                data: calculateMA(60,kdatas),
+                data: calculateMA(60, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
             },
             {
                 name: 'MA120',
                 type: 'line',
-                data: calculateMA(120,kdatas),
+                data: calculateMA(120, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
             },
             {
                 name: 'MA250',
                 type: 'line',
-                data: calculateMA(250,kdatas),
+                data: calculateMA(250, kdatas),
                 smooth: true,
+                showSymbol: false,
                 lineStyle: {
-                    opacity: 0.5
+                    width: 1
                 }
+            },
+            {
+                name: 'Volumn',
+                type: 'bar',
+                xAxisIndex: 1,
+                yAxisIndex: 1,
+                data: kdatas.volumns
             }
         ]
     };
