@@ -17,4 +17,5 @@ public class KLineDto {
     private double high;
     private double low;
     private double close;
+    private double vol;
 }

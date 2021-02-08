@@ -143,6 +143,7 @@ public class KLineService {
             item.add(dto.getClose());
             item.add(dto.getLow());
             item.add(dto.getHigh());
+            item.add(dto.getVol());
             result.add(item);
         }
         KlineChartsDto klineChartsDto = KlineChartsDto.builder()

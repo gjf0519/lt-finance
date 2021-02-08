@@ -117,8 +117,8 @@ function delEvent(row) {
 //操作方法-K图
 function modalEvent(row){
     $('#myLargeModal').on('shown.bs.modal', function () {
-        klintOpen();
-        // klineData(row.tsCode);
+        // klintOpen();
+        klineData(row.tsCode);
     })
     $( '#myLargeModal' ).on( 'hidden.bs.modal' ,function(){
         $("#myLargeModal").unbind("shown.bs.modal");

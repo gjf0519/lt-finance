@@ -74,6 +74,6 @@ public interface KLineMapper {
                                                @Param("limit") int limit,
                                                @Param("trade_date") String tradeDate);
 
-    @Select({"SELECT id,ts_code,trade_date,open,high,low,close from lt_day_line m WHERE m.ts_code=#{tsCode}"})
+    @Select({"SELECT id,ts_code,trade_date,open,high,low,close,vol from lt_day_line m WHERE m.ts_code=#{tsCode}"})
     List<KLineDto> queryDayLineByCode(@Param("tsCode") String tsCode);
 }
