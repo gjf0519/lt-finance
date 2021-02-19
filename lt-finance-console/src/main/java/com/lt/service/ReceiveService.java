@@ -28,10 +28,16 @@ public class ReceiveService {
     @Autowired
     private KLineService kLineService;
 
-    public void receiveDailyBasic(String record) {
+    public void receiveDailyBasic(Map map) {
         try {
-            Map map =  JSON.parseObject(record, Map.class);
-//            consumerService.saveDailyBasic(map);
+            String tscode = map.get("ts_code").toString();
+            String tradeDate = map.get("trade_date").toString();
+            //判断基本信息是否已保存
+            int isSave = kLineService.hasSaveDaily(tscode,tradeDate);
+            if(isSave > 0){
+                return;
+            }
+            kLineService.saveDaily(map);
         }catch (Exception e){
             e.printStackTrace();
         }

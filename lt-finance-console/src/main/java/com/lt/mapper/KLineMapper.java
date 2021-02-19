@@ -16,10 +16,8 @@ import java.util.Map;
 @Mapper
 public interface KLineMapper {
 
-//    @Select({"SELECT count(0) from lt_day_line m WHERE m.trade_date = #{tradeDate}"})
     int queryDayLineCount(DayLineVo dayLineVo);
 
-//    @Select({"SELECT * from lt_day_line m WHERE m.trade_date = #{tradeDate} LIMIT #{offset},#{limit}"})
     List<DayLineDto> queryDayLineList(DayLineVo dayLineVo);
 
     @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
@@ -76,4 +74,11 @@ public interface KLineMapper {
 
     @Select({"SELECT id,ts_code,trade_date,open,high,low,close,vol from lt_day_line m WHERE m.ts_code=#{tsCode}"})
     List<KLineDto> queryDayLineByCode(@Param("tsCode") String tsCode);
+
+    @Select({"SELECT count(1) from lt_daily_basic m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
+    int hasSaveDaily(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
+
+    @Insert({"insert into lt_daily_basic (ts_code,trade_date,close,turnover_rate,turnover_rate_free,volume_ratio,circ_mv) " +
+            "values (#{ts_code},#{trade_date},#{close},#{turnover_rate},#{turnover_rate_f},#{volume_ratio},#{circ_mv})"})
+    void saveDaily(Map map);
 }

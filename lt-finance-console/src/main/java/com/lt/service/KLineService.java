@@ -151,4 +151,13 @@ public class KLineService {
                 .lines(result).build();
         return klineChartsDto;
     }
+
+    public int hasSaveDaily(String tscode, String tradeDate) {
+        return kLineMapper.hasSaveDaily(tscode,tradeDate);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void saveDaily(Map map) {
+        kLineMapper.saveDaily(map);
+    }
 }

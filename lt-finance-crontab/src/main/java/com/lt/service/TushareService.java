@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -56,22 +55,7 @@ public class TushareService {
                     continue;
                 };
             }
-//            List<String> codes2 = new ArrayList<>();
-//            for(String item : Constants.STOCK_CODE){
-//                String flag = item.substring(0,2);
-//                String code = item.substring(2,item.length());
-//                codes2.add(code+"."+flag.toUpperCase());
-//            }
-//            List<String> codes3 = new ArrayList<>();
-//            for (String code:codes) {
-//                if(!codes2.contains(code)){
-//                    codes3.add(code);
-//                }
-//            }
             System.out.println(JSON.toJSONString(codes));
-
-//            System.out.println(list.get(0));
-//            MqConfiguration.send(Constants.TUSHARE_BASIC_TOPIC,list.get(0),defaultMQProducer);
         }catch (Exception e){
             log.info("获取市场代码数据异常 Exception:{}",e);
         }
@@ -84,7 +68,7 @@ public class TushareService {
     @Async
     public void requestDayBasic(String tscode){
         try {
-            String fields = "ts_code,trade_date,close,turnover_rate,volume_ratio,circ_mv";
+            String fields = "ts_code,trade_date,close,turnover_rate,turnover_rate_f,volume_ratio,circ_mv";
             TushareResult tushareResult = requestData(tscode,"daily_basic",fields);
             List<Map<String,Object>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){

@@ -47,5 +47,6 @@ finanace:
       week-line: E:/workspace-python/week_line.py
       month-line: E:/workspace-python/month_line.py
   comsumer:
+    daily-basic: DAILY-CONSUMER-GROUP-WORK
     day-line: DAYLINE-CONSUMER-GROUP-WORK
     week-line: WEEKLINE-CONSUMER-GROUP-WORK
