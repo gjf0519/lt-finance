@@ -12,6 +12,7 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -25,7 +26,7 @@ import java.util.Map;
  * @date 2020/12/3
  */
 @Slf4j
-//@Component
+@Component
 public class DailyBasicConsumer {
 
     @Value("${rocketmq.name-server}")
