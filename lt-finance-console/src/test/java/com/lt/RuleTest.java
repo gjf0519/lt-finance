@@ -34,35 +34,35 @@ public class RuleTest {
     @Test
     public void daybreak(){
         LineFormFilter lineFormFilter = new DayRiseFormFilter();
-//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-//        for(String item : TsCodes.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                try {
-//                    List<KLineEntity> list = kLineService
-//                            .queryDayLineList(item,null,30);
-//                    int riseNum = lineFormFilter.execute(list);
-//                    if(riseNum > 0){
-//                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
-//                    }
-////                    dayGreatRule(list);
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                }
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        List<KLineEntity> list = kLineService.
-                        queryDayLineList("002948.SZ","20200630",30);
-        int riseNum = lineFormFilter.execute(list);
-        if(riseNum > 0){
-            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                try {
+                    List<KLineEntity> list = kLineService
+                            .queryDayLineList(item,null,30);
+                    int riseNum = lineFormFilter.execute(list);
+                    if(riseNum > 0){
+                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+                    }
+//                    dayGreatRule(list);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                }
+                latch.countDown();
+            });
         }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        List<KLineEntity> list = kLineService.
+//                        queryDayLineList("002092.SZ","20210114",30);
+//        int riseNum = lineFormFilter.execute(list);
+//        if(riseNum > 0){
+//            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//        }
     }
 
     @Test

@@ -67,7 +67,7 @@ public class DayRiseFormFilter implements LineFormFilter {
         KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
         double km = kmKlineMaLineRule.verify(kLineEntities.get(0));
         if(arrangeLevel == 2 || continueNum10 >= 8){
-            if(km > 0.03 || km < -0.01){
+            if(km > 0.06 || km < -0.01){
                 return 0;
             }
         }else {
