@@ -31,30 +31,30 @@ public class LongSunRuleTest {
     @Test
     public void daybreak(){
         LineFormFilter lineFormFilter = new DayLongSunFilter();
-        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-        for(String item : TsCodes.STOCK_CODE){
-            threadPoolExecutor.execute(()->{
-                try {
-                    List<KLineEntity> list = kLineService
-                            .queryDayLineList(item,null,30);
-                    int riseNum = lineFormFilter.execute(list);
-                    if(riseNum > 0){
-                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
-                    }
-                }catch (Exception e){
-                    log.info("长阳过滤异常:code{},exception:{}",item,e);
-                }
-                latch.countDown();
-            });
-        }
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("002707.SZ",null,30);
-//        int riseNum = lineFormFilter.execute(list);
-//        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+//        for(String item : TsCodes.STOCK_CODE){
+//            threadPoolExecutor.execute(()->{
+//                try {
+//                    List<KLineEntity> list = kLineService
+//                            .queryDayLineList(item,null,30);
+//                    int riseNum = lineFormFilter.execute(list);
+//                    if(riseNum > 0){
+//                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//                    }
+//                }catch (Exception e){
+//                    log.info("长阳过滤异常:code{},exception:{}",item,e);
+//                }
+//                latch.countDown();
+//            });
+//        }
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        List<KLineEntity> list = kLineService.
+                        queryDayLineList("002846.SZ","20210208",30);
+        int riseNum = lineFormFilter.execute(list);
+        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
     }
 }

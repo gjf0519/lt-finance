@@ -1,6 +1,7 @@
+var colorList = ["#2F0000","#800080","#FF8C00","#00008B","#8B4513","#00FF7F","#FF69B4"];
 var klineChart = echarts.init(
     document.getElementById('kline-echart'),
-    'light',
+    null,//浅色light，深色dark
     {width: 'auto',height: 'auto'});
 
 //加载列表数据
@@ -180,7 +181,6 @@ function calculateMA(dayCount, data) {
     }
     return result;
 }
-
 function lineChartInit(result) {
     var kdatas = splitData(result.data.lines);
     var option = {
@@ -196,6 +196,7 @@ function lineChartInit(result) {
             left: 'center',
             data: ['日K', '5', '10', '20', '30', '60', '120', '250']
         },
+        color: colorList,
         tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -250,7 +251,7 @@ function lineChartInit(result) {
                 type: 'category',
                 data: kdatas.categoryData,
                 scale: true,
-                boundaryGap : false,
+                boundaryGap: false,
                 splitLine: {show: false},
                 splitNumber: 20,
                 min: 'dataMin',
@@ -267,7 +268,7 @@ function lineChartInit(result) {
                 gridIndex: 1,
                 data: kdatas.categoryData,
                 scale: true,
-                boundaryGap : false,
+                boundaryGap: false,
                 axisLine: {onZero: false},
                 axisTick: {show: false},
                 splitLine: {show: false},
@@ -309,9 +310,8 @@ function lineChartInit(result) {
         dataZoom: [
             {
                 type: 'inside',
-                // xAxisIndex: [0, 1],
                 xAxisIndex: [0, 1],
-                start: 80,
+                start: 80,//横轴起始位置
                 end: 100
             },
             {
@@ -323,6 +323,42 @@ function lineChartInit(result) {
                 end: 100
             }
         ],
+        graphic: [{
+            type: 'group',
+            left: 'center',
+            top: 70,
+            width: 300,
+            bounding: 'raw',
+            children: [{
+                id: '5',
+                type: 'text',
+                style: {fill: colorList[0]}
+            }, {
+                id: '10',
+                type: 'text',
+                style: {fill: colorList[1]}
+            }, {
+                id: '20',
+                type: 'text',
+                style: {fill: colorList[2]}
+            }, {
+                id: '30',
+                type: 'text',
+                style: {fill: colorList[3]}
+            }, {
+                id: '60',
+                type: 'text',
+                style: {fill: colorList[4]}
+            }, {
+                id: '120',
+                type: 'text',
+                style: {fill: colorList[5]}
+            }, {
+                id: '250',
+                type: 'text',
+                style: {fill: colorList[6]}
+            }]
+        }],
         series: [
             {
                 name: '日K',
@@ -330,8 +366,8 @@ function lineChartInit(result) {
                 data: kdatas.values,
                 itemStyle: {
                     normal: {
-                        color: '#06B800',
-                        color0: '#FA0000',
+                        color: '#FA0000',
+                        color0: '#06B800',
                         borderColor: null,
                         borderColor0: null
                     }
