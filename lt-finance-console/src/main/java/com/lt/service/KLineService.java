@@ -51,6 +51,10 @@ public class KLineService {
         return list;
     }
 
+    public List<KLineEntity> queryDayLineListAsc(String tscode,String tradeDate,int limit){
+        return kLineMapper.queryDayLineListAsc(tscode,limit,tradeDate);
+    }
+
     /**
      * 查询周K数据
      * @param tscode

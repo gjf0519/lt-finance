@@ -81,4 +81,9 @@ public interface KLineMapper {
     @Insert({"insert into lt_daily_basic (ts_code,trade_date,close,turnover_rate,turnover_rate_free,volume_ratio,circ_mv) " +
             "values (#{ts_code},#{trade_date},#{close},#{turnover_rate},#{turnover_rate_f},#{volume_ratio},#{circ_mv})"})
     void saveDaily(Map map);
+
+    @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} and trade_date >= #{trade_date} ORDER BY trade_date LIMIT #{limit}"})
+    List<KLineEntity> queryDayLineListAsc(@Param("code") String code,
+                                          @Param("limit") int limit,
+                                          @Param("trade_date") String tradeDate);
 }

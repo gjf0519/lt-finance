@@ -1,12 +1,14 @@
 package com.lt;
 
 import com.lt.entity.KLineEntity;
+import com.lt.entity.RuleFilterEntity;
 import com.lt.rules.GreatBreakRule;
 import com.lt.rules.LineRoseRule;
 import com.lt.rules.MaLineArrangeRule;
 import com.lt.screen.LineFormFilter;
 import com.lt.screen.day.DayRiseFormFilter;
 import com.lt.service.KLineService;
+import com.lt.service.RuleFilterService;
 import com.lt.shape.MaLineType;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -29,41 +32,151 @@ public class RuleTest {
     @Autowired
     KLineService kLineService;
     @Autowired
+    RuleFilterService ruleFilterService;
+    @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
+
+    List<String> trades = Arrays.asList("20201102",
+            "20201103",
+            "20201104",
+            "20201105",
+            "20201106",
+            "20201109",
+            "20201110",
+            "20201111",
+            "20201112",
+            "20201113",
+            "20201116",
+            "20201117",
+            "20201118",
+            "20201119",
+            "20201120",
+            "20201123",
+            "20201124",
+            "20201125",
+            "20201126",
+            "20201127",
+            "20201130",
+            "20201201",
+            "20201202",
+            "20201203",
+            "20201204",
+            "20201207",
+            "20201208",
+            "20201209",
+            "20201210",
+            "20201211",
+            "20201214",
+            "20201215",
+            "20201216",
+            "20201217",
+            "20201218",
+            "20201221",
+            "20201222",
+            "20201223",
+            "20201224",
+            "20201225",
+            "20201228",
+            "20201229",
+            "20201230",
+            "20201231",
+            "20210104",
+            "20210105",
+            "20210106",
+            "20210107",
+            "20210108",
+            "20210111",
+            "20210112",
+            "20210113",
+            "20210114",
+            "20210115",
+            "20210118",
+            "20210119",
+            "20210120",
+            "20210121",
+            "20210122",
+            "20210125",
+            "20210126",
+            "20210127",
+            "20210128",
+            "20210129",
+            "20210201",
+            "20210202",
+            "20210203");
 
     @Test
     public void daybreak(){
+        for(String trade : trades){
+            dayExecute(trade);
+            System.out.println("==========================================="+trade);
+        }
+//        dayExecute(null);
+    }
+
+    public void dayExecute(String tradeDate){
         LineFormFilter lineFormFilter = new DayRiseFormFilter();
-//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-//        for(String item : TsCodes.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                try {
-//                    List<KLineEntity> list = kLineService
-//                            .queryDayLineList(item,null,30);
-//                    int riseNum = lineFormFilter.execute(list);
-//                    if(riseNum > 1){
-//                        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
-//                    }
-////                    dayGreatRule(list);
-//                }catch (Exception e){
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                try {
+                    List<KLineEntity> list = kLineService
+                            .queryDayLineList(item,tradeDate,30);
+                    int riseNum = lineFormFilter.execute(list);
+                    if(riseNum < 1){
+                        return;
+                    }
+//                    System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+                    RuleFilterEntity ruleFilterEntity = RuleFilterEntity.builder()
+                            .tsCode(list.get(0).getTsCode())
+                            .tradeDate(list.get(0).getTradeDate())
+                            .pctChg(list.get(0).getPctChg())
+                            .ruleName("小步上涨").build();
+                    ruleFilterService.insertRuleFilter(ruleFilterEntity);
+                }catch (Exception e){
 //                    e.printStackTrace();
-//                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                }
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        List<KLineEntity> list = kLineService.
-                        queryDayLineList("603698.SH","20210108",30);
-        int riseNum = lineFormFilter.execute(list);
-        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+                    System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                }finally {
+                    latch.countDown();
+                }
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        List<KLineEntity> list = kLineService.
+//                        queryDayLineList("603698.SH","20210108",30);
+//        int riseNum = lineFormFilter.execute(list);
+//        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
 //        if(riseNum > 0){
 //            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
 //        }
+    }
+
+    @Test
+    public void updateRuleFilter(){
+        for(String trade : trades){
+            List<String> codes = ruleFilterService.queryByTradeDate(trade);
+            for(String code : codes){
+                List<KLineEntity> list = kLineService
+                        .queryDayLineListAsc(code,trade,8);
+                double close = list.get(0).getClose();
+                for(int i = 1;i < list.size();i++){
+                    double item = list.get(i).getClose();
+                    if(item > close && i == 1){
+                        ruleFilterService.updateNextBreak(code,list.get(0).getTradeDate());
+                        break;
+                    }else if(item > close && i <= 3){
+                        ruleFilterService.updateThreeBreak(code,list.get(0).getTradeDate());
+                        break;
+                    }else if(item > close){
+                        ruleFilterService.updateWeekBreak(code,list.get(0).getTradeDate());
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Test
@@ -118,4 +231,16 @@ public class RuleTest {
         }
         System.out.println(list.get(0).getTsCode()+"======================"+breakNum);
     }
+
+//    CREATE TABLE `lt_rule_filter` (
+//            `id` int(10) NOT NULL AUTO_INCREMENT,
+//  `ts_code` varchar(10) DEFAULT NULL,
+//  `trade_date` varchar(10) DEFAULT NULL,
+//  `pct_chg` double(8,2) DEFAULT NULL,
+//  `rule_name` varchar(10) DEFAULT NULL,
+//  `next_break` int(2) DEFAULT '0',
+//            `three_break` int(2) DEFAULT '0',
+//            `week_break` int(2) DEFAULT '0',
+//    PRIMARY KEY (`id`)
+//) ENGINE=InnoDB AUTO_INCREMENT=36199 DEFAULT CHARSET=utf8mb4;
 }
