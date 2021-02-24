@@ -51,6 +51,9 @@ public class ReceiveService {
         try {
             String tscode = map.get("ts_code").toString();
             String tradeDate = map.get("trade_date").toString();
+            if(!"20210223".equals(tradeDate) && !"20210224".equals(tradeDate)){
+                return;
+            }
             //判断日K数据是否已保存
             int isSave = kLineService.hasSaveDayLine(tscode,tradeDate);
             if(isSave > 0){

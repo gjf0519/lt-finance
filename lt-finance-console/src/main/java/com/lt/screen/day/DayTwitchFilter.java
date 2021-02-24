@@ -1,6 +1,7 @@
 package com.lt.screen.day;
 
 import com.lt.entity.KLineEntity;
+import com.lt.rules.KmKlineMaLineRule;
 import com.lt.rules.SiteKlineMaLineRule;
 import com.lt.screen.LineFormFilter;
 import com.lt.shape.MaLineType;
@@ -33,6 +34,13 @@ public class DayTwitchFilter implements LineFormFilter {
         if(-1 == sites.get(MaLineType.LINE020.getName())){
             return 0;
         };
+        if(1 == sites.get(MaLineType.LINE020.getName())){
+            KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
+            double km = kmKlineMaLineRule.verify(kLineEntity);
+            if(km > 0.1){
+                return 0;
+            }
+        }
         return 1;
     }
 }

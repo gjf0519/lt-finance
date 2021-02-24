@@ -111,11 +111,11 @@ public class RuleTest {
 
     @Test
     public void daybreak(){
-        for(String trade : trades){
-            dayExecute(trade);
-            System.out.println("==========================================="+trade);
-        }
-//        dayExecute(null);
+//        for(String trade : trades){
+//            dayExecute(trade);
+//            System.out.println("==========================================="+trade);
+//        }
+        dayExecute(null);
     }
 
     public void dayExecute(String tradeDate){
@@ -127,15 +127,16 @@ public class RuleTest {
                     List<KLineEntity> list = kLineService
                             .queryDayLineList(item,tradeDate,30);
                     int riseNum = lineFormFilter.execute(list);
-                    if(riseNum < 1){
+                    if(riseNum < 2){
                         return;
                     }
-                    RuleFilterEntity ruleFilterEntity = RuleFilterEntity.builder()
-                            .tsCode(list.get(0).getTsCode())
-                            .tradeDate(list.get(0).getTradeDate())
-                            .pctChg(list.get(0).getPctChg())
-                            .ruleName("小步上涨").build();
-                    ruleFilterService.insertRuleFilter(ruleFilterEntity);
+                    System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//                    RuleFilterEntity ruleFilterEntity = RuleFilterEntity.builder()
+//                            .tsCode(list.get(0).getTsCode())
+//                            .tradeDate(list.get(0).getTradeDate())
+//                            .pctChg(list.get(0).getPctChg())
+//                            .ruleName("小步上涨").build();
+//                    ruleFilterService.insertRuleFilter(ruleFilterEntity);
                 }catch (Exception e){
                     System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 }finally {
