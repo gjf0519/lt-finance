@@ -86,4 +86,8 @@ public interface KLineMapper {
     List<KLineEntity> queryDayLineListAsc(@Param("code") String code,
                                           @Param("limit") int limit,
                                           @Param("trade_date") String tradeDate);
+
+    @Select({"SELECT id,ts_code,trade_date,open,high,low,close,vol from lt_day_line m WHERE m.ts_code=#{tsCode} and m.trade_date <= #{tradeDate}"})
+    List<KLineDto> queryRuleDayLine(@Param("tsCode") String code,
+                                    @Param("tradeDate") String tradeDate);
 }

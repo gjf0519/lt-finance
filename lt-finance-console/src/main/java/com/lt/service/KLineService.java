@@ -137,8 +137,17 @@ public class KLineService {
         kLineMapper.saveMonthLine(map);
     }
 
+    public KlineChartsDto queryRuleDayLine(String tsCode,String tradeDate) {
+        List<KLineDto> klineDtos = kLineMapper.queryRuleDayLine(tsCode,tradeDate);
+        return assembleLineCharts(klineDtos);
+    }
+
     public KlineChartsDto queryDayLineByCode(String tsCode) {
         List<KLineDto> klineDtos = kLineMapper.queryDayLineByCode(tsCode);
+        return assembleLineCharts(klineDtos);
+    }
+
+    private KlineChartsDto assembleLineCharts(List<KLineDto> klineDtos){
         List<List<Object>> result = new ArrayList<>();
         for(KLineDto dto : klineDtos){
             List<Object> item = new ArrayList<>();

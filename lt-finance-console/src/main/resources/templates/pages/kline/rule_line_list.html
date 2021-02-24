@@ -22,7 +22,7 @@
                 </header>
                 <div class="card-body">
                     <div id="toolbar">
-                        <form class="form-inline" id="dayLineForm">
+                        <form class="form-inline" id="ruleLineForm">
                             <div class="input-group mb-2 mr-sm-2">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">股票代码</div>
@@ -37,12 +37,24 @@
                                        id="tradeDate" name="tradeDate" value="" data-side-by-side="true" data-format="YYYYMMDD" />
                             </div>
                             <div class="input-group mb-2 mr-sm-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">规则名称</div>
+                                </div>
+                                <input type="text" class="form-control" id="ruleName" name="ruleName">
+                            </div>
+                            <div class="input-group mb-2 mr-sm-2">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">次日上涨</div>
+                                </div>
+                                <input type="text" class="form-control" id="nextBreak" name="nextBreak">
+                            </div>
+                            <div class="input-group mb-2 mr-sm-2">
                                 <button type="button" class="btn btn-default" onclick="queryForm()">查询</button>
                             </div>
                         </form>
                     </div>
                     <div class="table-responsive">
-                        <table id="day-line-table" class="table table-bordered"></table>
+                        <table id="rule-line-table" class="table table-bordered"></table>
                     </div>
                 </div>
             </div>
@@ -78,7 +90,7 @@
 <script type="text/javascript" src="../../../static/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
 <script type="text/javascript" src="../../../static/custom/js/lt-common.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.0.1/dist/echarts.min.js"></script>
-<script type="text/javascript" src="../../../static/custom/js/kline-filter-list.js"></script>
+<script type="text/javascript" src="../../../static/custom/js/rule-line-list.js"></script>
 <script type="text/javascript">
 </script>
 </body>

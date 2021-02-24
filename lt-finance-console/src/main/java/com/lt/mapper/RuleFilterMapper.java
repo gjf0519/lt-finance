@@ -1,6 +1,8 @@
 package com.lt.mapper;
 
+import com.lt.dto.RuleLineDto;
 import com.lt.entity.RuleFilterEntity;
+import com.lt.vo.RuleLineVo;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -15,12 +17,16 @@ public interface RuleFilterMapper {
     @Select({"select ts_code from lt_rule_filter where trade_date=#{tradeDate}"})
     List<String> queryByTradeDate(@Param("tradeDate") String tradeDate);
 
-    @Update({"update lt_rule_filter set next_break = '1' where ts_code=#{tsCode} and trade_date=#{tradeDate}"})
-    void updateNextBreak(@Param("tsCode")String tsCode,@Param("tradeDate") String tradeDate);
+    @Update({"update lt_rule_filter set next_break = #{nextBreak},next_date = #{nextDate} where ts_code=#{tsCode} and trade_date=#{tradeDate}"})
+    void updateNextBreak(@Param("tsCode")String tsCode,
+                         @Param("tradeDate") String tradeDate,
+                         @Param("nextDate") String nextDate,
+                         @Param("nextBreak") int nextBreak);
 
-    @Update({"update lt_rule_filter set three_break = '1' where ts_code=#{tsCode} and trade_date=#{tradeDate}"})
-    void updateThreeBreak(@Param("tsCode")String tsCode,@Param("tradeDate") String tradeDate);
+    int queryRuleLineCount(RuleLineVo ruleLineVo);
 
-    @Update({"update lt_rule_filter set week_break = '1' where ts_code=#{tsCode} and trade_date=#{tradeDate}"})
-    void updateWeekBreak(@Param("tsCode")String tsCode,@Param("tradeDate") String tradeDate);
+    List<RuleLineDto> queryRuleLineList(RuleLineVo ruleLineVo);
+
+    @Select({"select next_date from lt_rule_filter where ts_code=#{tsCode} and trade_date=#{tradeDate}"})
+    String queryRuleLineNextDate(@Param("tsCode") String tsCode,@Param("tradeDate") String tradeDate);
 }

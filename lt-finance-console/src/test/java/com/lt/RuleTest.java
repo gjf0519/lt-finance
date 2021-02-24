@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,7 +34,6 @@ public class RuleTest {
     RuleFilterService ruleFilterService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
-
     List<String> trades = Arrays.asList("20201102",
             "20201103",
             "20201104",
@@ -102,7 +100,14 @@ public class RuleTest {
             "20210129",
             "20210201",
             "20210202",
-            "20210203");
+            "20210203",
+            "20210204",
+            "20210205",
+            "20210208",
+            "20210209",
+            "20210210",
+            "20210218",
+            "20210219");
 
     @Test
     public void daybreak(){
@@ -125,7 +130,6 @@ public class RuleTest {
                     if(riseNum < 1){
                         return;
                     }
-//                    System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
                     RuleFilterEntity ruleFilterEntity = RuleFilterEntity.builder()
                             .tsCode(list.get(0).getTsCode())
                             .tradeDate(list.get(0).getTradeDate())
@@ -133,7 +137,6 @@ public class RuleTest {
                             .ruleName("小步上涨").build();
                     ruleFilterService.insertRuleFilter(ruleFilterEntity);
                 }catch (Exception e){
-//                    e.printStackTrace();
                     System.out.println(item+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 }finally {
                     latch.countDown();
@@ -160,20 +163,20 @@ public class RuleTest {
             List<String> codes = ruleFilterService.queryByTradeDate(trade);
             for(String code : codes){
                 List<KLineEntity> list = kLineService
-                        .queryDayLineListAsc(code,trade,8);
-                double close = list.get(0).getClose();
-                for(int i = 1;i < list.size();i++){
-                    double item = list.get(i).getClose();
-                    if(item > close && i == 1){
-                        ruleFilterService.updateNextBreak(code,list.get(0).getTradeDate());
-                        break;
-                    }else if(item > close && i <= 3){
-                        ruleFilterService.updateThreeBreak(code,list.get(0).getTradeDate());
-                        break;
-                    }else if(item > close){
-                        ruleFilterService.updateWeekBreak(code,list.get(0).getTradeDate());
-                        break;
-                    }
+                        .queryDayLineListAsc(code,trade,4);
+                if(list.size() < 4){
+                    return;
+                }
+                double price = list.get(0).getPctChg() > 0 ? list.get(0).getClose()
+                        : list.get(0).getOpen();
+                if(list.get(1).getClose() > price){
+                    ruleFilterService.updateNextBreak(code,
+                            list.get(0).getTradeDate(),
+                            list.get(3).getTradeDate(),1);
+                }else {
+                    ruleFilterService.updateNextBreak(code,
+                            list.get(0).getTradeDate(),
+                            list.get(3).getTradeDate(),0);
                 }
             }
         }
@@ -231,16 +234,4 @@ public class RuleTest {
         }
         System.out.println(list.get(0).getTsCode()+"======================"+breakNum);
     }
-
-//    CREATE TABLE `lt_rule_filter` (
-//            `id` int(10) NOT NULL AUTO_INCREMENT,
-//  `ts_code` varchar(10) DEFAULT NULL,
-//  `trade_date` varchar(10) DEFAULT NULL,
-//  `pct_chg` double(8,2) DEFAULT NULL,
-//  `rule_name` varchar(10) DEFAULT NULL,
-//  `next_break` int(2) DEFAULT '0',
-//            `three_break` int(2) DEFAULT '0',
-//            `week_break` int(2) DEFAULT '0',
-//    PRIMARY KEY (`id`)
-//) ENGINE=InnoDB AUTO_INCREMENT=36199 DEFAULT CHARSET=utf8mb4;
 }

@@ -1,13 +1,16 @@
 package com.lt.service;
 
+import com.lt.dto.KlineChartsDto;
+import com.lt.dto.RuleLineDto;
 import com.lt.entity.RuleFilterEntity;
 import com.lt.mapper.RuleFilterMapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
+import com.lt.view.PageData;
+import com.lt.vo.RuleLineVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -18,8 +21,11 @@ import java.util.List;
 @Service
 public class RuleFilterService {
 
-    @Autowired
+    @Resource
     private RuleFilterMapper ruleFilterMapper;
+    @Autowired
+    private KLineService kLineService;
+
 
     @Transactional(rollbackFor = Exception.class)
     public void insertRuleFilter(RuleFilterEntity ruleFilterEntity){
@@ -31,17 +37,18 @@ public class RuleFilterService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void updateNextBreak(String tsCode,String tradeDate) {
-        ruleFilterMapper.updateNextBreak(tsCode,tradeDate);
+    public void updateNextBreak(String tsCode,String tradeDate,String nextDate,int nextBreak) {
+        ruleFilterMapper.updateNextBreak(tsCode,tradeDate,nextDate,nextBreak);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void updateThreeBreak(String tsCode,String tradeDate) {
-        ruleFilterMapper.updateThreeBreak(tsCode,tradeDate);
+    public PageData<List<RuleLineDto>> queryRuleLineList(RuleLineVo ruleLineVo) {
+        int total = ruleFilterMapper.queryRuleLineCount(ruleLineVo);
+        List<RuleLineDto> ruleLineDtos = ruleFilterMapper.queryRuleLineList(ruleLineVo);
+        return PageData.build(total,ruleLineDtos);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void updateWeekBreak(String tsCode,String tradeDate) {
-        ruleFilterMapper.updateWeekBreak(tsCode,tradeDate);
+    public KlineChartsDto queryRuleLineByCode(String tsCode,String tradeDate) {
+        String nextDate = ruleFilterMapper.queryRuleLineNextDate(tsCode,tradeDate);
+        return kLineService.queryRuleDayLine(tsCode,nextDate);
     }
 }

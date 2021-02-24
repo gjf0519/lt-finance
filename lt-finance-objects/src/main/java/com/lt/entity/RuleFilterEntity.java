@@ -19,7 +19,6 @@ public class RuleFilterEntity {
     private String tradeDate;
     private double pctChg;
     private String ruleName;
+    private String nextDate;
     private String nextBreak;
-    private String threeBreak;
-    private String weekBreak;
 }

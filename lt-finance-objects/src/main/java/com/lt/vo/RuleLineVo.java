@@ -1,22 +1,22 @@
-package com.lt.dto;
+package com.lt.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author gaijf
+ * @description
+ * @date 2021/2/23
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KLineDto {
-    private int id;
+public class RuleLineVo extends PageVo{
     private String tsCode;
     private String tradeDate;
-    private double open;
-    private double high;
-    private double low;
-    private double close;
-    private double vol;
-    private double pctChg;
+    private String ruleName;
+    private Integer nextBreak;
 }
