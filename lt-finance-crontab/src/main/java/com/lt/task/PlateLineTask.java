@@ -25,7 +25,7 @@ public class PlateLineTask {
         if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
             return;
         }
-        log.info("==========================日线收集数据开始======================");
+        log.info("==========================板块收集数据开始======================");
         for(String item : TsCodes.STOCK_CODE){
             try {
                 Thread.sleep(150);
@@ -34,6 +34,6 @@ public class PlateLineTask {
             }
             tushareService.requestDayLine(item);
         }
-        log.info("==========================日线收集数据完成======================");
+        log.info("==========================板块收集数据完成======================");
     }
 }
