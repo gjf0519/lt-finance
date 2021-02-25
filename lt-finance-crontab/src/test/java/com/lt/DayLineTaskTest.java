@@ -19,5 +19,10 @@ public class DayLineTaskTest {
     @Test
     public void execute() {
         dayLineTask.execute();
+        try {
+            Thread.sleep(1000*60*30);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

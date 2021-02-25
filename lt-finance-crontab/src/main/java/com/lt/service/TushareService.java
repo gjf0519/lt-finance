@@ -121,8 +121,8 @@ public class TushareService {
     @Async
     public void requestDayLine(String tscode){
         try {
-            List<String> list = executePython("E:/workspace-python/day_line.py",tscode);
-//            List<String> list = executePython("/home/python/day_line.py",tscode);
+//            List<String> list = executePython("E:/workspace-python/day_line.py",tscode);
+            List<String> list = executePython("/home/python/day_line.py",tscode);
             if(list.isEmpty()){
                 return;
             }
@@ -275,8 +275,8 @@ public class TushareService {
     private List<String> executePython(String pyPath,String tscode){
         List<String> list = new ArrayList<>();
         Process proc;
-        String[] args = new String[]{"C:/python3.8/python",pyPath,tscode};
-//        String[] args = new String[]{"/usr/local/python3.8/Python-3.8.0/python",pyPath,tscode};
+//        String[] args = new String[]{"C:/python3.8/python",pyPath,tscode};
+        String[] args = new String[]{"/usr/local/python3.8/Python-3.8.0/python",pyPath,tscode};
         try {
             proc = Runtime.getRuntime().exec(args);
             BufferedReader in = new BufferedReader(
