@@ -55,8 +55,6 @@ public class MaLineCohereRule extends AbstractBaseRule<List<KLineEntity>,Integer
         List<Double> pctchgs = kLineEntities.stream()
                 .map(KLineEntity::getPctChg)
                 .filter(o -> o < 3 && o > -3).collect(Collectors.toList());
-        if(kLineEntities.isEmpty()){
-        }
         double chgRatio = BigDecimalUtil.div(pctchgs.size(),kLineEntities.size(),2);
         return chgRatio;
     }

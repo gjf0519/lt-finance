@@ -35,11 +35,14 @@ public class KmKlineMaLineRule
         if(0 == kline){
             return null;
         }
-        double ratio = BigDecimalUtil.sub(
-                BigDecimalUtil.div(entity.getLow(),kline,2), 1,2);
-        double ratio2 = BigDecimalUtil.sub(
-                BigDecimalUtil.div(entity.getClose(),kline,2), 1,3);
-        ratio = ratio < -0.01 && (ratio2 == 0.01 || ratio2 == 0) ? ratio2 : ratio;
+        double ratio;
+        if(entity.getClose() >= entity.getOpen()){//阳线
+            ratio = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getLow(),kline,2), 1,3);
+        }else {
+            ratio = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getHigh(),kline,2), 1,2);
+        }
         return ratio;
     }
 }

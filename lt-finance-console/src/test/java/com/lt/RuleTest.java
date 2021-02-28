@@ -150,7 +150,7 @@ public class RuleTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("603698.SH","20210108",30);
+//                        queryDayLineList("600295.SH","20201113",30);
 //        int riseNum = lineFormFilter.execute(list);
 //        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
 //        if(riseNum > 0){

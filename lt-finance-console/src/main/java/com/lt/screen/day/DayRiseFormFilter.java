@@ -34,7 +34,6 @@ public class DayRiseFormFilter implements LineFormFilter {
         //持续性
         KlineContinueRule klineContinueRule = new KlineContinueRule();
         int continueNum5 = klineContinueRule.verify(kLineEntities,MaLineType.LINE005,5);
-        klineContinueRule.setContinue(true);
         int continueNum10 = klineContinueRule.verify(kLineEntities,MaLineType.LINE005,10);
         if(continueNum10 < 5 && continueNum5 < 3){
             return 0;
@@ -63,13 +62,15 @@ public class DayRiseFormFilter implements LineFormFilter {
         //K距离
         KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
         double km = kmKlineMaLineRule.verify(kLineEntities.get(0));
-        if(arrangeLevel == 2 || continueNum10 >= 8){
-            if(km > 0.03 || km < -0.01){
-                return 0;
-            }
-        }else {
-            if(km > 0.01 || km < -0.01){
-                return 0;
+        if(0 != sites.get(MaLineType.LINE020.getName())){
+            if(arrangeLevel == 2){
+                if(km > 0.03 || km < -0.01){
+                    return 0;
+                }
+            }else {
+                if(km > 0.01 || km < -0.01){
+                    return 0;
+                }
             }
         }
         //5日内回踩或拐头
