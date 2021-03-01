@@ -34,6 +34,7 @@ public class DayRiseFormFilter implements LineFormFilter {
         //持续性
         KlineContinueRule klineContinueRule = new KlineContinueRule();
         int continueNum5 = klineContinueRule.verify(kLineEntities,MaLineType.LINE005,5);
+        klineContinueRule.setContinue(true);
         int continueNum10 = klineContinueRule.verify(kLineEntities,MaLineType.LINE005,10);
         if(continueNum10 < 5 && continueNum5 < 3){
             return 0;
@@ -56,21 +57,22 @@ public class DayRiseFormFilter implements LineFormFilter {
                 && sites.get(MaLineType.LINE030.getName()) == 1){
             //普通
             siteLevel = 1;
+        }else if(continueNum10 >=7 && sites.get(MaLineType.LINE020.getName()) == 1){
+            //普通
+            siteLevel = 1;
         }else {
             return 0;
         }
         //K距离
         KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
         double km = kmKlineMaLineRule.verify(kLineEntities.get(0));
-        if(0 != sites.get(MaLineType.LINE020.getName())){
-            if(arrangeLevel == 2){
-                if(km > 0.03 || km < -0.01){
-                    return 0;
-                }
-            }else {
-                if(km > 0.01 || km < -0.01){
-                    return 0;
-                }
+        if(arrangeLevel == 2 || continueNum10 >= 8){
+            if(km > 0.06 || km < -0.01){
+                return 0;
+            }
+        }else {
+            if(km > 0.01 || km < -0.01){
+                return 0;
             }
         }
         //5日内回踩或拐头
@@ -79,9 +81,18 @@ public class DayRiseFormFilter implements LineFormFilter {
         if(dw == -1 && cohere == 0){
             return 0;
         }
+        //15日内是否有过涨停
+        LineRoseRule longSunRule = new LineRoseRule(4,4.9,21);
+        int site = longSunRule.verify(kLineEntities,15);
         //均线振幅过滤
         if(arrangeLevel == 2){
             LineRoseRule mlineRoseRule = new LineRoseRule(0.12,-0.03);
+            int mrose = mlineRoseRule.verify(kLineEntities,10);
+            if(mrose == 0){
+                return 0;
+            }
+        }else if(site > 6){
+            LineRoseRule mlineRoseRule = new LineRoseRule(0.1,-0.03);
             int mrose = mlineRoseRule.verify(kLineEntities,10);
             if(mrose == 0){
                 return 0;

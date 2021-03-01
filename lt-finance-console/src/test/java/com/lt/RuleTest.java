@@ -10,6 +10,7 @@ import com.lt.screen.day.DayRiseFormFilter;
 import com.lt.service.KLineService;
 import com.lt.service.RuleFilterService;
 import com.lt.shape.MaLineType;
+import com.lt.utils.BigDecimalUtil;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +128,12 @@ public class RuleTest {
                     List<KLineEntity> list = kLineService
                             .queryDayLineList(item,tradeDate,30);
                     int riseNum = lineFormFilter.execute(list);
-                    if(riseNum < 2){
+                    if(riseNum < 1){
+                        return;
+                    }
+                    int f = maLineFive(list);
+                    int t = maLineTen(list);
+                    if(riseNum == 1 && t == 0 && f == 0){
                         return;
                     }
                     System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
@@ -150,12 +156,59 @@ public class RuleTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("600295.SH","20201113",30);
+//                        queryDayLineList("603698.SH","20210108",30);
 //        int riseNum = lineFormFilter.execute(list);
+//        int f = maLineFive(list);
+//        int t = maLineTen(list);
+//        System.out.println(t+"==================================="+f);
 //        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
 //        if(riseNum > 0){
 //            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
 //        }
+    }
+
+    public int maLineFive(List<KLineEntity> list){
+        for(int i = 0;i < 5;i++){
+            KLineEntity entity = list.get(i);
+            double ratio1 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
+            double ratio2 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2), 1,3);
+            double ratio3 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2), 1,3);
+            if(ratio1 > 0.01 || ratio1 < -0.01){
+                return 0;
+            }
+            if(ratio2 > 0.01 || ratio2 < -0.01){
+                return 0;
+            }
+            if(ratio3 > 0.01 || ratio3 < -0.01){
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+    public int maLineTen(List<KLineEntity> list){
+        for(int i = 0;i < 10;i++){
+            KLineEntity entity = list.get(i);
+            double ratio1 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
+            double ratio2 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2), 1,3);
+            double ratio3 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2), 1,3);
+            if(ratio1 > 0.02 || ratio1 < -0.02){
+                return 0;
+            }
+            if(ratio2 > 0.02 || ratio2 < -0.02){
+                return 0;
+            }
+            if(ratio3 > 0.02 || ratio3 < -0.02){
+                return 0;
+            }
+        }
+        return 1;
     }
 
     @Test
