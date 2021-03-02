@@ -21,18 +21,13 @@ public class PlateLineTask {
 
     @Scheduled(cron = "0 30 16 * * ? ")// 0/1 * * * * *
     public void execute() {
-        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
-            return;
-        }
+//        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
+//        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+//            return;
+//        }
         log.info("==========================板块收集数据开始======================");
-        for(String item : TsCodes.STOCK_CODE){
-            try {
-                Thread.sleep(150);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            tushareService.requestDayLine(item);
+        for(String item : TsCodes.PLATE_CODE){
+            tushareService.requestPlateIndex(item);
         }
         log.info("==========================板块收集数据完成======================");
     }

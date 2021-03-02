@@ -1,9 +1,6 @@
 package com.lt.config;
 
-import com.lt.task.DailyBasicTask;
-import com.lt.task.DayLineTask;
-import com.lt.task.StockBasicTask;
-import com.lt.task.WeekLineTask;
+import com.lt.task.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -68,5 +65,15 @@ public class TaskConfiguration implements SchedulingConfigurer {
     public WeekLineTask weekLineTask(){
         WeekLineTask weekLineTask = new WeekLineTask();
         return weekLineTask;
+    }
+
+    /**
+     * 每日概念指数
+     * @return
+     */
+    @Bean
+    public PlateLineTask plateLineTask(){
+        PlateLineTask plateLineTask = new PlateLineTask();
+        return plateLineTask;
     }
 }

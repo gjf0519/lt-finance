@@ -84,9 +84,50 @@ public class TushareService {
             for(Map<String,Object> plate : list){
                 codes.add(plate.get("ts_code").toString());
             }
-            JSON.toJSONString(codes);
+            System.out.println(JSON.toJSONString(codes));
         }catch (Exception e){
             log.info("获取板块代码数据异常 Exception:{}",e);
+        }
+    }
+
+    /**
+     * 获取概念指数
+     */
+    public void requestPlateIndex(String plateCode) {
+        try {
+            String fields = "ts_code,trade_date,close,open,high,low,pre_close,avg_price,change,pct_change,vol,turnover_rate,float_mv";
+            Map<String,Object> item = new HashMap<>();
+            String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+            item.put("ts_code", plateCode);
+            item.put("start_date", "20200101");
+            item.put("end_date", trade_date);
+            TushareResult tushareResult = requestData(item,"ths_daily",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            System.out.println(JSON.toJSONString(list));
+        }catch (Exception e){
+            log.info("获取板块指数数据异常 Exception:{}",e);
+        }
+    }
+
+    /**
+     * 获取概念成分股
+     */
+    public void requestPlateElement(String plateCode) {
+        try {
+            String fields = "ts_code,code,name,weight,in_date,is_new";
+            Map<String,Object> item = new HashMap<>();
+            item.put("ts_code", plateCode);
+            TushareResult tushareResult = requestData(item,"ths_member",fields);
+            List<Map<String,Object>> list = transitionMap(tushareResult);
+            if(null == list || list.isEmpty()){
+                return;
+            }
+            System.out.println(JSON.toJSONString(list));
+        }catch (Exception e){
+            log.info("获取板块成分数据股异常 Exception:{}",e);
         }
     }
 
