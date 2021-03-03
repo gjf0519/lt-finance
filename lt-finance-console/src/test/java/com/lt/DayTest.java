@@ -55,7 +55,7 @@ public class DayTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = kLineService.
-//                queryDayLineList("603789.SH","20210218",10);
+//                queryDayLineList("600122.SH","20210210",10);
 //        dayTrTest(list);
 //        List<KLineEntity> list1 = kLineService.
 //                queryDayLineList("000591.SZ","20201222",5);
@@ -180,10 +180,10 @@ public class DayTest {
         if(dwNum > 2){
             return;
         }
-        if(dwNum == 0){
-            System.out.println(result2+"=============================================================================================================="+list.get(0).getTsCode());
-        }
-//        System.out.println(result2+"=============================================================================================================="+list.get(0).getTsCode());
+//        if(dwNum == 0){
+//            System.out.println(result2+"=============================================================================================================="+list.get(0).getTsCode());
+//        }
+        System.out.println(result2+"=============================================================================================================="+list.get(0).getTsCode());
 //        System.out.println("==============================================================="+list.get(0).getTsCode());
 //        for(KLineEntity entity : list){
 //            double ratio2 = BigDecimalUtil.sub(

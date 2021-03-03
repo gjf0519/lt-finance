@@ -8,6 +8,7 @@ import com.lt.service.ReceiveService;
 import com.lt.shape.StockAlgorithm;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,6 +179,78 @@ public class LineInitTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    @Test
+    public void initPlate(){
+        CountDownLatch latch = new CountDownLatch(TsCodes.PLATE_CODE.size());
+        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        for(String code : TsCodes.PLATE_CODE){
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            threadPoolExecutor.execute(()->{
+                String fields = "ts_code,trade_date,close,open,high,low,pre_close,avg_price,change,pct_change,vol,turnover_rate,float_mv";
+                Map<String,Object> item = new HashMap<>();
+                item.put("ts_code", code);
+                item.put("start_date", "20200101");
+                item.put("end_date", trade_date);
+                TushareResult tushareResult = requestData(item,"ths_daily",fields);
+                List<Map<String,Object>> result = transitionMap(tushareResult);
+                if(null == result){
+                    latch.countDown();
+                    return;
+                }
+                //均线计算
+                expma(result);
+                for(Map<String,Object> map : result){
+                    kLineService.savePlateLine(map);
+                }
+                latch.countDown();
+                System.out.println("============="+latch.getCount());
+            });
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TushareResult requestData(Map<String,Object> item,String apiname,String fields){
+        Map<String,Object> params = new HashMap<>();
+        params.put("params", item);
+        params.put("api_name", apiname);
+        params.put("token", Constants.TUSHARE_TOKEN);
+        params.put("fields", fields);
+        String res = RestTemplateUtil.post(Constants.URL, JSON.toJSONString(params),null);
+        TushareResult tushareResult = JSON.parseObject(res, TushareResult.class);
+        if(!"0".equals(tushareResult.getCode())){
+            System.out.println("获取Tushare数据异常"+tushareResult.getMsg());
+            return null;
+        }
+        return tushareResult;
+    }
+
+    public List<Map<String,Object>> transitionMap(TushareResult tushareResult){
+        if(null == tushareResult || tushareResult.getData().getFields().isEmpty()){
+            return null;
+        }
+        List<String> fields = tushareResult.getData().getFields();
+        List<List<String>> items = tushareResult.getData().getItems();
+        List<Map<String,Object>> result = new ArrayList<>();
+        items.stream().forEach(o -> {
+            Map<String,Object> map = new HashMap<>();
+            Stream.iterate(0, i -> i+1).limit(o.size())
+                    .forEach(i -> {
+                        map.put(fields.get(i),o.get(i));
+                    });
+            result.add(map);
+        });
+        return result;
     }
 
     public List<Map<String,Object>> requestDayPyData(String code){
