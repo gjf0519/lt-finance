@@ -115,8 +115,16 @@ public class KLineService {
         return kLineMapper.hasSaveWeekLine(tscode,tradeDate);
     }
 
+    public int hasSavePlateLine(String tscode, String tradeDate) {
+        return kLineMapper.hasSavePlateLine(tscode,tradeDate);
+    }
+
     public List<KLineEntity> queryWeekLineByLimit(String tscode, int limit) {
         return kLineMapper.queryWeekLineByLimit(tscode,limit);
+    }
+
+    public List<KLineEntity> queryPlateLineByLimit(String tscode, int limit) {
+        return kLineMapper.queryPlateLineByLimit(tscode,limit);
     }
 
     public List<KLineEntity> queryWeekLineByLimitDate(String tscode, int limit,String tradeDate) {
@@ -126,6 +134,11 @@ public class KLineService {
     @Transactional(rollbackFor = Exception.class)
     public void saveWeekLine(Map map) {
         kLineMapper.saveWeekLine(map);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void savePlateLine(Map map) {
+        kLineMapper.savePlateLine(map);
     }
 
     public int hasSaveMonthLine(String tscode, String tradeDate) {

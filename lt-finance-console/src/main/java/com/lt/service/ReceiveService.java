@@ -100,6 +100,34 @@ public class ReceiveService {
     }
 
     /**
+     * 消费板块K数据
+     * @param map
+     */
+    public void receivePlateLine(Map map) {
+        try {
+            String tscode = map.get("ts_code").toString();
+            String tradeDate = map.get("trade_date").toString();
+            //判断周K数据是否已保存
+            int isSave = kLineService.hasSavePlateLine(tscode,tradeDate);
+            if(isSave > 0){
+                return;
+            }
+            List<KLineEntity> list = kLineService.queryPlateLineByLimit(tscode,249);
+            List<Double> closes = new ArrayList<>(250);
+            closes.add(Double.valueOf(map.get("close").toString()));
+            for(KLineEntity item : list){
+                closes.add(item.getClose());
+            }
+            Collections.reverse(closes);
+            //计算均线价格
+            calculateAvg(closes,map);
+            kLineService.savePlateLine(map);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 计算均线价格
      * @param closes
      * @param map

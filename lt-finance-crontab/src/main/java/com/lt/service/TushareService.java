@@ -106,7 +106,9 @@ public class TushareService {
             if(null == list || list.isEmpty()){
                 return;
             }
-            System.out.println(JSON.toJSONString(list));
+            for(Map<String,Object> map : list){
+                MqConfiguration.send(Constants.TUSHARE_PLATE_TOPIC,map,defaultMQProducer);
+            }
         }catch (Exception e){
             log.info("获取板块指数数据异常 Exception:{}",e);
         }
@@ -125,7 +127,6 @@ public class TushareService {
             if(null == list || list.isEmpty()){
                 return;
             }
-            System.out.println(JSON.toJSONString(list));
         }catch (Exception e){
             log.info("获取板块成分数据股异常 Exception:{}",e);
         }

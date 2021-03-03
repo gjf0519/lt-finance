@@ -10,6 +10,7 @@ public class Constants {
     public static final String TUSHARE_WEEKLINE_TOPIC = "TUSHARE-WEEKLINE";
     public static final String TUSHARE_MONTHLINE_TOPIC = "TUSHARE-MONTHLINE";
     public static final String TUSHARE_BASIC_TOPIC = "TUSHARE-DAILY-BASIC";
+    public static final String TUSHARE_PLATE_TOPIC = "TUSHARE-PLATELINE";
     public static final String BREAK_5_10 = "5TO10";
     public static final String BREAK_5_20 = "5TO20";
     public static final String BREAK_5_30 = "5TO30";

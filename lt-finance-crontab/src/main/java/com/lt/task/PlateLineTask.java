@@ -27,6 +27,11 @@ public class PlateLineTask {
 //        }
         log.info("==========================板块收集数据开始======================");
         for(String item : TsCodes.PLATE_CODE){
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             tushareService.requestPlateIndex(item);
         }
         log.info("==========================板块收集数据完成======================");

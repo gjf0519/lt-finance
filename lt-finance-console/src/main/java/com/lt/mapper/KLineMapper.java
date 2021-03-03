@@ -90,4 +90,16 @@ public interface KLineMapper {
     @Select({"SELECT id,ts_code,trade_date,open,high,low,close,vol from lt_day_line m WHERE m.ts_code=#{tsCode} and m.trade_date <= #{tradeDate}"})
     List<KLineDto> queryRuleDayLine(@Param("tsCode") String code,
                                     @Param("tradeDate") String tradeDate);
+
+    @Select({"SELECT count(1) from lt_plate_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
+    int hasSavePlateLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
+
+    @Select({"SELECT * from lt_plate_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
+    List<KLineEntity> queryPlateLineByLimit(@Param("code") String code, @Param("limit") int limit);
+
+    @Insert({"insert into lt_plate_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
+            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
+            " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_change}" +
+            ",#{vol},#{float_mv},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
+    void savePlateLine(Map map);
 }
