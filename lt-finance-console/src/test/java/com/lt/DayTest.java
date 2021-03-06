@@ -1,5 +1,6 @@
 package com.lt;
 
+import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import com.lt.rules.KmKlineMaLineRule;
 import com.lt.rules.SiteKlineMaLineRule;
@@ -16,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -34,6 +35,8 @@ public class DayTest {
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
+    private final Map<String,Integer> BREAK_MAP = new ConcurrentHashMap<>();
+
     @Test
     public void daybreak(){
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
@@ -42,7 +45,7 @@ public class DayTest {
                 try {
                     List<KLineEntity> list = kLineService
                             .queryDayLineList(item,null,5);
-                    dayTrTest(list);
+                    matterMaBreak(list);
                 }catch (Exception e){
                     log.info("长阳过滤异常:code{},exception:{}",item,e);
                 }
@@ -54,9 +57,13 @@ public class DayTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        Map<String,Integer> map = sortMap(BREAK_MAP);
+        for (Map.Entry<String,Integer> entry: map.entrySet()) {
+            System.out.println(entry.getKey()+"================="+entry.getValue());
+        }
 //        List<KLineEntity> list = kLineService.
-//                queryDayLineList("600122.SH","20210210",10);
-//        dayTrTest(list);
+//                queryDayLineList("002092.SZ","20210111",5);
+//        matterMaBreak(list);
 //        List<KLineEntity> list1 = kLineService.
 //                queryDayLineList("000591.SZ","20201222",5);
 //        dayTrTest(list1);
@@ -194,5 +201,103 @@ public class DayTest {
 ////                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
 //            System.out.println(ratio2+"============="+ratio3);
 //        }
+    }
+
+    public void matterMaBreak(List<KLineEntity> list){
+        List<Double> twentyMonthRatio = new ArrayList<>();
+        List<Double> monthQuarterRatio = new ArrayList<>();
+        List<Double> quarterSemesterRatio = new ArrayList<>();
+        List<Double> semesterYearRatio = new ArrayList<>();
+        for(KLineEntity entity : list){
+            double ratio1 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaTwenty(),entity.getMaMonth(),2), 1,3);
+            double ratio2 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaMonth(),entity.getMaQuarter(),2), 1,3);
+            double ratio3 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaQuarter(),entity.getMaSemester(),2), 1,3);
+            double ratio4 = BigDecimalUtil.sub(
+                    BigDecimalUtil.div(entity.getMaSemester(),entity.getMaYear(),2), 1,3);
+            twentyMonthRatio.add(ratio1);
+            monthQuarterRatio.add(ratio2);
+            quarterSemesterRatio.add(ratio3);
+            semesterYearRatio.add(ratio4);
+        }
+        int breakNum = 0;
+        boolean twentyMonth = false;
+        if(ratioGap(twentyMonthRatio) &&
+                ratioOrder(twentyMonthRatio)){
+            breakNum++;
+            twentyMonth = true;
+        }
+        boolean monthQuarter = false;
+        if(ratioGap(monthQuarterRatio) &&
+                ratioOrder(monthQuarterRatio)){
+            breakNum++;
+            monthQuarter = true;
+        }
+        boolean quarterSemester = false;
+        if(ratioGap(quarterSemesterRatio) &&
+                ratioOrder(quarterSemesterRatio)){
+            breakNum++;
+            quarterSemester = true;
+        }
+        boolean semesterYear = false;
+        if(ratioGap(semesterYearRatio) &&
+                ratioOrder(semesterYearRatio)){
+            breakNum++;
+            semesterYear = true;
+        }
+        if(breakNum == 0){
+            return;
+        }
+        BREAK_MAP.put(list.get(0).getTsCode(),breakNum);
+//        System.out.println(list.get(0).getTsCode()+"======="+twentyMonth+"========"+monthQuarter+"======"+quarterSemester+"========"+semesterYear);
+//        System.out.println(JSON.toJSONString(MA_TWENTY_MONTH_RATIO));
+//        System.out.println(JSON.toJSONString(MA_MONTH_QUARTER_RATIO));
+//        System.out.println(JSON.toJSONString(MA_QUARTER_SEMESTER_RATIO));
+//        System.out.println(JSON.toJSONString(MA_SEMESTER_YEAR_RATIO));
+    }
+
+    /**
+     * 间距大小过滤
+     * @param list
+     * @return
+     */
+    private boolean ratioGap(List<Double> list){
+        if(list.get(0) > 0.02 ||
+                list.get(0) < -0.01){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 间距均匀缩小或放大
+     * @param list
+     * @return
+     */
+    private boolean ratioOrder(List<Double> list){
+        for(int i = 0;i < (list.size()-1);i++){
+            if(list.get(i) < list.get(i+1)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static Map<String, Integer> sortMap(Map<String, Integer> oldMap) {
+        ArrayList<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(oldMap.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> arg0,
+                               Map.Entry<String, Integer> arg1) {
+                return (int) (arg1.getValue() - arg0.getValue());
+            }
+        });
+        Map<String, Integer> newMap = new LinkedHashMap<String, Integer>();
+        for (int i = 0; i < list.size(); i++) {
+            newMap.put(list.get(i).getKey(), list.get(i).getValue());
+        }
+        return newMap;
     }
 }
