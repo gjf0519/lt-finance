@@ -25,6 +25,6 @@ public class PlateLineTaskTest {
 
     public static void main(String[] args) {
         TushareService tushareService = new TushareService();
-        tushareService.requestPlateIndex("");
+        tushareService.requestPlateIndex();
     }
 }

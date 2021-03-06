@@ -93,14 +93,12 @@ public class TushareService {
     /**
      * 获取概念指数
      */
-    public void requestPlateIndex(String plateCode) {
+    public void requestPlateIndex() {
         try {
             String fields = "ts_code,trade_date,close,open,high,low,pre_close,avg_price,change,pct_change,vol,turnover_rate,float_mv";
             Map<String,Object> item = new HashMap<>();
             String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-            item.put("ts_code", plateCode);
-            item.put("start_date", "20200101");
-            item.put("end_date", trade_date);
+            item.put("trade_date", trade_date);
             TushareResult tushareResult = requestData(item,"ths_daily",fields);
             List<Map<String,Object>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
