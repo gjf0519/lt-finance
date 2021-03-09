@@ -203,6 +203,10 @@ public class DayTest {
 //        }
     }
 
+    /**
+     * 均线间隙均匀缩小或放大
+     * @param list
+     */
     public void matterMaBreak(List<KLineEntity> list){
         List<Double> twentyMonthRatio = new ArrayList<>();
         List<Double> monthQuarterRatio = new ArrayList<>();
@@ -223,29 +227,21 @@ public class DayTest {
             semesterYearRatio.add(ratio4);
         }
         int breakNum = 0;
-        boolean twentyMonth = false;
         if(ratioGap(twentyMonthRatio) &&
                 ratioOrder(twentyMonthRatio)){
-            breakNum++;
-            twentyMonth = true;
+            breakNum = breakNum+1;
         }
-        boolean monthQuarter = false;
         if(ratioGap(monthQuarterRatio) &&
                 ratioOrder(monthQuarterRatio)){
-            breakNum++;
-            monthQuarter = true;
+            breakNum = breakNum+2;
         }
-        boolean quarterSemester = false;
         if(ratioGap(quarterSemesterRatio) &&
                 ratioOrder(quarterSemesterRatio)){
-            breakNum++;
-            quarterSemester = true;
+            breakNum = breakNum+3;
         }
-        boolean semesterYear = false;
         if(ratioGap(semesterYearRatio) &&
                 ratioOrder(semesterYearRatio)){
-            breakNum++;
-            semesterYear = true;
+            breakNum = breakNum+4;
         }
         if(breakNum == 0){
             return;
@@ -300,4 +296,6 @@ public class DayTest {
         }
         return newMap;
     }
+
+
 }
