@@ -1,17 +1,12 @@
 package com.lt;
 
-import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
-import com.lt.rules.KmKlineMaLineRule;
 import com.lt.rules.SiteKlineMaLineRule;
-import com.lt.screen.LineFormFilter;
-import com.lt.screen.day.DayTwitchFilter;
 import com.lt.service.KLineService;
 import com.lt.shape.MaLineType;
 import com.lt.utils.BigDecimalUtil;
 import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -297,5 +292,12 @@ public class DayTest {
         return newMap;
     }
 
+    /**
+     * 均线分布
+     * @param list
+     */
+    public static void mALineDistribution(List<KLineEntity> list){
+
+    }
 
 }
