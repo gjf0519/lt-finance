@@ -299,5 +299,4 @@ public class DayTest {
     public static void mALineDistribution(List<KLineEntity> list){
 
     }
-
 }
