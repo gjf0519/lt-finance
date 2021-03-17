@@ -9,6 +9,7 @@ import com.lt.service.KLineService;
 import com.lt.utils.BigDecimalUtil;
 import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.stat.StatUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -112,10 +114,12 @@ public class SquareRuleTest {
 
     private AtomicInteger  atomicIntegerAll = new AtomicInteger(0);
     private AtomicInteger  atomicIntegerRise = new AtomicInteger(0);
-    private AtomicInteger  atomicIntegerDow1 = new AtomicInteger(0);
-    private AtomicInteger  atomicIntegerDow2 = new AtomicInteger(0);
-    private AtomicInteger  atomicIntegerDow3 = new AtomicInteger(0);
-    private AtomicInteger  atomicIntegerDow4 = new AtomicInteger(0);
+//    private AtomicInteger  atomicIntegerDow1 = new AtomicInteger(0);
+//    private AtomicInteger  atomicIntegerDow2 = new AtomicInteger(0);
+//    private AtomicInteger  atomicIntegerDow3 = new AtomicInteger(0);
+//    private AtomicInteger  atomicIntegerDow4 = new AtomicInteger(0);
+
+    private List<Double> riseList = new Vector<>();
 
     @Test
     public void daybreak(){
@@ -128,6 +132,15 @@ public class SquareRuleTest {
             System.out.println(ratio+"==========================================="+trades.get(i));
         }
         System.out.println(JSON.toJSONString(mapAll));
+        System.out.println(JSON.toJSONString(riseList));
+        double[] riseArray = new double[riseList.size()];
+        for(int i = 0;i < riseList.size();i++){
+            riseArray[i] = riseList.get(i);
+        }
+        double[] res = StatUtils.mode(riseArray);
+        System.out.println(JSON.toJSONString(res));
+
+//        dayExecute("20201102","20201103");
     }
 
     public void dayExecute(String tradeDate,String nextTradeDate){
@@ -147,29 +160,31 @@ public class SquareRuleTest {
                     }
                     atomicIntegerAll.incrementAndGet();
                     List<KLineEntity> listNext = kLineService.queryDayLineList(list.get(0).getTsCode(),nextTradeDate,1);
+                    if(listNext.get(0).getPctChg() < 0){
+                        return;
+                    }
+                    atomicIntegerRise.incrementAndGet();
                     double pctChg = 0;
                     if(riseNum == 1){
-                        if(listNext.get(0).getPctChg() > 0){
-                            atomicIntegerRise.incrementAndGet();
-                        }
                         pctChg = list.get(1).getPctChg()*-1;
                     }
                     if(riseNum == 2){
-                        if(listNext.get(0).getPctChg() > 0){
-                            atomicIntegerRise.incrementAndGet();
-                        }
                         pctChg = list.get(2).getPctChg()*-1;
                     }
                     double ratioPct = BigDecimalUtil.div(pctChg,list.get(0).getPctChg(),2);
-                    if(ratioPct < 1.2){
-                        atomicIntegerDow1.incrementAndGet();
-                    }else if(ratioPct < 1.5){
-                        atomicIntegerDow2.incrementAndGet();
-                    }else if(ratioPct < 1.8){
-                        atomicIntegerDow3.incrementAndGet();
-                    }else {
-                        atomicIntegerDow4.incrementAndGet();
+                    if(ratioPct == 1.0){
+                        System.out.println(list.get(0).getTsCode()+"======================================="+nextTradeDate);
                     }
+                    riseList.add(ratioPct);
+//                    if(ratioPct < 1.2){
+//                        atomicIntegerDow1.incrementAndGet();
+//                    }else if(ratioPct < 1.5){
+//                        atomicIntegerDow2.incrementAndGet();
+//                    }else if(ratioPct < 1.8){
+//                        atomicIntegerDow3.incrementAndGet();
+//                    }else {
+//                        atomicIntegerDow4.incrementAndGet();
+//                    }
                 }catch (Exception e){
                     log.info("阳线回补过滤异常:code{},exception:{}",item,e);
                 }finally {

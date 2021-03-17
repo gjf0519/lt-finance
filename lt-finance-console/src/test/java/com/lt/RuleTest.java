@@ -156,15 +156,17 @@ public class RuleTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("603698.SH","20210108",30);
+//                        queryDayLineList("000996.SZ","20210309",30);
 //        int riseNum = lineFormFilter.execute(list);
+//        if(riseNum < 1){
+//            return;
+//        }
 //        int f = maLineFive(list);
 //        int t = maLineTen(list);
-//        System.out.println(t+"==================================="+f);
-//        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
-//        if(riseNum > 0){
-//            System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
+//        if(riseNum == 1 && t == 0 && f == 0){
+//            return;
 //        }
+//        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
     }
 
     public int maLineFive(List<KLineEntity> list){

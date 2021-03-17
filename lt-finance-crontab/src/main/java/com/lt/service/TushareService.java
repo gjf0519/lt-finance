@@ -98,7 +98,8 @@ public class TushareService {
             String fields = "ts_code,trade_date,close,open,high,low,pre_close,avg_price,change,pct_change,vol,turnover_rate,float_mv";
             Map<String,Object> item = new HashMap<>();
             String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-            item.put("trade_date", trade_date);
+//            item.put("trade_date", trade_date);
+            item.put("trade_date", "20210309");
             TushareResult tushareResult = requestData(item,"ths_daily",fields);
             List<Map<String,Object>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
