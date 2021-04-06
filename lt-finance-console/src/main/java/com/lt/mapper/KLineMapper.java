@@ -102,4 +102,7 @@ public interface KLineMapper {
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_change}" +
             ",#{vol},#{float_mv},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
     void savePlateLine(Map map);
+
+    @Select({"select * from (SELECT * from lt_day_line m WHERE m.ts_code=#{tsCode} and m.low < #{low}) r order by r.trade_date desc LIMIT 1"})
+    KLineEntity queryLowEntity(KLineEntity kLineEntity);
 }

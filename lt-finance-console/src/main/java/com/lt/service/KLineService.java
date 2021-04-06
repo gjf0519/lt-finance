@@ -69,6 +69,10 @@ public class KLineService {
         return list;
     }
 
+    public KLineEntity queryLowEntity(KLineEntity kLineEntity){
+        return kLineMapper.queryLowEntity(kLineEntity);
+    }
+
     /**
      * 保存日K线数据
      * @param map
