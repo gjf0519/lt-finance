@@ -52,7 +52,7 @@ public class SiteKlineMaLineRule
         Map<String,Integer> map = new HashMap<>();
         double open = entity.getOpen();
         double close = entity.getClose();
-        if(open >= kline && close >= kline){
+        if(open > kline && close > kline){
             map.put(lineType.getName(),SITES[0]);
             return map;
         }
@@ -61,7 +61,7 @@ public class SiteKlineMaLineRule
             map.put(lineType.getName(),SITES[1]);
             return map;
         }
-        if(open <= kline && close <= kline){
+        if(open < kline && close < kline){
             map.put(lineType.getName(),SITES[2]);
             return map;
         }

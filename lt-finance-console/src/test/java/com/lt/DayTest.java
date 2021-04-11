@@ -31,6 +31,7 @@ public class DayTest {
     private ThreadPoolExecutor threadPoolExecutor;
 
     private final Map<String,Integer> BREAK_MAP = new ConcurrentHashMap<>();
+    private final Map<String,Integer> RED_MAP = new ConcurrentHashMap<>();
 
     @Test
     public void daybreak(){
@@ -39,8 +40,10 @@ public class DayTest {
             threadPoolExecutor.execute(()->{
                 try {
                     List<KLineEntity> list = kLineService
-                            .queryDayLineList(item,null,5);
-                    matterMaBreak(list);
+                            .queryDayLineList(item,null,10);
+//                    matterMaBreak(list);
+//                    dayTrTest(list);
+                    redKline(list);
                 }catch (Exception e){
                     log.info("长阳过滤异常:code{},exception:{}",item,e);
                 }
@@ -52,7 +55,8 @@ public class DayTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Map<String,Integer> map = sortMap(BREAK_MAP);
+//        Map<String,Integer> map = sortMap(BREAK_MAP);
+        Map<String,Integer> map = sortMap(RED_MAP);
         for (Map.Entry<String,Integer> entry: map.entrySet()) {
             System.out.println(entry.getKey()+"================="+entry.getValue());
         }
@@ -298,5 +302,38 @@ public class DayTest {
      */
     public static void mALineDistribution(List<KLineEntity> list){
 
+    }
+
+    /**
+     * 10日内上涨K线大于下跌K线
+     * @param list
+     */
+    public void redKline(List<KLineEntity> list){
+        if(list.get(0).getTsCode().startsWith("3")){
+            return;
+        }
+        if(list.get(0).getClose() > 50 ||
+                list.get(0).getPctChg() > 0.9){
+            return;
+        }
+        int upNum = 0;
+        for(KLineEntity entity : list){
+            if(entity.getOpen() < entity.getClose()){
+                upNum++;
+            }
+        }
+        if(upNum <= 5){
+            return;
+        }
+        if(list.get(0).getClose() < list.get(0).getOpen()
+                || list.get(1).getClose() < list.get(1).getOpen()
+                || list.get(2).getClose() < list.get(2).getOpen()){
+            return;
+        }
+        if(list.get(0).getClose() > list.get(1).getClose()
+            && list.get(1).getClose() > list.get(2).getClose()){
+            RED_MAP.put(list.get(0).getTsCode(),upNum);
+//            System.out.println(list.get(0).getTsCode()+"=======================================");
+        };
     }
 }

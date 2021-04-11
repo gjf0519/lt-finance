@@ -53,6 +53,18 @@ public class DayRiseFormFilter implements LineFormFilter {
                 && sites.get(MaLineType.LINE030.getName()) == 1){
             //重点
             siteLevel = 2;
+        }else if(sites.get(MaLineType.LINE005.getName()) == 0 //600379 20210401
+                && sites.get(MaLineType.LINE010.getName()) == 0
+                && sites.get(MaLineType.LINE020.getName()) == 1
+                && sites.get(MaLineType.LINE030.getName()) == 1){
+            //重点
+            siteLevel = 2;
+        }else if(sites.get(MaLineType.LINE005.getName()) == 0 //000793 20210406
+                && sites.get(MaLineType.LINE010.getName()) == 1
+                && sites.get(MaLineType.LINE020.getName()) == 1
+                && sites.get(MaLineType.LINE030.getName()) == 1){
+            //重点
+            siteLevel = 2;
         }else if(sites.get(MaLineType.LINE020.getName()) == 1
                 && sites.get(MaLineType.LINE030.getName()) == 1){
             //普通

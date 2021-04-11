@@ -133,25 +133,24 @@ public class TushareService {
 
     /**
      * 获取每日基本信息
-     * @param tscode
+     * @param trade_date
      */
-    @Async
-    public void requestDayBasic(String tscode){
+    public void requestDayBasic(String trade_date){
         try {
             String fields = "ts_code,trade_date,close,turnover_rate,turnover_rate_f,volume_ratio,circ_mv";
             Map<String,Object> item = new HashMap<>();
-            item.put("ts_code", tscode);
-            String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-            item.put("start_date", trade_date);
-            item.put("end_date", trade_date);
+            item.put("trade_date", trade_date);
             TushareResult tushareResult = requestData(item,"daily_basic",fields);
             List<Map<String,Object>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
             }
-            MqConfiguration.send(Constants.TUSHARE_BASIC_TOPIC,list.get(0),defaultMQProducer);
+            for(Map<String,Object> o : list){
+                MqConfiguration.send(Constants.TUSHARE_BASIC_TOPIC,o,defaultMQProducer);
+            }
+            log.info("获取每日指标数据数量:{}",list.size());
         }catch (Exception e){
-            log.info("获取每日指标数据异常 tscode:{}",tscode);
+            log.info("获取每日指标数据异常 trade_date:{}",trade_date);
         }
     }
 

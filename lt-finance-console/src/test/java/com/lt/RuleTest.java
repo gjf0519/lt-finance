@@ -136,6 +136,9 @@ public class RuleTest {
                     if(riseNum == 1 && t == 0 && f == 0){
                         return;
                     }
+                    if(riseNum != 4){
+                        return;
+                    }
                     System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
 //                    RuleFilterEntity ruleFilterEntity = RuleFilterEntity.builder()
 //                            .tsCode(list.get(0).getTsCode())
@@ -156,16 +159,16 @@ public class RuleTest {
             e.printStackTrace();
         }
 //        List<KLineEntity> list = kLineService.
-//                        queryDayLineList("000996.SZ","20210309",30);
+//                        queryDayLineList("000793.SZ","20210406",30);
 //        int riseNum = lineFormFilter.execute(list);
-//        if(riseNum < 1){
-//            return;
-//        }
-//        int f = maLineFive(list);
-//        int t = maLineTen(list);
-//        if(riseNum == 1 && t == 0 && f == 0){
-//            return;
-//        }
+////        if(riseNum < 1){
+////            return;
+////        }
+////        int f = maLineFive(list);
+////        int t = maLineTen(list);
+////        if(riseNum == 1 && t == 0 && f == 0){
+////            return;
+////        }
 //        System.out.println(list.get(0).getTsCode()+"==================================="+riseNum);
     }
 

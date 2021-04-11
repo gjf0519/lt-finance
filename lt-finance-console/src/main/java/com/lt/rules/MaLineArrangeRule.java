@@ -16,7 +16,7 @@ public class MaLineArrangeRule extends AbstractBaseRule<KLineEntity,Integer>
         implements MaLineRule<KLineEntity,List<MaLineType>,Integer>{
 
     public static List<MaLineType> TYPES = Arrays.asList(MaLineType.LINE005,
-            MaLineType.LINE010,MaLineType.LINE020,MaLineType.LINE030,MaLineType.LINE060,MaLineType.LINE120,MaLineType.LINE250);
+            MaLineType.LINE010,MaLineType.LINE020,MaLineType.LINE030,MaLineType.LINE060);
 
     /**
      * 默认计算5/10/20/30/60排列情况

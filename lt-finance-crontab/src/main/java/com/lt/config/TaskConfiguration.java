@@ -28,7 +28,7 @@ public class TaskConfiguration implements SchedulingConfigurer {
     }
 
     /**
-     * 每日指标
+     * 股票代码
      * @return
      */
     @Bean
@@ -71,9 +71,9 @@ public class TaskConfiguration implements SchedulingConfigurer {
      * 每日概念指数
      * @return
      */
-    @Bean
-    public PlateLineTask plateLineTask(){
-        PlateLineTask plateLineTask = new PlateLineTask();
-        return plateLineTask;
-    }
+//    @Bean
+//    public PlateLineTask plateLineTask(){
+//        PlateLineTask plateLineTask = new PlateLineTask();
+//        return plateLineTask;
+//    }
 }
