@@ -21,10 +21,10 @@ public class PlateLineTask {
 
     @Scheduled(cron = "0 10 21 * * ? ")// 0/1 * * * * *
     public void execute() {
-//        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-//        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
-//            return;
-//        }
+        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
+        if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
+            return;
+        }
         log.info("==========================板块收集数据开始======================");
         tushareService.obtainPlateIndex();
         log.info("==========================板块收集数据完成======================");

@@ -86,14 +86,4 @@ public class TaskConfiguration implements SchedulingConfigurer {
         PlateLineTask plateLineTask = new PlateLineTask();
         return plateLineTask;
     }
-
-    /**
-     * 数据补缺任务
-     * @return
-     */
-    @Bean
-    public RepairDataTask repairDataTask(){
-        RepairDataTask repairDataTask = new RepairDataTask();
-        return repairDataTask;
-    }
 }
