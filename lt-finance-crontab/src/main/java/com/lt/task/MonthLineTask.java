@@ -1,7 +1,10 @@
 package com.lt.task;
 
 import com.lt.common.DataType;
+import com.lt.entity.RepairDataEntity;
 import com.lt.service.TushareService;
+import com.lt.utils.Constants;
+import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,8 +26,6 @@ public class MonthLineTask {
 
     @Autowired
     private TushareService tushareService;
-    @Autowired
-    private RepairDataTask repairDataTask;
 
     @Scheduled(cron = "0 0 21 * * ? ")
     public void execute() {
@@ -32,7 +34,6 @@ public class MonthLineTask {
         if(today.compareTo(lastDay) != 0){
             return;
         }
-        repairDataTask.setMonthDay(today);
         log.info("==========================日线收集数据开始======================");
         this.obtainData(TsCodes.STOCK_CODE);
         log.info("==========================日线收集数据完成======================");
@@ -43,7 +44,8 @@ public class MonthLineTask {
     }
 
     private void obtainData(List<String> codes){
-        List<String> repairList = new ArrayList<>();
+        List<RepairDataEntity> repairList = new ArrayList<>();
+        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
         for(String item : codes){
             try {
                 Thread.sleep(150);
@@ -52,9 +54,13 @@ public class MonthLineTask {
             }
             boolean isOk = tushareService.obtainMonthLine(item);
             if(!isOk){
-                repairList.add(item);
+                RepairDataEntity entity = RepairDataEntity.builder()
+                        .repairCode(item)
+                        .repairDate(trade_date)
+                        .repairTopic(Constants.TUSHARE_MONTHLINE_TOPIC).build();
+                repairList.add(entity);
             }
         }
-        repairDataTask.getRepairTsCodeMap().put(DataType.MONTH_LINE,repairList);
+        tushareService.repairData(repairList);
     }
 }

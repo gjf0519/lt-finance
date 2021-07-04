@@ -1,7 +1,10 @@
 package com.lt.task;
 
 import com.lt.common.DataType;
+import com.lt.entity.RepairDataEntity;
 import com.lt.service.TushareService;
+import com.lt.utils.Constants;
+import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,8 +24,6 @@ import java.util.List;
 @Slf4j
 public class DayLineTask {
 
-    @Autowired
-    private RepairDataTask repairDataTask;
     @Autowired
     private TushareService tushareService;
 
@@ -41,7 +43,8 @@ public class DayLineTask {
     }
 
     private void obtainData(List<String> codes){
-        List<String> repairList = new ArrayList<>();
+        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        List<RepairDataEntity> repairList = new ArrayList<>();
         for(String item : codes){
             try {
                 Thread.sleep(150);
@@ -50,9 +53,13 @@ public class DayLineTask {
             }
             boolean isOk = tushareService.obtainDayLine(item);
             if(!isOk){
-                repairList.add(item);
+                RepairDataEntity entity = RepairDataEntity.builder()
+                        .repairCode(item)
+                        .repairDate(trade_date)
+                        .repairTopic(Constants.TUSHARE_DAYLINE_TOPIC).build();
+                repairList.add(entity);
             }
         }
-        repairDataTask.getRepairTsCodeMap().put(DataType.DAY_LINE,repairList);
+        tushareService.repairData(repairList);
     }
 }

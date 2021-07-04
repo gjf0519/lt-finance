@@ -1,7 +1,10 @@
 package com.lt.task;
 
 import com.lt.common.DataType;
+import com.lt.entity.RepairDataEntity;
 import com.lt.service.TushareService;
+import com.lt.utils.Constants;
+import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,8 +26,6 @@ public class WeekLineTask {
 
     @Autowired
     private TushareService tushareService;
-    @Autowired
-    private RepairDataTask repairDataTask;
 
     @Scheduled(cron = "0 0 10 * * ? ")
     public void execute() {
@@ -40,7 +42,8 @@ public class WeekLineTask {
     }
 
     private void obtainData(List<String> codes){
-        List<String> repairList = new ArrayList<>();
+        List<RepairDataEntity> repairList = new ArrayList<>();
+        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
         for(String item : codes){
             try {
                 Thread.sleep(300);
@@ -49,9 +52,13 @@ public class WeekLineTask {
             }
             boolean isOk = tushareService.obtainWeekLine(item);
             if(!isOk){
-                repairList.add(item);
+                RepairDataEntity entity = RepairDataEntity.builder()
+                        .repairCode(item)
+                        .repairDate(trade_date)
+                        .repairTopic(Constants.TUSHARE_WEEKLINE_TOPIC).build();
+                repairList.add(entity);
             }
         }
-        repairDataTask.getRepairTsCodeMap().put(DataType.WEEK_LINE,repairList);
+        tushareService.repairData(repairList);
     }
 }

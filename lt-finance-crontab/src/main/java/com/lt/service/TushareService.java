@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.lt.common.DataType;
 import com.lt.common.TushareAccess;
 import com.lt.config.MqConfiguration;
+import com.lt.entity.KLineEntity;
+import com.lt.entity.RepairDataEntity;
 import com.lt.result.TushareResult;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
@@ -33,6 +35,12 @@ public class TushareService {
 
     @Autowired
     private DefaultMQProducer defaultMQProducer;
+
+    public void repairData(List<RepairDataEntity> list){
+        for(RepairDataEntity entity : list){
+            MqConfiguration.send(Constants.TUSHARE_REPAIR_TOPIC,entity,defaultMQProducer);
+        }
+    }
 
     /**
      * 获取股票列表
@@ -126,9 +134,9 @@ public class TushareService {
                 return;
             }
             System.out.println(list.size()+"==========="+JSON.toJSONString(list));
-//            for(Map<String,Object> map : list){
-//                MqConfiguration.send(Constants.TUSHARE_PLATE_ELEMENT_TOPIC,map,defaultMQProducer);
-//            }
+            for(Map<String,Object> map : list){
+                MqConfiguration.send(Constants.TUSHARE_PLATE_ELEMENT_TOPIC,map,defaultMQProducer);
+            }
         }catch (Exception e){
             log.info("获取板块成分数据股异常 Exception:{}",e);
         }
@@ -249,10 +257,10 @@ public class TushareService {
     private List<Map<String,Object>> transPyDataDay(List<String> list){
         List<Map<String,Object>> results = new ArrayList();
         for(String line : list){
-            List<String> vals = JSONArray.parseArray(line,String.class);
+            List<String> values = JSONArray.parseArray(line,String.class);
             Map<String,Object> result = new HashMap<>();
             for(int i = 0;i < TushareAccess.DAY_LINE_FIELDS.length;i++){
-                result.put(TushareAccess.DAY_LINE_FIELDS[i],vals.get(i));
+                result.put(TushareAccess.DAY_LINE_FIELDS[i],values.get(i));
             }
             results.add(result);
         }
@@ -262,10 +270,10 @@ public class TushareService {
     private List<Map<String,Object>> transPyLineData(List<String> list){
         List<Map<String,Object>> results = new ArrayList();
         for(String line : list){
-            List<String> vals = JSONArray.parseArray(line,String.class);
+            List<String> values = JSONArray.parseArray(line,String.class);
             Map<String,Object> result = new HashMap<>();
             for(int i = 0;i < TushareAccess.LINE_FIELDS.length;i++){
-                result.put(TushareAccess.LINE_FIELDS[i],vals.get(i));
+                result.put(TushareAccess.LINE_FIELDS[i],values.get(i));
             }
             results.add(result);
         }
