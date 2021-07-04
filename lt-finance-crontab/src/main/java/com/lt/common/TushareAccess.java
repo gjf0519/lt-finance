@@ -22,6 +22,14 @@ public class TushareAccess {
 
     public final static String PY_MONTH_LINE = "/home/python/month_line.py";
 
+//    public final static String PYTHON_HOME = "C:/python37/python";
+//
+//    public final static String PY_DAY_LINE = "D:/workspace-python/day_line.py";
+//
+//    public final static String PY_WEEK_LINE = "D:/workspace-python/week_line.py";
+//
+//    public final static String PY_MONTH_LINE = "D:/workspace-python/month_line.py";
+
     public static final String [] LINE_FIELDS = new String[]{"ts_code","trade_date","close","open","high","low","pre_close","change","pct_chg","vol"};
 
     public static final String [] DAY_LINE_FIELDS = new String[]{"ts_code","trade_date","open","high","low","close","pre_close","change","pct_chg","vol"};

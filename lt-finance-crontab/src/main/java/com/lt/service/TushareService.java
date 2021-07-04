@@ -2,10 +2,8 @@ package com.lt.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.lt.common.DataType;
 import com.lt.common.TushareAccess;
 import com.lt.config.MqConfiguration;
-import com.lt.entity.KLineEntity;
 import com.lt.entity.RepairDataEntity;
 import com.lt.result.TushareResult;
 import com.lt.utils.Constants;
@@ -21,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -52,12 +49,12 @@ public class TushareService {
             item.put("list_status", "L");
             TushareResult tushareResult = this.requestData(item,TushareAccess.STOCK_CODE_API[0]
                     ,TushareAccess.STOCK_CODE_API[1]);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
+            List<Map<String,String>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
             }
             List<String> codes = new ArrayList<>();
-            for(Map<String,Object> map : list){
+            for(Map<String,String> map : list){
                 if("主板".equals(map.get("market"))){
                     codes.add(map.get("ts_code").toString());
                     continue;
@@ -80,8 +77,8 @@ public class TushareService {
     /**
      * 获取概念列表
      */
-    public List<Map<String,Object>> obtainPlates() {
-        List<Map<String,Object>> list = null;
+    public List<Map<String,String>> obtainPlates() {
+        List<Map<String,String>> list = null;
         try {
             Map<String,Object> item = new HashMap<>();
             item.put("exchange", "A");
@@ -108,11 +105,11 @@ public class TushareService {
             item.put("trade_date", trade_date);
             TushareResult tushareResult = this.requestData(item
                     ,TushareAccess.PLATE_INDEX_API[0],TushareAccess.PLATE_INDEX_API[1]);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
+            List<Map<String,String>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
             }
-            for(Map<String,Object> map : list){
+            for(Map<String,String> map : list){
                 MqConfiguration.send(Constants.TUSHARE_PLATE_TOPIC,map,defaultMQProducer);
             }
         }catch (Exception e){
@@ -129,12 +126,12 @@ public class TushareService {
             item.put("ts_code", "plateCode");
             TushareResult tushareResult = this.requestData(item
                     ,TushareAccess.PLATE_ELEMENT_API[0],TushareAccess.PLATE_ELEMENT_API[1]);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
+            List<Map<String,String>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
             }
             System.out.println(list.size()+"==========="+JSON.toJSONString(list));
-            for(Map<String,Object> map : list){
+            for(Map<String,String> map : list){
                 MqConfiguration.send(Constants.TUSHARE_PLATE_ELEMENT_TOPIC,map,defaultMQProducer);
             }
         }catch (Exception e){
@@ -152,11 +149,11 @@ public class TushareService {
             item.put("trade_date", tradeDate);
             TushareResult tushareResult = this.requestData(item
                     ,TushareAccess.DAY_BASIC_API[0],TushareAccess.DAY_BASIC_API[1]);
-            List<Map<String,Object>> list = transitionMap(tushareResult);
+            List<Map<String,String>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
             }
-            for(Map<String,Object> o : list){
+            for(Map<String,String> o : list){
                 MqConfiguration.send(Constants.TUSHARE_BASIC_TOPIC,o,defaultMQProducer);
             }
             log.info("获取每日指标数据数量:{}",list.size());
@@ -180,18 +177,18 @@ public class TushareService {
         return tushareResult;
     }
 
-    public List<Map<String,Object>> transitionMap(TushareResult tushareResult){
+    public List<Map<String,String>> transitionMap(TushareResult tushareResult){
         if(null == tushareResult || tushareResult.getData().getFields().isEmpty()){
             return null;
         }
         List<String> fields = tushareResult.getData().getFields();
         List<List<String>> items = tushareResult.getData().getItems();
-        List<Map<String,Object>> result = new ArrayList<>();
+        List<Map<String,String>> result = new ArrayList<>();
         items.stream().forEach(o -> {
-            Map<String,Object> map = new HashMap<>();
+            Map<String,String> map = new HashMap<>();
             Stream.iterate(0, i -> i+1).limit(o.size())
                     .forEach(i -> {
-                        map.put(fields.get(i),o.get(i));
+                        map.put(fields.get(i), o.get(i));
                     });
             result.add(map);
         });
@@ -209,7 +206,7 @@ public class TushareService {
             if(list.isEmpty()){
                 return false;
             }
-            List<Map<String,Object>> result = this.transPyDataDay(list);
+            List<Map<String,String>> result = this.transPyDataDay(list);
             MqConfiguration.send(Constants.TUSHARE_DAYLINE_TOPIC,result.get(0),defaultMQProducer);
         }catch (Exception e){
             log.info("获取日K数据异常 tsCode:{} exception:{}",tsCode,e);
@@ -228,7 +225,7 @@ public class TushareService {
             if(list.isEmpty()){
                 return false;
             }
-            List<Map<String,Object>> result = this.transPyLineData(list);
+            List<Map<String,String>> result = this.transPyLineData(list);
             MqConfiguration.send(Constants.TUSHARE_WEEKLINE_TOPIC,result.get(0),defaultMQProducer);
         }catch (Exception e){
             log.info("获取周K数据异常 tsCode:{} exception:{}",tsCode,e);
@@ -246,7 +243,7 @@ public class TushareService {
             if(list.isEmpty()){
                 return false;
             }
-            List<Map<String,Object>> result = this.transPyLineData(list);
+            List<Map<String,String>> result = this.transPyLineData(list);
             MqConfiguration.send(Constants.TUSHARE_MONTHLINE_TOPIC,result.get(0),defaultMQProducer);
         }catch (Exception e){
             log.info("获取月K数据异常 exception:{}",e);
@@ -254,11 +251,11 @@ public class TushareService {
         return true;
     }
 
-    private List<Map<String,Object>> transPyDataDay(List<String> list){
-        List<Map<String,Object>> results = new ArrayList();
+    private List<Map<String,String>> transPyDataDay(List<String> list){
+        List<Map<String,String>> results = new ArrayList();
         for(String line : list){
             List<String> values = JSONArray.parseArray(line,String.class);
-            Map<String,Object> result = new HashMap<>();
+            Map<String,String> result = new HashMap<>();
             for(int i = 0;i < TushareAccess.DAY_LINE_FIELDS.length;i++){
                 result.put(TushareAccess.DAY_LINE_FIELDS[i],values.get(i));
             }
@@ -267,11 +264,11 @@ public class TushareService {
         return results;
     }
 
-    private List<Map<String,Object>> transPyLineData(List<String> list){
-        List<Map<String,Object>> results = new ArrayList();
+    private List<Map<String,String>> transPyLineData(List<String> list){
+        List<Map<String,String>> results = new ArrayList();
         for(String line : list){
             List<String> values = JSONArray.parseArray(line,String.class);
-            Map<String,Object> result = new HashMap<>();
+            Map<String,String> result = new HashMap<>();
             for(int i = 0;i < TushareAccess.LINE_FIELDS.length;i++){
                 result.put(TushareAccess.LINE_FIELDS[i],values.get(i));
             }
@@ -299,7 +296,7 @@ public class TushareService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        log.info("脚本收集数据py:,tsCode:{},size:{}",pyPath,tsCode,list.size());
+        log.info("脚本收集数据python:{},tsCode:{},size:{}",pyPath,tsCode,list.size());
         return list;
     }
 }

@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author gaijf
  * @description
@@ -24,5 +27,11 @@ public class DayLineTaskTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void executeRepair() {
+        List<String> codes = Arrays.asList("000008.SZ");
+        dayLineTask.repairData(codes);
     }
 }

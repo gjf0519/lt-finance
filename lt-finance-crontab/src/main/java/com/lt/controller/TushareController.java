@@ -70,8 +70,8 @@ public class TushareController {
      * @return
      */
     @GetMapping("/plate/list")
-    public ResultEntity<List<Map<String,Object>>> obtainPlates(){
-        List<Map<String,Object>> list = tushareService.obtainPlates();
+    public ResultEntity<List<Map<String,String>>> obtainPlates(){
+        List<Map<String,String>> list = tushareService.obtainPlates();
         return ResultEntity.success(list);
     }
 
