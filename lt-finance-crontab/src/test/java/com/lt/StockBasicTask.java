@@ -18,6 +18,6 @@ public class StockBasicTask {
 
     @Test
     public void execute() {
-        tushareService.requestStockBasic();
+        tushareService.obtainStockBasic();
     }
 }

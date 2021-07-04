@@ -7,32 +7,35 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author gaijf
- * @description 周K线数据获取
- * @date 2020/12/7
+ * @description 日K线数据
+ * @date 2020/12/3
  */
 @Slf4j
-public class WeekLineTask {
+public class MonthLineTask {
 
     @Autowired
     private TushareService tushareService;
     @Autowired
     private RepairDataTask repairDataTask;
 
-    @Scheduled(cron = "0 0 10 * * ? ")
+    @Scheduled(cron = "0 0 21 * * ? ")
     public void execute() {
-        DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
-        if(dayOfWeek != DayOfWeek.SATURDAY){
+        LocalDate today = LocalDate.now();
+        LocalDate lastDay = today.with(TemporalAdjusters.lastDayOfMonth());
+        if(today.compareTo(lastDay) != 0){
             return;
         }
+        repairDataTask.setMonthDay(today);
+        log.info("==========================日线收集数据开始======================");
         this.obtainData(TsCodes.STOCK_CODE);
-        log.info("==========================周线收集数据完成======================");
+        log.info("==========================日线收集数据完成======================");
     }
 
     public void repairData(List<String> codes){
@@ -43,15 +46,15 @@ public class WeekLineTask {
         List<String> repairList = new ArrayList<>();
         for(String item : codes){
             try {
-                Thread.sleep(300);
+                Thread.sleep(150);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            boolean isOk = tushareService.obtainWeekLine(item);
+            boolean isOk = tushareService.obtainMonthLine(item);
             if(!isOk){
                 repairList.add(item);
             }
         }
-        repairDataTask.getRepairTsCodeMap().put(DataType.WEEK_LINE,repairList);
+        repairDataTask.getRepairTsCodeMap().put(DataType.MONTH_LINE,repairList);
     }
 }

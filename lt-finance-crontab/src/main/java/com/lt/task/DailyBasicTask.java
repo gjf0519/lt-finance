@@ -28,9 +28,8 @@ public class DailyBasicTask {
         if(dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY){
             return;
         }
-        log.info("==========================每日指标收集数据开始======================");
         String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-//        String trade_date = "20210407";
-        tushareService.requestDayBasic(trade_date);
+        tushareService.obtainDayBasic(trade_date);
+        log.info("==========================每日指标收集数据完成======================");
     }
 }

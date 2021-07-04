@@ -48,7 +48,7 @@ public class TaskConfiguration implements SchedulingConfigurer {
     }
 
     /**
-     * 每日日K线
+     * 日K线
      * @return
      */
     @Bean
@@ -58,7 +58,7 @@ public class TaskConfiguration implements SchedulingConfigurer {
     }
 
     /**
-     * 每日周K线
+     * 周K线
      * @return
      */
     @Bean
@@ -68,12 +68,32 @@ public class TaskConfiguration implements SchedulingConfigurer {
     }
 
     /**
-     * 每日概念指数
+     * 月K线
      * @return
      */
-//    @Bean
-//    public PlateLineTask plateLineTask(){
-//        PlateLineTask plateLineTask = new PlateLineTask();
-//        return plateLineTask;
-//    }
+    @Bean
+    public MonthLineTask monthLineTask(){
+        MonthLineTask monthLineTask = new MonthLineTask();
+        return monthLineTask;
+    }
+
+    /**
+     * 概念指数
+     * @return
+     */
+    @Bean
+    public PlateLineTask plateLineTask(){
+        PlateLineTask plateLineTask = new PlateLineTask();
+        return plateLineTask;
+    }
+
+    /**
+     * 数据补缺任务
+     * @return
+     */
+    @Bean
+    public RepairDataTask repairDataTask(){
+        RepairDataTask repairDataTask = new RepairDataTask();
+        return repairDataTask;
+    }
 }

@@ -26,7 +26,7 @@ public class PlateLineTask {
 //            return;
 //        }
         log.info("==========================板块收集数据开始======================");
-        tushareService.requestPlateIndex();
+        tushareService.obtainPlateIndex();
         log.info("==========================板块收集数据完成======================");
     }
 }

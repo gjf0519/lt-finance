@@ -20,13 +20,13 @@ public class StockBasicTask {
     @Autowired
     TushareService tushareService;
 
-    @Scheduled(cron = "0 0 17 * * ? ")// 0/1 * * * * *
+    @Scheduled(cron = "0 0 17 * * ? ")
     public void execute() {
         DayOfWeek dayOfWeek = LocalDateTime.now().getDayOfWeek();
         if(dayOfWeek != DayOfWeek.SATURDAY){
             return;
         }
-        tushareService.requestStockBasic();
+        tushareService.obtainStockBasic();
         log.info("==========================市场代码收集数据完成======================");
     }
 }

@@ -51,10 +51,10 @@ public class LineInitTest {
 
     @Test
     public void initDay(){
-//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-//        for(String item : TsCodes.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                List<Map<String,Object>> result = requestDayPyData(item);
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                List<Map<String,Object>> result = requestDayPyData(item);
 //                System.out.println("============="+latch.getCount());
 //                if(null == result){
 //                latch.countDown();
@@ -65,56 +65,56 @@ public class LineInitTest {
 //                for(Map<String,Object> map : result){
 //                    kLineService.saveDayLine(map);
 //                }
-////                if(null == result || result.isEmpty()){
-////                    latch.countDown();
-////                    return;
-////                }
-////                receiveService.receiveDayLine(result.get(0));
-//                latch.countDown();
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        String [] codes = new String[]{
-                "002966.SZ",
-                "003022.SZ",
-                "003026.SZ",
-                "003030.SZ",
-                "003032.SZ",
-                "003031.SZ",
-                "003033.SZ",
-                "003035.SZ",
-                "300787.SZ",
-                "300925.SZ",
-                "300928.SZ",
-                "300927.SZ",
-                "300926.SZ",
-                "605005.SH",
-                "605277.SH"
-        };
-        for(String code : codes){
-            List<Map<String,Object>> result = requestDayPyData(code);
-            if(null == result){
-                return;
-            }
-            expma(result);
-            for(Map<String,Object> map : result){
-                kLineService.saveDayLine(map);
-            }
+                if(null == result || result.isEmpty()){
+                    latch.countDown();
+                    return;
+                }
+                receiveService.receiveDayLine(result.get(0));
+                latch.countDown();
+            });
         }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+//        String [] codes = new String[]{
+//                "002966.SZ",
+//                "003022.SZ",
+//                "003026.SZ",
+//                "003030.SZ",
+//                "003032.SZ",
+//                "003031.SZ",
+//                "003033.SZ",
+//                "003035.SZ",
+//                "300787.SZ",
+//                "300925.SZ",
+//                "300928.SZ",
+//                "300927.SZ",
+//                "300926.SZ",
+//                "605005.SH",
+//                "605277.SH"
+//        };
+//        for(String code : codes){
+//            List<Map<String,Object>> result = requestDayPyData(code);
+//            if(null == result){
+//                return;
+//            }
+//            expma(result);
+//            for(Map<String,Object> map : result){
+//                kLineService.saveDayLine(map);
+//            }
+//        }
     }
 
     @Test
     public void initWeek(){
-//        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
-//        for(String item : TsCodes.STOCK_CODE){
-//            threadPoolExecutor.execute(()->{
-//                try{
-//                    List<Map<String,Object>> result = requestWeekPyData(item);
+        CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
+        for(String item : TsCodes.STOCK_CODE){
+            threadPoolExecutor.execute(()->{
+                try{
+                    List<Map<String,Object>> result = requestWeekPyData(item);
 //                    //全量初始化
 //                    if(null == result){
 //                        latch.countDown();
@@ -125,32 +125,32 @@ public class LineInitTest {
 //                    for(Map<String,Object> map : result){
 //                        kLineService.saveWeekLine(map);
 //                    }
-//                    //数据补充
-////                if(null == result || result.isEmpty()){
-////                    latch.countDown();
-////                    return;
-////                }
-////                receiveService.receiveWeekLine(result.get(0));
-//                }catch (Exception e){
-//                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!"+item);
-//                }
-//                latch.countDown();
-//                System.out.println("============="+latch.getCount());
-//            });
-//        }
-//        try {
-//            latch.await();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        List<Map<String,Object>> result = requestWeekPyData("000001.SZ");
-        if(null == result){
-            return;
+                    //数据补充
+                if(null == result || result.isEmpty()){
+                    latch.countDown();
+                    return;
+                }
+                receiveService.receiveWeekLine(result.get(0));
+                }catch (Exception e){
+                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!"+item);
+                }
+                latch.countDown();
+                System.out.println("============="+latch.getCount());
+            });
         }
-        expma(result);
-        for(Map<String,Object> map : result){
-            kLineService.saveWeekLine(map);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+//        List<Map<String,Object>> result = requestWeekPyData("000001.SZ");
+//        if(null == result){
+//            return;
+//        }
+//        expma(result);
+//        for(Map<String,Object> map : result){
+//            kLineService.saveWeekLine(map);
+//        }
     }
 
     @Test

@@ -16,15 +16,20 @@ public class PlateLineTaskTest {
 
     @Autowired
     PlateLineTask plateLineTask;
+    @Autowired
+    TushareService tushareService;
 
     @Test
     public void plateIndex(){
         plateLineTask.execute();
     }
 
+    @Test
+    public void plateElement(){
+        tushareService.obtainPlateElement("884032.TI");
+    }
 
     public static void main(String[] args) {
         TushareService tushareService = new TushareService();
-        tushareService.requestPlateIndex();
     }
 }
