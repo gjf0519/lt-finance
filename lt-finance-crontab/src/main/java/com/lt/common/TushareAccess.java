@@ -14,21 +14,13 @@ public class TushareAccess {
     /*每日指标*/
     public final static String [] DAY_BASIC_API = new String[]{"daily_basic","ts_code,trade_date,close,turnover_rate,turnover_rate_f,volume_ratio,circ_mv"};
 
-//    public final static String PYTHON_HOME = "/usr/local/python3.8/Python-3.8.0/python";
-//
-//    public final static String PY_DAY_LINE = "/home/python/day_line.py";
-//
-//    public final static String PY_WEEK_LINE = "/home/python/week_line.py";
-//
-//    public final static String PY_MONTH_LINE = "/home/python/month_line.py";
+    public final static String PYTHON_HOME = "/usr/local/python3.8/Python-3.8.0/python";
 
-    public final static String PYTHON_HOME = "C:/python37/python";
+    public final static String PY_DAY_LINE = "/home/python/day_line.py";
 
-    public final static String PY_DAY_LINE = "D:/workspace-python/day_line.py";
+    public final static String PY_WEEK_LINE = "/home/python/week_line.py";
 
-    public final static String PY_WEEK_LINE = "D:/workspace-python/week_line.py";
-
-    public final static String PY_MONTH_LINE = "D:/workspace-python/month_line.py";
+    public final static String PY_MONTH_LINE = "/home/python/month_line.py";
 
     public static final String [] LINE_FIELDS = new String[]{"ts_code","trade_date","close","open","high","low","pre_close","change","pct_chg","vol"};
 
