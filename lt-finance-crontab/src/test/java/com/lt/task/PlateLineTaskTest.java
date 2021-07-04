@@ -1,4 +1,4 @@
-package com.lt;
+package com.lt.task;
 
 import com.lt.service.TushareService;
 import com.lt.task.PlateLineTask;

@@ -22,13 +22,23 @@ public class TushareController {
     private TushareService tushareService;
 
     /**
-     * 获取基本信息
-     * @param tsCode
+     * 获取股票列表
      * @return
      */
-    @GetMapping("/day/basic/{tsCode}")
-    public ResultEntity<String> obtainDayBasic(@PathVariable("tsCode") String tsCode){
-        tushareService.obtainDayBasic(tsCode);
+    @GetMapping("/stock/doce")
+    public ResultEntity<List<String>> obtainStockBasic(){
+        List<String> codes = tushareService.obtainStockBasic();
+        return ResultEntity.success(codes);
+    }
+
+    /**
+     * 获取基本信息
+     * @param tradeDate
+     * @return
+     */
+    @GetMapping("/day/basic/{tradeDate}")
+    public ResultEntity<String> obtainDayBasic(@PathVariable("tradeDate") String tradeDate){
+        tushareService.obtainDayBasic(tradeDate);
         return ResultEntity.success();
     }
 

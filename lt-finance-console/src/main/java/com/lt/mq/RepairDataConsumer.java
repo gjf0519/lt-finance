@@ -1,6 +1,7 @@
 package com.lt.mq;
 
 import com.alibaba.fastjson.JSON;
+import com.lt.entity.RepairDataEntity;
 import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -18,21 +19,19 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author gaijf
- * @description 日K消费者
+ * @description 补充数据消费
  * @date 2020/12/3
  */
 @Slf4j
 @Component
-public class WeekLineConsumer {
-
+public class RepairDataConsumer {
     @Value("${rocketmq.name-server}")
     private String nameServerAddr;
-    private String topicName = Constants.TUSHARE_WEEKLINE_TOPIC;
-    @Value("${finanace.comsumer.week-line}")
+    private String topicName = Constants.TUSHARE_REPAIR_TOPIC;
+    @Value("${finanace.comsumer.repair-data}")
     private String consumerGroupName;
     private DefaultMQPushConsumer consumer;
     @Autowired
@@ -40,18 +39,18 @@ public class WeekLineConsumer {
 
     @PostConstruct
     public void init() throws Exception {
-        log.info("开始启动周K数据消费者服务...");
+        log.info("开始启动补充数据消费者服务...");
         consumer = ConsumerUtil.getConsumer(consumerGroupName,
-                nameServerAddr,topicName,new Listener(receiveService));
+                nameServerAddr,topicName,new RepairDataConsumer.Listener(receiveService));
         consumer.start();
-        log.info("周K数据消息消费者服务启动成功.");
+        log.info("补充数据消息消费者服务启动成功.");
     }
 
     @PreDestroy
     public void destroy() {
-        log.info("开始关闭周K数据消息消费者服务...");
+        log.info("开始关闭补充数据消息消费者服务...");
         consumer.shutdown();
-        log.info("周K数据消息消费者服务已关闭.");
+        log.info("补充数据消息消费者服务已关闭.");
     }
 
     private static class Listener implements MessageListenerConcurrently {
@@ -64,13 +63,13 @@ public class WeekLineConsumer {
             for (MessageExt ext : list) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
-                    Map<String,String> map =  JSON.parseObject(record, Map.class);
-                    receiveService.receiveWeekLine(map);
+                    RepairDataEntity repairDataEntity = JSON.parseObject(record, RepairDataEntity.class);
+                    receiveService.receiveRepairData(repairDataEntity);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println("周K数据开始消费");
+            System.out.println("补充数据开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
     }

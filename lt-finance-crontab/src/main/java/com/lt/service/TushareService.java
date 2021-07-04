@@ -2,7 +2,7 @@ package com.lt.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.lt.common.TushareAccess;
+import com.lt.utils.TushareAccess;
 import com.lt.config.MqConfiguration;
 import com.lt.entity.RepairDataEntity;
 import com.lt.result.TushareResult;
@@ -43,7 +43,8 @@ public class TushareService {
      * 获取股票列表
      */
     @Async
-    public void obtainStockBasic() {
+    public List<String> obtainStockBasic() {
+        List<String> codes = new ArrayList<>();
         try {
             Map<String,Object> item = new HashMap<>();
             item.put("list_status", "L");
@@ -51,27 +52,26 @@ public class TushareService {
                     ,TushareAccess.STOCK_CODE_API[1]);
             List<Map<String,String>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
-                return;
+                return null;
             }
-            List<String> codes = new ArrayList<>();
             for(Map<String,String> map : list){
                 if("主板".equals(map.get("market"))){
-                    codes.add(map.get("ts_code").toString());
+                    codes.add(map.get("ts_code"));
                     continue;
                 };
                 if("中小板".equals(map.get("market"))){
-                    codes.add(map.get("ts_code").toString());
+                    codes.add(map.get("ts_code"));
                     continue;
                 };
                 if("创业板".equals(map.get("market"))){
-                    codes.add(map.get("ts_code").toString());
+                    codes.add(map.get("ts_code"));
                     continue;
                 };
             }
-            System.out.println(JSON.toJSONString(codes));
         }catch (Exception e){
             log.info("获取市场代码数据异常 Exception:{}",e);
         }
+        return codes;
     }
 
     /**
@@ -203,7 +203,7 @@ public class TushareService {
     public boolean obtainDayLine(String tsCode){
         try {
             List<String> list = executePython(TushareAccess.PY_DAY_LINE,tsCode);
-            if(list.isEmpty()){
+            if(null == list || list.isEmpty()){
                 return false;
             }
             List<Map<String,String>> result = this.transPyDataDay(list);
@@ -222,7 +222,7 @@ public class TushareService {
     public boolean obtainWeekLine(String tsCode) {
         try {
             List<String> list = executePython(TushareAccess.PY_WEEK_LINE,tsCode);
-            if(list.isEmpty()){
+            if(null == list || list.isEmpty()){
                 return false;
             }
             List<Map<String,String>> result = this.transPyLineData(list);
@@ -240,7 +240,7 @@ public class TushareService {
     public boolean obtainMonthLine(String tsCode) {
         try {
             List<String> list = executePython(TushareAccess.PY_MONTH_LINE, tsCode);
-            if(list.isEmpty()){
+            if(null == list || list.isEmpty()){
                 return false;
             }
             List<Map<String,String>> result = this.transPyLineData(list);

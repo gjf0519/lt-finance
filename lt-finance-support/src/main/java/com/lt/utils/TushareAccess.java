@@ -1,4 +1,4 @@
-package com.lt.common;
+package com.lt.utils;
 
 public class TushareAccess {
     public static final String URL = "http://api.waditu.com";

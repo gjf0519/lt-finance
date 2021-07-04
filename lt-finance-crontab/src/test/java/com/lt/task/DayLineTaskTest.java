@@ -1,4 +1,4 @@
-package com.lt;
+package com.lt.task;
 
 import com.lt.task.DayLineTask;
 import org.junit.jupiter.api.Test;

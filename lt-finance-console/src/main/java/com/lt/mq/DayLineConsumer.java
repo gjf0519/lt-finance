@@ -1,6 +1,7 @@
 package com.lt.mq;
 
 import com.alibaba.fastjson.JSON;
+import com.lt.entity.KLineEntity;
 import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +65,7 @@ public class DayLineConsumer {
             for (MessageExt ext : list) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
-                    Map map = JSON.parseObject(record, Map.class);
+                    Map<String,String> map = JSON.parseObject(record, Map.class);
                     receiveService.receiveDayLine(map);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();

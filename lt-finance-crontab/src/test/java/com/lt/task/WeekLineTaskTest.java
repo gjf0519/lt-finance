@@ -1,6 +1,7 @@
-package com.lt;
+package com.lt.task;
 
-import com.lt.service.TushareService;
+import com.lt.task.DayLineTask;
+import com.lt.task.WeekLineTask;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,16 +9,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 /**
  * @author gaijf
  * @description
- * @date 2021/1/18
+ * @date 2020/12/3
  */
 @SpringBootTest
-public class StockBasicTask {
+public class WeekLineTaskTest {
 
     @Autowired
-    TushareService tushareService;
+    WeekLineTask weekLineTask;
 
     @Test
     public void execute() {
-        tushareService.obtainStockBasic();
+        weekLineTask.execute();
     }
 }

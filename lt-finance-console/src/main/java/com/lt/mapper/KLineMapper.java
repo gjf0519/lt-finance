@@ -2,16 +2,13 @@ package com.lt.mapper;
 
 import com.lt.dto.DayLineDto;
 import com.lt.dto.KLineDto;
-import com.lt.entity.EmaBreakEntity;
 import com.lt.entity.KLineEntity;
 import com.lt.vo.DayLineVo;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface KLineMapper {
@@ -19,12 +16,6 @@ public interface KLineMapper {
     int queryDayLineCount(DayLineVo dayLineVo);
 
     List<DayLineDto> queryDayLineList(DayLineVo dayLineVo);
-
-    @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
-            " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
-    void saveDayLine(Map<String,Object> map);
 
     @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
     List<KLineEntity> queryDayLineByLimit(@Param("code") String code, @Param("limit") int limit);
@@ -35,37 +26,8 @@ public interface KLineMapper {
             @Param("limit") int limit,
             @Param("trade_date") String tradeDate);
 
-    @Insert({"insert into lt_ema_break (ts_code,kline_type,trade_date,break_day,rose" +
-            ",fivetoten,fivetotwenty,fivetothirty,fivetosixty,tentotwenty,tentothirty,tentosixty" +
-            ",twentytothirty,twentytosixty,kline_flat,kline_angle) values" +
-            " (#{tsCode},#{klineType},#{tradeDate},#{breakDay},#{rose}" +
-            ",#{fivetoten},#{fivetotwenty},#{fivetothirty},#{fivetosixty},#{tentotwenty},#{tentothirty},#{tentosixty}" +
-            ",#{twentytothirty},#{twentytosixty},#{klineFlat},#{klineAngle})"})
-    void saveEmaBreak(EmaBreakEntity entity);
-
-    @Select({"SELECT count(1) from lt_day_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
-    int hasSaveDayLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
-
-    @Select({"SELECT count(1) from lt_week_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
-    int hasSaveWeekLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
-
     @Select({"SELECT * from lt_week_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
     List<KLineEntity> queryWeekLineByLimit(@Param("code") String code, @Param("limit") int limit);
-
-    @Insert({"insert into lt_week_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
-            " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
-    void saveWeekLine(Map<String,Object> map);
-
-    @Insert({"insert into lt_month_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter) values" +
-            " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter})"})
-    void saveMonthLine(Map map);
-
-    @Select({"SELECT count(1) from lt_month_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
-    int hasSaveMonthLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
 
     @Select({"SELECT * from lt_week_line m WHERE m.ts_code=#{code} and trade_date <= #{trade_date} ORDER BY trade_date desc LIMIT #{limit}"})
     List<KLineEntity> queryWeekLineByLimitDate(@Param("code") String tscode,
@@ -75,13 +37,6 @@ public interface KLineMapper {
     @Select({"SELECT id,ts_code,trade_date,open,high,low,close,vol from lt_day_line m WHERE m.ts_code=#{tsCode}"})
     List<KLineDto> queryDayLineByCode(@Param("tsCode") String tsCode);
 
-    @Select({"SELECT count(1) from lt_daily_basic m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
-    int hasSaveDaily(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
-
-    @Insert({"insert into lt_daily_basic (ts_code,trade_date,close,turnover_rate,turnover_rate_free,volume_ratio,circ_mv) " +
-            "values (#{ts_code},#{trade_date},#{close},#{turnover_rate},#{turnover_rate_f},#{volume_ratio},#{circ_mv})"})
-    void saveDaily(Map map);
-
     @Select({"SELECT * from lt_day_line m WHERE m.ts_code=#{code} and trade_date >= #{trade_date} ORDER BY trade_date LIMIT #{limit}"})
     List<KLineEntity> queryDayLineListAsc(@Param("code") String code,
                                           @Param("limit") int limit,
@@ -90,19 +45,4 @@ public interface KLineMapper {
     @Select({"SELECT id,ts_code,trade_date,open,high,low,close,vol from lt_day_line m WHERE m.ts_code=#{tsCode} and m.trade_date <= #{tradeDate}"})
     List<KLineDto> queryRuleDayLine(@Param("tsCode") String code,
                                     @Param("tradeDate") String tradeDate);
-
-    @Select({"SELECT count(1) from lt_plate_line m WHERE m.ts_code=#{tscode} and m.trade_date = #{tradeDate}"})
-    int hasSavePlateLine(@Param("tscode") String tscode,@Param("tradeDate") String tradeDate);
-
-    @Select({"SELECT * from lt_plate_line m WHERE m.ts_code=#{code} ORDER BY trade_date desc LIMIT #{limit}"})
-    List<KLineEntity> queryPlateLineByLimit(@Param("code") String code, @Param("limit") int limit);
-
-    @Insert({"insert into lt_plate_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
-            " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_change}" +
-            ",#{vol},#{float_mv},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
-    void savePlateLine(Map map);
-
-    @Select({"select * from (SELECT * from lt_day_line m WHERE m.ts_code=#{tsCode} and m.low < #{low}) r order by r.trade_date desc LIMIT 1"})
-    KLineEntity queryLowEntity(KLineEntity kLineEntity);
 }
