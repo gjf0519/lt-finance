@@ -47,8 +47,8 @@ public class DayLineInitTest {
                 try {
                     result = requestDayPyData(item);
                 } catch (Exception e) {
-                    latch.countDown();
                     CODES.add(item);
+                    latch.countDown();
                 }
                 if(null == result || result.isEmpty()){
                     latch.countDown();

@@ -89,7 +89,7 @@ public class TushareController {
      * 获取概念指数
      * @return
      */
-    @GetMapping("/plate/line/{tsCode}")
+    @GetMapping("/plate/line")
     public ResultEntity<String> obtainPlateIndex(){
         tushareService.obtainPlateIndex();
         return ResultEntity.success();

@@ -32,7 +32,7 @@ public class WeekLineInitTest {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Test
-    public void initDay(){
+    public void initWeek(){
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{

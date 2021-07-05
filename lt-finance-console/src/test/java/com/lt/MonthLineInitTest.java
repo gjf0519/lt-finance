@@ -30,13 +30,20 @@ public class MonthLineInitTest {
     private ReceiveMapper receiveMapper;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
+    private static List<String> CODES = Collections.synchronizedList(new ArrayList<>());
 
     @Test
-    public void initDay(){
+    public void initMonth(){
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
-                List<Map<String,String>> result = requestDayPyData(item);
+                List<Map<String,String>> result = null;
+                try {
+                    result = requestDayPyData(item);
+                } catch (Exception e) {
+                    CODES.add(item);
+                    latch.countDown();
+                }
                 if(null == result || result.isEmpty()){
                     latch.countDown();
                     return;
@@ -72,7 +79,7 @@ public class MonthLineInitTest {
         for(int y = 0;y < result.size();y++){
             for (int i = 0; i < Constants.MA_NUM_ARREY.length; i++) {
                 if(closes.length < Constants.MA_NUM_ARREY[i]){
-                    return;
+                    continue;
                 }
                 int from = y;
                 int to = y + Constants.MA_NUM_ARREY[i];
@@ -86,7 +93,7 @@ public class MonthLineInitTest {
         }
     }
 
-    public List<Map<String,String>> requestDayPyData(String code){
+    public List<Map<String,String>> requestDayPyData(String code) throws Exception {
         List<String> list = executePython(monthLinePath,code);
         List<Map<String,String>> result = transPyDataDay(list);
         return result;
@@ -105,7 +112,7 @@ public class MonthLineInitTest {
         return results;
     }
 
-    private List<String> executePython(String pyPath,String tsCode){
+    private List<String> executePython(String pyPath,String tsCode) throws Exception{
         List<String> list = new ArrayList<>();
         Process proc;
         String[] args = new String[]{pyHome,pyPath,tsCode};
@@ -120,10 +127,10 @@ public class MonthLineInitTest {
             }
             reader.close();
             proc.waitFor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } finally {
+            if (reader != null){
+                reader.close();
+            }
         }
         return list;
     }

@@ -48,6 +48,22 @@ public class RestTemplateUtil {
     /**
      * get 请求
      * @param url 请求路径
+     * @return
+     */
+    public static  String get(String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Accept", "application/json");
+        headers.add("Content-Encoding", "UTF-8");
+        headers.add("Content-Type", "application/json; charset=UTF-8");
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response = RestTemplateUtil.getInstance().exchange(url, HttpMethod.GET, requestEntity, String.class);
+        String responseBody = response.getBody();
+        return responseBody;
+    }
+
+    /**
+     * get 请求
+     * @param url 请求路径
      * @param token JWT所需的Token，不需要的可去掉
      * @return
      */

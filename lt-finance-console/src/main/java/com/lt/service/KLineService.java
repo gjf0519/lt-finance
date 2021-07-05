@@ -4,13 +4,16 @@ import com.lt.dto.DayLineDto;
 import com.lt.dto.KLineDto;
 import com.lt.dto.KlineChartsDto;
 import com.lt.entity.KLineEntity;
+import com.lt.entity.RepairDataEntity;
 import com.lt.mapper.KLineMapper;
+import com.lt.utils.TimeUtil;
 import com.lt.view.PageData;
 import com.lt.vo.DayLineVo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -120,5 +123,23 @@ public class KLineService {
                 .tsCode(klineDtos.get(0).getTsCode())
                 .lines(result).build();
         return klineChartsDto;
+    }
+
+    public List<RepairDataEntity> queryRepairData(Date date) {
+        String dateStr = TimeUtil.dateFormat(date,"yyyyMMdd");
+        return kLineMapper.queryRepairData(dateStr);
+    }
+
+    public int queryCountByDate(Date date) {
+        String dateStr = TimeUtil.dateFormat(date,"yyyyMMdd");
+        return kLineMapper.queryCountByDate(dateStr);
+    }
+
+    public void deleteRepairById(int id) {
+        kLineMapper.deleteRepairById(id);
+    }
+
+    public void updateRepairById(int id) {
+        kLineMapper.updateRepairById(id);
     }
 }

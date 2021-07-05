@@ -6,10 +6,7 @@ import com.lt.entity.EmaBreakEntity;
 import com.lt.entity.KLineEntity;
 import com.lt.entity.RepairDataEntity;
 import com.lt.vo.DayLineVo;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Map;
@@ -63,7 +60,7 @@ public interface ReceiveMapper {
     @Select({"SELECT count(1) from lt_repair_data m WHERE m.repair_code = #{repairCode} and m.repair_date = #{repairDate}"})
     int hasSaveRepairData(RepairDataEntity repairDataEntity);
 
-    @Insert({"insert into lt_repair_data (repair_code,repair_date,repair_topic) values (#{repairCode},#{repairDate},#{repairTopic})"})
+    @Insert({"insert into lt_repair_data (repair_code,repair_date,repair_topic,repair_num) values (#{repairCode},#{repairDate},#{repairTopic},#{repairNum})"})
     void saveRepairData(RepairDataEntity repairDataEntity);
 
     @Select({"SELECT count(1) from lt_month_line m WHERE m.ts_code=#{tsCode} and m.trade_date = #{tradeDate}"})

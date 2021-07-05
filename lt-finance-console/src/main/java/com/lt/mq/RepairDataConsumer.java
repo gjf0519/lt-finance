@@ -64,6 +64,7 @@ public class RepairDataConsumer {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
                     RepairDataEntity repairDataEntity = JSON.parseObject(record, RepairDataEntity.class);
+                    repairDataEntity.setRepairNum(0);
                     receiveService.receiveRepairData(repairDataEntity);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();

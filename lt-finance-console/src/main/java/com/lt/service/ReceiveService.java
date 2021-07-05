@@ -1,17 +1,16 @@
 package com.lt.service;
 
-import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import com.lt.entity.RepairDataEntity;
 import com.lt.mapper.ReceiveMapper;
-import com.lt.shape.StockAlgorithm;
 import com.lt.utils.Constants;
 import org.apache.commons.math3.stat.StatUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author gaijf
@@ -107,7 +106,7 @@ public class ReceiveService {
     public void calculateAvg(double [] closes,Map<String,String> map){
         for (int i = 0; i < Constants.MA_NUM_ARREY.length; i++) {
             if(closes.length < Constants.MA_NUM_ARREY[i]){
-                return;
+                continue;
             }
             double [] item = Arrays.copyOf(closes,Constants.MA_NUM_ARREY[i]);
             double mean = StatUtils.mean(item);
