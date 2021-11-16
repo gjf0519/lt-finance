@@ -6,9 +6,7 @@ import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.client.consumer.listener.*;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +40,8 @@ public class DayLineConsumer {
     @PostConstruct
     public void init() throws Exception {
         log.info("开始启动日K数据消费者服务...");
-        consumer = ConsumerUtil.getConsumer(consumerGroupName,
-                nameServerAddr,topicName,new Listener(receiveService));
+        consumer = ConsumerUtil.orderConsumer(consumerGroupName,
+                nameServerAddr,topicName,new OrderListener(receiveService));
         consumer.start();
         log.info("日K数据消息消费者服务启动成功.");
     }
@@ -55,14 +53,14 @@ public class DayLineConsumer {
         log.info("日K数据消息消费者服务已关闭.");
     }
 
-    private static class Listener implements MessageListenerConcurrently {
+    private static class ConcurrentListener implements MessageListenerConcurrently {
         private ReceiveService receiveService;
-        public Listener(ReceiveService receiveService){
+        public ConcurrentListener(ReceiveService receiveService){
             this.receiveService = receiveService;
         }
-        public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list,
+        public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                                                         ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-            for (MessageExt ext : list) {
+            for (MessageExt ext : msgs) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
                     Map<String,String> map = JSON.parseObject(record, Map.class);
@@ -71,8 +69,29 @@ public class DayLineConsumer {
                     e.printStackTrace();
                 }
             }
-            System.out.println("DAY数据开始消费");
+            System.out.println("DAY数据并发开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+        }
+    }
+
+    private static class OrderListener implements MessageListenerOrderly {
+        private ReceiveService receiveService;
+        public OrderListener(ReceiveService receiveService){
+            this.receiveService = receiveService;
+        }
+        @Override
+        public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
+            for (MessageExt ext : msgs) {
+                try {
+                    String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
+                    Map<String,String> map = JSON.parseObject(record, Map.class);
+                    receiveService.receiveDayLine(map);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("DAY数据顺序开始消费");
+            return ConsumeOrderlyStatus.SUCCESS;
         }
     }
 }

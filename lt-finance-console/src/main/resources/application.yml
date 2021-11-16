@@ -20,7 +20,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 rocketmq:
-  name-server: 212.64.69.77:9876
+  name-server: 101.200.170.91:9876
 
 management:
   endpoints:

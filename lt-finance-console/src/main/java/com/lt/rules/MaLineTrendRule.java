@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.utils.BigDecimalUtil;
+import com.lt.utils.CalculateUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,7 +44,7 @@ public class MaLineTrendRule
                 double s = items.get(y) - realMaValues.get(y);
                 directions.add(s);
                 //判断均线倾斜度
-                double r = BigDecimalUtil.div(s,realMaValues.get(y),2);
+                double r = CalculateUtil.div(s,realMaValues.get(y),2);
                 angles.add(r);
             }
             LineTread lineTread = LineTread.builder()

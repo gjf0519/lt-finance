@@ -22,7 +22,7 @@ public class ReceiveService {
 
     @Resource
     private ReceiveMapper receiveMapper;
-    private final static int LIMIT_NUM = 239;
+    private final static int LIMIT_NUM = 144;
     private final static String CODE_KEY = "ts_code";
     private final static String DATE_KEY = "trade_date";
 
@@ -43,7 +43,7 @@ public class ReceiveService {
      */
     public void receiveDayLine(Map<String,String> map) {
         String tsCode = map.get(CODE_KEY);
-        String tradeDate = map.get(DATE_KEY);
+        String tradeDate = map.get(DATE_KEY);  
         //判断日K数据是否已保存
         int isSave = receiveMapper.hasSaveDayLine(tsCode,tradeDate);
         if(isSave > 0){
@@ -89,7 +89,7 @@ public class ReceiveService {
     }
 
     public void avgLine(Map<String,String> map,List<KLineEntity> list){
-        double [] closes = new double[240];
+        double [] closes = new double[list.size()+1];
         closes[0] = Double.valueOf(map.get("close"));
         for(int i = 0;i < list.size();i++){
             closes[i+1] = list.get(i).getClose();

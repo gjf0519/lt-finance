@@ -40,7 +40,7 @@ public class RepairDataConsumer {
     @PostConstruct
     public void init() throws Exception {
         log.info("开始启动补充数据消费者服务...");
-        consumer = ConsumerUtil.getConsumer(consumerGroupName,
+        consumer = ConsumerUtil.concurrentConsumer(consumerGroupName,
                 nameServerAddr,topicName,new RepairDataConsumer.Listener(receiveService));
         consumer.start();
         log.info("补充数据消息消费者服务启动成功.");

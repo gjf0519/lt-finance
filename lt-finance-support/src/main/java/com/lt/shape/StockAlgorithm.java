@@ -1,6 +1,6 @@
 package com.lt.shape;
 
-import com.lt.utils.BigDecimalUtil;
+import com.lt.utils.CalculateUtil;
 
 import java.util.*;
 
@@ -26,9 +26,9 @@ public class StockAlgorithm {
             double avg = prices.get(i);
             int stopy = i-day+1;
             for(int y = (i-1);y >= stopy;y--){
-                avg = BigDecimalUtil.add(avg,prices.get(y),4);
+                avg = CalculateUtil.add(avg,prices.get(y),4);
             }
-            avg = BigDecimalUtil.div(avg,day,2);
+            avg = CalculateUtil.div(avg,day,2);
             result.add(avg);
         }
         return result;
@@ -43,7 +43,7 @@ public class StockAlgorithm {
     public static Double calculateAngle(Double price1,Double price2){
         double m = price1/price2-1;
         double h = Math.atan(m*100)*180/3.1416;
-        return BigDecimalUtil.round(h,2);
+        return CalculateUtil.round(h,2);
     }
 
     /**
@@ -76,7 +76,7 @@ public class StockAlgorithm {
         double dlen = open - low;
         double ud = dlen - ulen;
         //十字星
-        double doji = BigDecimalUtil.div(open,close,2);
+        double doji = CalculateUtil.div(open,close,2);
         //整体长度
         double klen = high - low;
         //身体长度
@@ -85,7 +85,7 @@ public class StockAlgorithm {
         if(0 == klen){
             bratio = 1;
         }else {
-            bratio = BigDecimalUtil.div(blen,klen,2);
+            bratio = CalculateUtil.div(blen,klen,2);
         }
         //身体长度占比
         String kform = "";
@@ -198,7 +198,7 @@ public class StockAlgorithm {
     }
 
     public static void main(String[] args) {
-        double an = BigDecimalUtil.div(calculateAngle(5.85,5.67),8);
+        double an = CalculateUtil.div(calculateAngle(5.85,5.67),8);
         System.out.println(an);
         System.out.println(calculateAngle(10.48,10.2));
     }

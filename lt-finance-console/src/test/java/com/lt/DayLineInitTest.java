@@ -70,6 +70,15 @@ public class DayLineInitTest {
         }
     }
 
+    @Test
+    public void initDayOne() throws Exception {
+        List<Map<String,String>> result = requestDayPyData("605186.SH");
+        this.calculationMa(result);
+        for(Map<String,String> map : result){
+            receiveMapper.saveDayLine(map);
+        }
+    }
+
     public List<Map<String,String>> calculationMa(List<Map<String,String>> result){
         if(result.size() <= 0 || result.size() < 5){
             return null;
@@ -86,7 +95,7 @@ public class DayLineInitTest {
         for(int y = 0;y < result.size();y++){
             for (int i = 0; i < Constants.MA_NUM_ARREY.length; i++) {
                 if(closes.length < Constants.MA_NUM_ARREY[i]){
-                    return;
+                    continue;
                 }
                 int from = y;
                 int to = y + Constants.MA_NUM_ARREY[i];

@@ -1,7 +1,6 @@
 package com.lt.task;
 
-import com.lt.service.TushareService;
-import com.lt.task.PlateLineTask;
+import com.lt.service.TushareApiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,7 @@ public class PlateLineTaskTest {
     @Autowired
     PlateLineTask plateLineTask;
     @Autowired
-    TushareService tushareService;
+    TushareApiService tushareService;
 
     @Test
     public void plateIndex(){
@@ -30,6 +29,6 @@ public class PlateLineTaskTest {
     }
 
     public static void main(String[] args) {
-        TushareService tushareService = new TushareService();
+        TushareApiService tushareService = new TushareApiService();
     }
 }

@@ -1,7 +1,6 @@
 package com.lt;
 
 import com.lt.entity.KLineEntity;
-import com.lt.entity.RuleFilterEntity;
 import com.lt.rules.GreatBreakRule;
 import com.lt.rules.LineRoseRule;
 import com.lt.rules.MaLineArrangeRule;
@@ -10,7 +9,7 @@ import com.lt.screen.day.DayRiseFormFilter;
 import com.lt.service.KLineService;
 import com.lt.service.RuleFilterService;
 import com.lt.shape.MaLineType;
-import com.lt.utils.BigDecimalUtil;
+import com.lt.utils.CalculateUtil;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,12 +174,12 @@ public class RuleTest {
     public int maLineFive(List<KLineEntity> list){
         for(int i = 0;i < 5;i++){
             KLineEntity entity = list.get(i);
-            double ratio1 = BigDecimalUtil.sub(
-                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
-            double ratio2 = BigDecimalUtil.sub(
-                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2), 1,3);
-            double ratio3 = BigDecimalUtil.sub(
-                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2), 1,3);
+            double ratio1 = CalculateUtil.sub(
+                    CalculateUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
+            double ratio2 = CalculateUtil.sub(
+                    CalculateUtil.div(entity.getMaFive(),entity.getMaTwenty(),2), 1,3);
+            double ratio3 = CalculateUtil.sub(
+                    CalculateUtil.div(entity.getMaFive(),entity.getMaMonth(),2), 1,3);
             if(ratio1 > 0.01 || ratio1 < -0.01){
                 return 0;
             }
@@ -197,12 +196,12 @@ public class RuleTest {
     public int maLineTen(List<KLineEntity> list){
         for(int i = 0;i < 10;i++){
             KLineEntity entity = list.get(i);
-            double ratio1 = BigDecimalUtil.sub(
-                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
-            double ratio2 = BigDecimalUtil.sub(
-                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaTwenty(),2), 1,3);
-            double ratio3 = BigDecimalUtil.sub(
-                    BigDecimalUtil.div(entity.getMaFive(),entity.getMaMonth(),2), 1,3);
+            double ratio1 = CalculateUtil.sub(
+                    CalculateUtil.div(entity.getMaFive(),entity.getMaTen(),2), 1,3);
+            double ratio2 = CalculateUtil.sub(
+                    CalculateUtil.div(entity.getMaFive(),entity.getMaTwenty(),2), 1,3);
+            double ratio3 = CalculateUtil.sub(
+                    CalculateUtil.div(entity.getMaFive(),entity.getMaMonth(),2), 1,3);
             if(ratio1 > 0.02 || ratio1 < -0.02){
                 return 0;
             }

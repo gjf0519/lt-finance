@@ -41,7 +41,7 @@ public class PlateLineConsumer {
     @PostConstruct
     public void init() throws Exception {
         log.info("开始启动日K数据消费者服务...");
-        consumer = ConsumerUtil.getConsumer(consumerGroupName,
+        consumer = ConsumerUtil.concurrentConsumer(consumerGroupName,
                 nameServerAddr,topicName,new Listener(receiveService));
         consumer.start();
         log.info("日K数据消息消费者服务启动成功.");

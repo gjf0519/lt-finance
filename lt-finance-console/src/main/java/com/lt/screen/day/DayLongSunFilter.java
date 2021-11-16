@@ -3,7 +3,7 @@ package com.lt.screen.day;
 import com.lt.entity.KLineEntity;
 import com.lt.rules.LineRoseRule;
 import com.lt.screen.LineFormFilter;
-import com.lt.utils.BigDecimalUtil;
+import com.lt.utils.CalculateUtil;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class DayLongSunFilter implements LineFormFilter {
             return 0;
         }
         for(int i = 0;i < site;i++){
-            double ratio = BigDecimalUtil.sub(BigDecimalUtil.div(kLineEntities.get(i).getClose(),
+            double ratio = CalculateUtil.sub(CalculateUtil.div(kLineEntities.get(i).getClose(),
                     kLineEntities.get(site).getClose(),2),1,2);
             if(ratio < -0.02 || ratio > 0.02){
                 return 0;

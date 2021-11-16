@@ -46,25 +46,64 @@ public class MqConfiguration {
         return producer;
     }
 
-    public static <T> void send(String topic,T msg,DefaultMQProducer defaultMQProducer){
+    /**
+     * 同步随机发送消息
+     * @param topic
+     * @param msg
+     * @param producer
+     * @param <T>
+     */
+    public static <T> void send(String topic,T msg,DefaultMQProducer producer){
         try {
             Message message = new Message(topic,
                     JSON.toJSONString(msg).getBytes(RemotingHelper.DEFAULT_CHARSET));
             // 发送消息
-            defaultMQProducer.send(message);
+            producer.send(message);
         }catch (Exception e){
-            log.info("rocketmq producer 同步发送消息异常:{}",e);
+            log.info("rocketmq producer 同步随机发送消息异常:{}",e);
         }
     }
 
-    public static <T> void asynchSend(String topic,T msg,DefaultMQProducer defaultMQProducer){
+    /**
+     * 同步顺序发送消息
+     * @param topic
+     * @param msg
+     * @param order
+     * @param producer
+     * @param <T>
+     */
+    public static <T> void sendOrder(String topic,T msg,
+                                     int order,DefaultMQProducer producer){
         try {
             Message message = new Message(topic,
                     JSON.toJSONString(msg).getBytes(RemotingHelper.DEFAULT_CHARSET));
             // 发送消息
-            defaultMQProducer.send(message, new SendCallback() {
+            order = order < 0 ? -order : order;
+            int finalOrder = order;
+            producer.send(message, (mqs, msg1, arg) -> {
+                long index = finalOrder % mqs.size();
+                return mqs.get((int)index); }, finalOrder);
+        }catch (Exception e){
+            log.info("rocketmq producer 同步顺序发送消息异常:{}",e);
+        }
+    }
+
+    /**
+     * 异步发送消息
+     * @param topic
+     * @param msg
+     * @param producer
+     * @param <T>
+     */
+    public static <T> void asynchSend(String topic,T msg,DefaultMQProducer producer){
+        try {
+            Message message = new Message(topic,
+                    JSON.toJSONString(msg).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            // 发送消息
+            producer.send(message, new SendCallback() {
                 @Override
                 public void onSuccess(SendResult sendResult) {
+                    log.info("rocketmq producer 异步发送消息结果:{}",JSON.toJSONString(sendResult));
                 }
                 @Override
                 public void onException(Throwable e) {

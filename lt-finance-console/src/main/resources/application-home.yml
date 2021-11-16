@@ -2,9 +2,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: gjf
-    password: gjf613
-    url: jdbc:mysql://192.168.1.66:3306/lt_trade?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+    url: jdbc:mysql://127.0.0.1:3306/lt_trade?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     druid:
       initial-size: 4 #初始化时建立的连接数
       max-active: 8 #最大活跃数
@@ -15,9 +15,9 @@ spring:
         login-username: gailt
         login-password: gailt
   redis:
-    host: 192.168.1.68
+    host: 82.157.65.88
     port: 6379
-    password: gjf*#123
+#    password: gjf*#123
     jedis:
       pool:
         max-active: 8
@@ -47,9 +47,9 @@ finanace:
       week-line: D:/workspace-python/week_line.py
       month-line: D:/workspace-python/month_line.py
   comsumer:
-    daily-basic: DAILY-CONSUMER-GROUP-HOME
-    day-line: DAYLINE-CONSUMER-GROUP-HOME
-    week-line: WEEKLINE-CONSUMER-GROUP-HOME
-    month-line: MONTHLINE-CONSUMER-GROUP-HOME
-    plate-line: PLATELINE-CONSUMER-GROUP-HOME
-    repair-data: REPAIR-CONSUMER-GROUP-HOME
+    daily-basic: DAILY-CONSUMER-GROUP
+    day-line: DAYLINE-CONSUMER-GROUP
+    week-line: WEEKLINE-CONSUMER-GROUP
+    month-line: MONTHLINE-CONSUMER-GROUP
+    plate-line: PLATELINE-CONSUMER-GROUP
+    repair-data: REPAIR-CONSUMER-GROUP

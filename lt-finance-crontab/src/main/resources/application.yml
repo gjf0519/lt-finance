@@ -14,7 +14,7 @@ spring:
 rocketmq:
   producer:
     groupName: TASK-PRODUCER-GROUP
-    namesrvAddr: 212.64.69.77:9876
+    namesrvAddr: 101.200.170.91:9876
 #    namesrvAddr: 127.0.0.1:9876
     default: false
 

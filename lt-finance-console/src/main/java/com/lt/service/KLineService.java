@@ -55,6 +55,10 @@ public class KLineService {
         return kLineMapper.queryDayLineListAsc(tscode,limit,tradeDate);
     }
 
+    public List<KLineEntity> queryDayLineListAsc(String tscode,String tradeDate){
+        return kLineMapper.queryDayLineByMin(tscode,tradeDate);
+    }
+
     /**
      * 查询周K数据
      * @param tscode
@@ -89,6 +93,12 @@ public class KLineService {
         return kLineMapper.queryDayLineByLimitDate(code,limit,tradeDate);
     }
 
+    /**
+     * 查询周K线数据
+     * @param tscode
+     * @param limit
+     * @return
+     */
     public List<KLineEntity> queryWeekLineByLimit(String tscode, int limit) {
         return kLineMapper.queryWeekLineByLimit(tscode,limit);
     }
@@ -141,5 +151,9 @@ public class KLineService {
 
     public void updateRepairById(int id) {
         kLineMapper.updateRepairById(id);
+    }
+
+    public KLineEntity queryMinKline(String tsCode){
+        return kLineMapper.queryMinKline(tsCode);
     }
 }

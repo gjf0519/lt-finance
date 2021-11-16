@@ -51,9 +51,17 @@ public interface KLineMapper {
     @Select({"SELECT count(1) from lt_plate_line where trade_date = #{tradeDate}"})
     int queryCountByDate(@Param("tradeDate") String tradeDate);
 
-    @Delete({"delete from lt_plate_line where id = #{id}"})
+    @Delete({"delete from lt_repair_data where id = #{id}"})
     void deleteRepairById(@Param("id") int id);
 
-    @Update({"update lt_plate_line set repair_num = 1 where id = #{id}"})
+    @Update({"update lt_repair_data set repair_num = 1 where id = #{id}"})
     void updateRepairById(@Param("id") int id);
+
+    @Select({"SELECT d.* FROM lt_day_line d where d.low = ( " +
+            "SELECT MIN(t.low) low FROM lt_day_line t where t.ts_code = #{tsCode} ) and d.ts_code = #{tsCode} "})
+    KLineEntity queryMinKline(@Param("tsCode") String tsCode);
+
+    @Select({"SELECT m.* FROM lt_day_line m where m.ts_code=#{tsCode} and m.trade_date >= #{tradeDate} order by m.trade_date "})
+    List<KLineEntity> queryDayLineByMin(@Param("tsCode") String code,
+                                        @Param("tradeDate") String tradeDate);
 }

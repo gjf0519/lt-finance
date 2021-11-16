@@ -1,8 +1,7 @@
 package com.lt.task;
 
-import com.lt.common.DataType;
-import com.lt.entity.RepairDataEntity;
-import com.lt.service.TushareService;
+import com.alibaba.fastjson.JSON;
+import com.lt.service.TushareScriptService;
 import com.lt.utils.Constants;
 import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
@@ -12,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +23,7 @@ import java.util.List;
 public class DayLineTask {
 
     @Autowired
-    private TushareService tushareService;
+    private TushareScriptService tushareScriptService;
 
     @Scheduled(cron = "0 30 19 * * ? ")// 0/1 * * * * *
     public void execute() {
@@ -34,32 +32,20 @@ public class DayLineTask {
             return;
         }
         log.info("==========================日线收集数据开始======================");
-        this.obtainData(TsCodes.STOCK_CODE);
+        String tradeDate = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        this.obtainData(TsCodes.STOCK_CODE,tradeDate,tradeDate);
         log.info("==========================日线收集数据完成======================");
     }
 
-    public void repairData(List<String> codes){
-        this.obtainData(codes);
-    }
-
-    private void obtainData(List<String> codes){
-        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-        List<RepairDataEntity> repairList = new ArrayList<>();
+    public void obtainData(List<String> codes,String startDate,String endDate) {
         for(String item : codes){
             try {
                 Thread.sleep(150);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            boolean isOk = tushareService.obtainDayLine(item);
-            if(!isOk){
-                RepairDataEntity entity = RepairDataEntity.builder()
-                        .repairCode(item)
-                        .repairDate(trade_date)
-                        .repairTopic(Constants.TUSHARE_DAYLINE_TOPIC).build();
-                repairList.add(entity);
+                tushareScriptService.obtainDayLine(item,startDate,endDate);
+            } catch (Exception e) {
+                tushareScriptService.repairData(Constants.TUSHARE_DAYLINE_TOPIC,item,startDate);
+                log.info("日线获取数据异常exception：{}", JSON.toJSONString(e));
             }
         }
-        tushareService.repairData(repairList);
     }
 }

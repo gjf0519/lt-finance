@@ -1,24 +1,21 @@
 package com.lt.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.lt.utils.TushareAccess;
 import com.lt.config.MqConfiguration;
-import com.lt.entity.RepairDataEntity;
 import com.lt.result.TushareResult;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
-import com.lt.utils.TimeUtil;
+import com.lt.utils.TushareAccess;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -28,16 +25,10 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Service
-public class TushareService {
+public class TushareApiService {
 
     @Autowired
     private DefaultMQProducer defaultMQProducer;
-
-    public void repairData(List<RepairDataEntity> list){
-        for(RepairDataEntity entity : list){
-            MqConfiguration.send(Constants.TUSHARE_REPAIR_TOPIC,entity,defaultMQProducer);
-        }
-    }
 
     /**
      * 获取股票列表
@@ -98,14 +89,13 @@ public class TushareService {
     /**
      * 获取概念指数
      */
-    public void obtainPlateIndex() {
+    public void obtainPlateIndex(String tradeDate) {
         try {
             Map<String,Object> item = new HashMap<>();
-            String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-            item.put("trade_date", trade_date);
+            item.put("trade_date", tradeDate);
             TushareResult tushareResult = this.requestData(item
                     ,TushareAccess.PLATE_INDEX_API[0],TushareAccess.PLATE_INDEX_API[1]);
-            List<Map<String,String>> list = transitionMap(tushareResult);
+            List<Map<String,String>> list = this.transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
             }
@@ -193,110 +183,5 @@ public class TushareService {
             result.add(map);
         });
         return result;
-    }
-
-    /**
-     * 获取日K数据
-     * @param tsCode
-     */
-    @Async
-    public boolean obtainDayLine(String tsCode){
-        try {
-            List<String> list = executePython(TushareAccess.PY_DAY_LINE,tsCode);
-            if(null == list || list.isEmpty()){
-                return false;
-            }
-            List<Map<String,String>> result = this.transPyDataDay(list);
-            MqConfiguration.send(Constants.TUSHARE_DAYLINE_TOPIC,result.get(0),defaultMQProducer);
-        }catch (Exception e){
-            log.info("获取日K数据异常 tsCode:{} exception:{}",tsCode,e);
-        }
-        return true;
-    }
-
-    /**
-     * 获取周K线
-     * @param tsCode
-     */
-    @Async
-    public boolean obtainWeekLine(String tsCode) {
-        try {
-            List<String> list = executePython(TushareAccess.PY_WEEK_LINE,tsCode);
-            if(null == list || list.isEmpty()){
-                return false;
-            }
-            List<Map<String,String>> result = this.transPyLineData(list);
-            MqConfiguration.send(Constants.TUSHARE_WEEKLINE_TOPIC,result.get(0),defaultMQProducer);
-        }catch (Exception e){
-            log.info("获取周K数据异常 tsCode:{} exception:{}",tsCode,e);
-        }
-        return true;
-    }
-
-    /**
-     * 获取月K线
-     */
-    @Async
-    public boolean obtainMonthLine(String tsCode) {
-        try {
-            List<String> list = executePython(TushareAccess.PY_MONTH_LINE, tsCode);
-            if(null == list || list.isEmpty()){
-                return false;
-            }
-            List<Map<String,String>> result = this.transPyLineData(list);
-            MqConfiguration.send(Constants.TUSHARE_MONTHLINE_TOPIC,result.get(0),defaultMQProducer);
-        }catch (Exception e){
-            log.info("获取月K数据异常 exception:{}",e);
-        }
-        return true;
-    }
-
-    private List<Map<String,String>> transPyDataDay(List<String> list){
-        List<Map<String,String>> results = new ArrayList();
-        for(String line : list){
-            List<String> values = JSONArray.parseArray(line,String.class);
-            Map<String,String> result = new HashMap<>();
-            for(int i = 0;i < TushareAccess.DAY_LINE_FIELDS.length;i++){
-                result.put(TushareAccess.DAY_LINE_FIELDS[i],values.get(i));
-            }
-            results.add(result);
-        }
-        return results;
-    }
-
-    private List<Map<String,String>> transPyLineData(List<String> list){
-        List<Map<String,String>> results = new ArrayList();
-        for(String line : list){
-            List<String> values = JSONArray.parseArray(line,String.class);
-            Map<String,String> result = new HashMap<>();
-            for(int i = 0;i < TushareAccess.LINE_FIELDS.length;i++){
-                result.put(TushareAccess.LINE_FIELDS[i],values.get(i));
-            }
-            results.add(result);
-        }
-        return results;
-    }
-
-    private List<String> executePython(String pyPath,String tsCode){
-        List<String> list = new ArrayList<>();
-        Process proc;
-        String[] args = new String[]{TushareAccess.PYTHON_HOME,pyPath,tsCode};
-        try {
-            proc = Runtime.getRuntime().exec(args);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(proc.getInputStream()));
-            String line = null;
-            while ((line = in.readLine()) != null) {
-                list = JSONArray.parseArray(line,String.class);
-            }
-            in.close();
-            proc.waitFor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        log.info("脚本收集数据python:{},tsCode:{},size:{}",pyPath,tsCode,list.size());
-        return list;
     }
 }

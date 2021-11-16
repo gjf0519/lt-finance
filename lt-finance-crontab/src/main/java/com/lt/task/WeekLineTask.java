@@ -1,8 +1,8 @@
 package com.lt.task;
 
-import com.lt.common.DataType;
+import com.alibaba.fastjson.JSON;
 import com.lt.entity.RepairDataEntity;
-import com.lt.service.TushareService;
+import com.lt.service.TushareScriptService;
 import com.lt.utils.Constants;
 import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
@@ -25,7 +25,7 @@ import java.util.List;
 public class WeekLineTask {
 
     @Autowired
-    private TushareService tushareService;
+    private TushareScriptService tushareScriptService;
 
     @Scheduled(cron = "0 0 10 * * ? ")
     public void execute() {
@@ -33,32 +33,20 @@ public class WeekLineTask {
         if(dayOfWeek != DayOfWeek.SATURDAY){
             return;
         }
-        this.obtainData(TsCodes.STOCK_CODE);
+        String tradeDate = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        this.obtainData(TsCodes.STOCK_CODE,tradeDate,tradeDate);
         log.info("==========================周线收集数据完成======================");
     }
 
-    public void repairData(List<String> codes){
-        this.obtainData(codes);
-    }
-
-    private void obtainData(List<String> codes){
-        List<RepairDataEntity> repairList = new ArrayList<>();
-        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+    private void obtainData(List<String> codes,String startDate,String endDate){
         for(String item : codes){
             try {
                 Thread.sleep(300);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            boolean isOk = tushareService.obtainWeekLine(item);
-            if(!isOk){
-                RepairDataEntity entity = RepairDataEntity.builder()
-                        .repairCode(item)
-                        .repairDate(trade_date)
-                        .repairTopic(Constants.TUSHARE_WEEKLINE_TOPIC).build();
-                repairList.add(entity);
+                tushareScriptService.obtainWeekLine(item,startDate,endDate);
+            } catch (Exception e) {
+                tushareScriptService.repairData(Constants.TUSHARE_WEEKLINE_TOPIC,item,startDate);
+                log.info("周线获取数据异常exception：{}", JSON.toJSONString(e));
             }
         }
-        tushareService.repairData(repairList);
     }
 }

@@ -1,6 +1,5 @@
 package com.lt.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
@@ -20,7 +19,7 @@ public class KlineDistributionUtil {
         StandardDeviation standardDeviation =new StandardDeviation();
         double mean = StatUtils.mean(values);
         double deviation = standardDeviation.evaluate(values);
-        double disperse = BigDecimalUtil.div(mean,deviation,2);
+        double disperse = CalculateUtil.div(mean,deviation,2);
         return disperse;
     }
 
@@ -48,7 +47,7 @@ public class KlineDistributionUtil {
         //几何平均数
         double mean1 = StatUtils.geometricMean(arr1);
         double deviation1 = standardDeviation.evaluate(arr1);
-        double disperse1 = BigDecimalUtil.div(mean1,deviation1,2);
+        double disperse1 = CalculateUtil.div(mean1,deviation1,2);
 //        System.out.println("一组数据的均值为：" + mean);
 //        System.out.println("一组数据的标准差为：" + deviation);
         double sub1 = list.get(0).getMaFive() - list.get(list.size()-1).getMaFive();
@@ -56,21 +55,21 @@ public class KlineDistributionUtil {
 //        double mean2 = StatUtils.mean(arr2);
         double mean2 = StatUtils.geometricMean(arr2);
         double deviation2 = standardDeviation.evaluate(arr2);
-        double disperse2 = BigDecimalUtil.div(mean2,deviation2,2);
+        double disperse2 = CalculateUtil.div(mean2,deviation2,2);
         double sub2 = list.get(0).getMaTen() - list.get(list.size()-1).getMaTen();
         System.out.println("平均差为："+StatUtils.meanDifference(arr1, arr2));
         System.out.println(list.get(0).getTsCode()+"一组数据的离散系数为：" + disperse2+"==="+sub2);
 //        double mean3 = StatUtils.mean(arr3);
         double mean3 = StatUtils.geometricMean(arr3);
         double deviation3 = standardDeviation.evaluate(arr3);
-        double disperse3 = BigDecimalUtil.div(mean3,deviation3,2);
+        double disperse3 = CalculateUtil.div(mean3,deviation3,2);
         double sub3 = list.get(0).getMaTwenty() - list.get(list.size()-1).getMaTwenty();
         System.out.println("平均差为："+StatUtils.meanDifference(arr2, arr3));
         System.out.println(list.get(0).getTsCode()+"一组数据的离散系数为：" + disperse3+"==="+sub3);
 //        double mean4 = StatUtils.mean(arr4);
         double mean4 = StatUtils.geometricMean(arr4);
         double deviation4 = standardDeviation.evaluate(arr4);
-        double disperse4 = BigDecimalUtil.div(mean4,deviation4,2);
+        double disperse4 = CalculateUtil.div(mean4,deviation4,2);
         double sub4 = list.get(0).getMaMonth() - list.get(list.size()-1).getMaMonth();
         System.out.println("平均差为："+StatUtils.meanDifference(arr3, arr4));
         System.out.println(list.get(0).getTsCode()+"一组数据的离散系数为：" + disperse4+"==="+sub4);

@@ -1,8 +1,7 @@
 package com.lt.task;
 
-import com.lt.service.TushareService;
+import com.lt.service.TushareApiService;
 import com.lt.utils.TimeUtil;
-import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +19,7 @@ import java.util.Date;
 public class DailyBasicTask {
 
     @Autowired
-    TushareService tushareService;
+    TushareApiService tushareService;
 
     @Scheduled(cron = "0 30 17 * * ? ")// 0/1 * * * * *
     public void execute() {

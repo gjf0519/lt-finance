@@ -4,7 +4,7 @@ import com.lt.entity.DailyBasicEntity;
 import com.lt.entity.KLineEntity;
 import com.lt.service.DailyBasicServie;
 import com.lt.service.KLineService;
-import com.lt.utils.BigDecimalUtil;
+import com.lt.utils.CalculateUtil;
 import com.lt.utils.TsCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -138,11 +138,11 @@ public class SmallStepUptTest {
             }
         }
         //计算红K数量占比，过滤掉一阴一阳的K线
-        double riseRate = BigDecimalUtil.div(riseNum,count,4);
+        double riseRate = CalculateUtil.div(riseNum,count,4);
         //计算平均涨幅
-        double pctChgVag = BigDecimalUtil.div(pctChg,riseNum,2);
+        double pctChgVag = CalculateUtil.div(pctChg,riseNum,2);
         //计算平均换手率
-        double turnoverRateVag = BigDecimalUtil.div(turnoverRate,riseNum,2);
+        double turnoverRateVag = CalculateUtil.div(turnoverRate,riseNum,2);
         //平均每日换手率大于1.5的过滤掉
         if(turnoverRateVag < 1.5){
             return;

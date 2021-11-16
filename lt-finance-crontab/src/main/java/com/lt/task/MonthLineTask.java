@@ -1,8 +1,8 @@
 package com.lt.task;
 
-import com.lt.common.DataType;
+import com.alibaba.fastjson.JSON;
 import com.lt.entity.RepairDataEntity;
-import com.lt.service.TushareService;
+import com.lt.service.TushareScriptService;
 import com.lt.utils.Constants;
 import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
@@ -25,7 +25,7 @@ import java.util.List;
 public class MonthLineTask {
 
     @Autowired
-    private TushareService tushareService;
+    private TushareScriptService tushareScriptService;
 
     @Scheduled(cron = "0 0 21 * * ? ")
     public void execute() {
@@ -34,33 +34,21 @@ public class MonthLineTask {
         if(today.compareTo(lastDay) != 0){
             return;
         }
-        log.info("==========================日线收集数据开始======================");
-        this.obtainData(TsCodes.STOCK_CODE);
-        log.info("==========================日线收集数据完成======================");
+        log.info("==========================月线收集数据开始======================");
+        String tradeDate = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        this.obtainData(TsCodes.STOCK_CODE,tradeDate,tradeDate);
+        log.info("==========================月线收集数据完成======================");
     }
 
-    public void repairData(List<String> codes){
-        this.obtainData(codes);
-    }
-
-    private void obtainData(List<String> codes){
-        List<RepairDataEntity> repairList = new ArrayList<>();
-        String trade_date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+    private void obtainData(List<String> codes,String startDate,String endDate){
         for(String item : codes){
             try {
+                tushareScriptService.obtainMonthLine(item,startDate,endDate);
                 Thread.sleep(150);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            boolean isOk = tushareService.obtainMonthLine(item);
-            if(!isOk){
-                RepairDataEntity entity = RepairDataEntity.builder()
-                        .repairCode(item)
-                        .repairDate(trade_date)
-                        .repairTopic(Constants.TUSHARE_MONTHLINE_TOPIC).build();
-                repairList.add(entity);
+            } catch (Exception e) {
+                tushareScriptService.repairData(Constants.TUSHARE_MONTHLINE_TOPIC,item,startDate);
+                log.info("月线获取数据异常exception：{}", JSON.toJSONString(e));
             }
         }
-        tushareService.repairData(repairList);
     }
 }

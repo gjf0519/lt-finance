@@ -26,7 +26,7 @@ public class RepairDataTask {
         //日K数据补充
         this.dayLineRepair();
         //板块K线数据补充
-        this.plateLineRepair();
+//        this.plateLineRepair();
     }
 
     private void dayLineRepair(){
@@ -42,7 +42,7 @@ public class RepairDataTask {
                 continue;
             }
             if(Constants.TUSHARE_DAYLINE_TOPIC.equals(entity.getRepairTopic())){
-                RestTemplateUtil.get("http://212.64.69.77:9090/day/line/"+entity.getRepairCode());
+                RestTemplateUtil.get("http://101.200.170.91:9090/day/line/"+entity.getRepairCode());
                 kLineService.updateRepairById(entity.getId());
             }
         }
@@ -51,7 +51,7 @@ public class RepairDataTask {
     private void plateLineRepair(){
         int total = kLineService.queryCountByDate(new Date());
         if(total < 829){
-            RestTemplateUtil.get("http://212.64.69.77:9090/plate/line/all");
+            RestTemplateUtil.get("http://101.200.170.91:9090/plate/line/all");
         }
     }
 }

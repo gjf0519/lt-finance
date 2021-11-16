@@ -1,6 +1,7 @@
 package com.lt.task;
 
 import com.lt.task.DayLineTask;
+import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,17 +22,11 @@ public class DayLineTaskTest {
 
     @Test
     public void execute() {
-        dayLineTask.execute();
+        dayLineTask.obtainData(TsCodes.STOCK_CODE,"20211108","20211115");
         try {
             Thread.sleep(1000*60*30);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    public void executeRepair() {
-        List<String> codes = Arrays.asList("000008.SZ");
-        dayLineTask.repairData(codes);
     }
 }

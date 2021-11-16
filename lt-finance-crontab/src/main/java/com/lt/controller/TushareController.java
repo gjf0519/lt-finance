@@ -1,6 +1,6 @@
 package com.lt.controller;
 
-import com.lt.service.TushareService;
+import com.lt.service.TushareApiService;
 import com.lt.view.ResultEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class TushareController {
 
     @Autowired
-    private TushareService tushareService;
+    private TushareApiService tushareService;
 
     /**
      * 获取股票列表
@@ -48,8 +48,8 @@ public class TushareController {
      * @return
      */
     @GetMapping("/day/line/{tsCode}")
-    public ResultEntity<String> obtainDayLine(@PathVariable("tsCode") String tsCode){
-        tushareService.obtainDayLine(tsCode);
+    public ResultEntity<String> obtainDayLineByDoce(@PathVariable("tsCode") String tsCode){
+//        tushareService.obtainDayLine(tsCode);
         return ResultEntity.success();
     }
 
@@ -60,7 +60,7 @@ public class TushareController {
      */
     @GetMapping("/week/line/{tsCode}")
     public ResultEntity<String> obtainWeekLine(@PathVariable("tsCode") String tsCode){
-        tushareService.obtainWeekLine(tsCode);
+//        tushareService.obtainWeekLine(tsCode);
         return ResultEntity.success();
     }
 
@@ -71,7 +71,7 @@ public class TushareController {
      */
     @GetMapping("/month/line/{tsCode}")
     public ResultEntity<String> obtainMonthLine(@PathVariable("tsCode") String tsCode){
-        tushareService.obtainMonthLine(tsCode);
+//        tushareService.obtainMonthLine(tsCode);
         return ResultEntity.success();
     }
 
@@ -89,9 +89,9 @@ public class TushareController {
      * 获取概念指数
      * @return
      */
-    @GetMapping("/plate/line")
-    public ResultEntity<String> obtainPlateIndex(){
-        tushareService.obtainPlateIndex();
+    @GetMapping("/plate/line/{tradeDate}")
+    public ResultEntity<String> obtainPlateIndex(@PathVariable("tradeDate") String tradeDate){
+        tushareService.obtainPlateIndex(tradeDate);
         return ResultEntity.success();
     }
 

@@ -41,7 +41,7 @@ public class DailyBasicConsumer {
     @PostConstruct
     public void init() throws Exception {
         log.info("开始启动每日指标数据消费者服务...");
-        consumer = ConsumerUtil.getConsumer(consumerGroupName,
+        consumer = ConsumerUtil.concurrentConsumer(consumerGroupName,
                 nameServerAddr,topicName,new Listener(receiveService));
         consumer.start();
         log.info("每日指标数据消息消费者服务启动成功.");
