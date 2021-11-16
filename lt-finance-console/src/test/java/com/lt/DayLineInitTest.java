@@ -3,6 +3,7 @@ package com.lt;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.lt.mapper.ReceiveMapper;
+import com.lt.utils.CalculateUtil;
 import com.lt.utils.Constants;
 import com.lt.utils.TsCodes;
 import com.lt.utils.TushareAccess;
@@ -72,8 +73,9 @@ public class DayLineInitTest {
 
     @Test
     public void initDayOne() throws Exception {
-        List<Map<String,String>> result = requestDayPyData("605186.SH");
+        List<Map<String,String>> result = requestDayPyData("001288.SZ");
         this.calculationMa(result);
+        System.out.println(JSON.toJSONString(result));
         for(Map<String,String> map : result){
             receiveMapper.saveDayLine(map);
         }
@@ -103,7 +105,12 @@ public class DayLineInitTest {
                     continue;
                 }
                 double [] item = Arrays.copyOfRange(closes,from,to);
-                double mean = StatUtils.mean(item);
+                double v = 0;
+                for(int m = 0;m < item.length;m++){
+                    v = v + item[m];
+                }
+                double mean = CalculateUtil.div(v,item.length,2);
+//                double mean = StatUtils.mean(item);
                 result.get(y).put(Constants.MA_NAME_ARREY[i],String.valueOf(mean));
             }
         }
@@ -131,7 +138,7 @@ public class DayLineInitTest {
     private List<String> executePython(String pyPath,String tsCode) throws Exception{
         List<String> list = new ArrayList<>();
         Process proc;
-        String[] args = new String[]{pyHome,pyPath,tsCode};
+        String[] args = new String[]{TushareAccess.PYTHON_ORDER,pyPath,tsCode,"20211101","20211116"};
         BufferedReader reader = null;
         try {
             proc = Runtime.getRuntime().exec(args);
