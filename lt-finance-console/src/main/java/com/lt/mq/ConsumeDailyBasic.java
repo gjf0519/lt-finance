@@ -3,6 +3,7 @@ package com.lt.mq;
 import com.alibaba.fastjson.JSON;
 import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
+import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -27,31 +28,33 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class WeekLineConsumer {
+public class ConsumeDailyBasic {
 
     @Value("${rocketmq.name-server}")
-    private String nameServerAddr;
-    private String topicName = Constants.TUSHARE_WEEKLINE_TOPIC;
-    @Value("${finanace.comsumer.week-line}")
-    private String consumerGroupName;
-    private DefaultMQPushConsumer consumer;
+    private String nameSrvAddr;
+    @Value("${rocketmq.comsumer.daily-basic}")
+    private String consumerGroup;
+    private DefaultMQPushConsumer consumerBasic;
+    private String topicName = TushareUtil.TUSHARE_BASIC_TOPIC;
     @Autowired
     private ReceiveService receiveService;
 
     @PostConstruct
     public void init() throws Exception {
-        log.info("开始启动周K数据消费者服务...");
-        consumer = ConsumerUtil.concurrentConsumer(consumerGroupName,
-                nameServerAddr,topicName,new Listener(receiveService));
-        consumer.start();
-        log.info("周K数据消息消费者服务启动成功.");
+        log.info("开始启动每日指标数据消费者服务...");
+        ConsumeInit.ConsumerParam consumerParam = ConsumeInit.ConsumerParam.builder()
+                .consumerGroup(consumerGroup).namesrvAddr(nameSrvAddr).topicName(topicName)
+                .messageListener(new Listener(receiveService)).build();
+        consumerBasic = ConsumeInit.concurrentConsumer(consumerParam);
+        consumerBasic.start();
+        log.info("每日指标数据消息消费者服务启动成功.");
     }
 
     @PreDestroy
     public void destroy() {
-        log.info("开始关闭周K数据消息消费者服务...");
-        consumer.shutdown();
-        log.info("周K数据消息消费者服务已关闭.");
+        log.info("开始关闭每日指标数据消息消费者服务...");
+        consumerBasic.shutdown();
+        log.info("每日指标数据消息消费者服务已关闭.");
     }
 
     private static class Listener implements MessageListenerConcurrently {
@@ -64,13 +67,13 @@ public class WeekLineConsumer {
             for (MessageExt ext : list) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
-                    Map<String,String> map =  JSON.parseObject(record, Map.class);
-                    receiveService.receiveWeekLine(map);
+                    Map map = JSON.parseObject(record, Map.class);
+                    receiveService.receiveDailyBasic(map);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println("周K数据开始消费");
+            System.out.println("每日指标数据开始消费");
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }
     }

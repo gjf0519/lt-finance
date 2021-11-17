@@ -38,18 +38,3 @@ spring:
     keep-alive-seconds: 300
   resources:
     static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, classpath:/templates/
-
-finanace:
-  system:
-    python:
-      profile: C:/python37/python
-      day-line: D:/workspace-python/day_line.py
-      week-line: D:/workspace-python/week_line.py
-      month-line: D:/workspace-python/month_line.py
-  comsumer:
-    daily-basic: DAILY-CONSUMER-GROUP
-    day-line: DAYLINE-CONSUMER-GROUP
-    week-line: WEEKLINE-CONSUMER-GROUP
-    month-line: MONTHLINE-CONSUMER-GROUP
-    plate-line: PLATELINE-CONSUMER-GROUP
-    repair-data: REPAIR-CONSUMER-GROUP

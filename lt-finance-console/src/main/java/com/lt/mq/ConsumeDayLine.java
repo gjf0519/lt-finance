@@ -1,9 +1,9 @@
 package com.lt.mq;
 
 import com.alibaba.fastjson.JSON;
-import com.lt.entity.KLineEntity;
 import com.lt.service.ReceiveService;
 import com.lt.utils.Constants;
+import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.*;
@@ -26,30 +26,32 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class DayLineConsumer {
+public class ConsumeDayLine {
 
     @Value("${rocketmq.name-server}")
-    private String nameServerAddr;
-    private String topicName = Constants.TUSHARE_DAYLINE_TOPIC;
-    @Value("${finanace.comsumer.day-line}")
-    private String consumerGroupName;
-    private DefaultMQPushConsumer consumer;
+    private String nameSrvAddr;
+    @Value("${rocketmq.comsumer.day-line}")
+    private String consumerGroup;
     @Autowired
     private ReceiveService receiveService;
+    private DefaultMQPushConsumer consumerDayLine;
+    private String topicName = TushareUtil.TUSHARE_DAYLINE_TOPIC;
 
     @PostConstruct
     public void init() throws Exception {
         log.info("开始启动日K数据消费者服务...");
-        consumer = ConsumerUtil.orderConsumer(consumerGroupName,
-                nameServerAddr,topicName,new OrderListener(receiveService));
-        consumer.start();
+        ConsumeInit.ConsumerParam consumerParam = ConsumeInit.ConsumerParam.builder()
+                .consumerGroup(consumerGroup).namesrvAddr(nameSrvAddr).topicName(topicName)
+                .messageListener(new ConsumeDayLine.ConcurrentListener(receiveService)).build();
+        consumerDayLine = ConsumeInit.concurrentConsumer(consumerParam);
+        consumerDayLine.start();
         log.info("日K数据消息消费者服务启动成功.");
     }
 
     @PreDestroy
     public void destroy() {
         log.info("开始关闭日K数据消息消费者服务...");
-        consumer.shutdown();
+        consumerDayLine.shutdown();
         log.info("日K数据消息消费者服务已关闭.");
     }
 

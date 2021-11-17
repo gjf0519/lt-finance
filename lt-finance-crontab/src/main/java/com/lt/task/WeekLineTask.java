@@ -6,6 +6,7 @@ import com.lt.service.TushareScriptService;
 import com.lt.utils.Constants;
 import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
+import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,7 +45,7 @@ public class WeekLineTask {
                 Thread.sleep(300);
                 tushareScriptService.obtainWeekLine(item,startDate,endDate);
             } catch (Exception e) {
-                tushareScriptService.repairData(Constants.TUSHARE_WEEKLINE_TOPIC,item,startDate);
+                tushareScriptService.repairData(TushareUtil.TUSHARE_WEEKLINE_TOPIC,item,startDate);
                 log.info("周线获取数据异常exception：{}", JSON.toJSONString(e));
             }
         }

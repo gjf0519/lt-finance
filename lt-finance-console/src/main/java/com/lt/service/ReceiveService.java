@@ -1,14 +1,18 @@
 package com.lt.service;
 
+import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import com.lt.entity.RepairDataEntity;
 import com.lt.mapper.ReceiveMapper;
 import com.lt.utils.Constants;
+import com.lt.utils.TushareUtil;
 import org.apache.commons.math3.stat.StatUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,10 +93,10 @@ public class ReceiveService {
     }
 
     public void avgLine(Map<String,String> map,List<KLineEntity> list){
-        double [] closes = new double[list.size()+1];
-        closes[0] = Double.valueOf(map.get("close"));
+        BigDecimal[] closes = new BigDecimal[list.size()+1];
+        closes[0] = new BigDecimal(map.get("close"));
         for(int i = 0;i < list.size();i++){
-            closes[i+1] = list.get(i).getClose();
+            closes[i+1] = new BigDecimal(list.get(i).getClose().toString());
         }
         //计算均线价格
         this.calculateAvg(closes,map);
@@ -103,14 +107,19 @@ public class ReceiveService {
      * @param closes
      * @param map
      */
-    public void calculateAvg(double [] closes,Map<String,String> map){
-        for (int i = 0; i < Constants.MA_NUM_ARREY.length; i++) {
-            if(closes.length < Constants.MA_NUM_ARREY[i]){
+    public void calculateAvg(BigDecimal [] closes,Map<String,String> map){
+        for (int i = 0; i < TushareUtil.MA_NUM_ARREY.length; i++) {
+            if(closes.length < TushareUtil.MA_NUM_ARREY[i]){
                 continue;
             }
-            double [] item = Arrays.copyOf(closes,Constants.MA_NUM_ARREY[i]);
-            double mean = StatUtils.mean(item);
-            map.put(Constants.MA_NAME_ARREY[i],String.valueOf(mean));
+            BigDecimal [] items = Arrays.copyOf(closes,TushareUtil.MA_NUM_ARREY[i]);
+            BigDecimal decimalSum = new BigDecimal("0");
+            for(BigDecimal decimal : items){
+                decimalSum = decimalSum.add(decimal);
+            }
+            BigDecimal mean = decimalSum.divide(BigDecimal.valueOf(items.length),2, BigDecimal.ROUND_HALF_UP)
+                    .setScale(2, BigDecimal.ROUND_UP);
+            map.put(TushareUtil.MA_NAME_ARREY[i],mean.toString());
         }
     }
 

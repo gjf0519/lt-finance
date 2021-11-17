@@ -5,6 +5,7 @@ import com.lt.mapper.ReceiveMapper;
 import com.lt.service.KLineService;
 import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.TushareUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,7 @@ public class RepairDataTask {
                 kLineService.deleteRepairById(entity.getId());
                 continue;
             }
-            if(Constants.TUSHARE_DAYLINE_TOPIC.equals(entity.getRepairTopic())){
+            if(TushareUtil.TUSHARE_DAYLINE_TOPIC.equals(entity.getRepairTopic())){
                 RestTemplateUtil.get("http://101.200.170.91:9090/day/line/"+entity.getRepairCode());
                 kLineService.updateRepairById(entity.getId());
             }

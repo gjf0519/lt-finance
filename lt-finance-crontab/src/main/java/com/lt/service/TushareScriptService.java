@@ -1,10 +1,12 @@
 package com.lt.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.lt.config.MqConfiguration;
 import com.lt.entity.RepairDataEntity;
 import com.lt.utils.Constants;
-import com.lt.utils.TushareAccess;
+import com.lt.utils.PythonUtil;
+import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class TushareScriptService {
                         .repairCode(tsCode)
                         .repairDate(tradeDate)
                         .repairTopic(topic).build();
-        MqConfiguration.send(Constants.TUSHARE_REPAIR_TOPIC,entity,defaultMQProducer);
+        MqConfiguration.send(TushareUtil.TUSHARE_REPAIR_TOPIC,entity,defaultMQProducer);
     }
 
     /**
@@ -42,19 +44,20 @@ public class TushareScriptService {
     @Async
     public void obtainDayLine(String tsCode,String startDate,
                               String endDate) throws Exception {
-        List<String> list = this.executePython(TushareAccess.PY_DAY_LINE,
-                tsCode,startDate,endDate);
+        String[] params = new String[]{TushareUtil.PY_DAY_LINE,tsCode,startDate,endDate};
+        List<String> list = PythonUtil.executePython(params);
         if(null == list || list.isEmpty()){
-            this.repairData(Constants.TUSHARE_DAYLINE_TOPIC,tsCode,startDate);
+            this.repairData(TushareUtil.TUSHARE_DAYLINE_TOPIC,tsCode,startDate);
             return;
         }
         list.stream()
                 .map(line -> JSONArray.parseArray(line, String.class))
-                .map(this::transDayLineMap)
+                .map(TushareUtil::transDayLineMap)
                 .forEach(item -> {
-                    MqConfiguration.sendOrder(Constants.TUSHARE_DAYLINE_TOPIC,
+                    MqConfiguration.sendOrder(TushareUtil.TUSHARE_DAYLINE_TOPIC,
                             item, item.get("ts_code").hashCode(),defaultMQProducer);
                 });
+        log.info("收集日K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
 
     /**
@@ -64,19 +67,20 @@ public class TushareScriptService {
     @Async
     public void obtainWeekLine(String tsCode,String startDate,
                                String endDate) throws Exception {
-        List<String> list = this.executePython(TushareAccess.PY_WEEK_LINE,
-                tsCode,startDate,endDate);
+        String[] params = new String[]{TushareUtil.PY_WEEK_LINE,tsCode,startDate,endDate};
+        List<String> list = PythonUtil.executePython(params);
         if(null == list || list.isEmpty()){
-            this.repairData(Constants.TUSHARE_WEEKLINE_TOPIC,tsCode,startDate);
+            this.repairData(TushareUtil.TUSHARE_WEEKLINE_TOPIC,tsCode,startDate);
             return;
         }
         list.stream()
                 .map(line -> JSONArray.parseArray(line, String.class))
-                .map(this::transWeekMonthLineMap)
+                .map(TushareUtil::transWeekMonthLineMap)
                 .forEach(item -> {
-                    MqConfiguration.sendOrder(Constants.TUSHARE_WEEKLINE_TOPIC,
+                    MqConfiguration.sendOrder(TushareUtil.TUSHARE_WEEKLINE_TOPIC,
                             item,item.get("ts_code").hashCode(), defaultMQProducer);
                 });
+        log.info("收集周K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
 
     /**
@@ -87,82 +91,19 @@ public class TushareScriptService {
     @Async
     public void obtainMonthLine(String tsCode,String startDate,
                                 String endDate) throws Exception {
-        List<String> list = this.executePython(TushareAccess.PY_MONTH_LINE,
-                tsCode,startDate,endDate);
+        String[] params = new String[]{TushareUtil.PY_MONTH_LINE,tsCode,startDate,endDate};
+        List<String> list = PythonUtil.executePython(params);
         if(null == list || list.isEmpty()){
-            this.repairData(Constants.TUSHARE_MONTHLINE_TOPIC,tsCode,startDate);
+            this.repairData(TushareUtil.TUSHARE_MONTHLINE_TOPIC,tsCode,startDate);
             return;
         }
         list.stream()
                 .map(line -> JSONArray.parseArray(line, String.class))
-                .map(this::transWeekMonthLineMap)
+                .map(TushareUtil::transWeekMonthLineMap)
                 .forEach(item -> {
-                    MqConfiguration.sendOrder(Constants.TUSHARE_MONTHLINE_TOPIC,
+                    MqConfiguration.sendOrder(TushareUtil.TUSHARE_MONTHLINE_TOPIC,
                             item,item.get("ts_code").hashCode(), defaultMQProducer);
                 });
-    }
-
-    /**
-     * 转换日K数据
-     * @param values
-     * @return
-     */
-    private Map<String,String> transDayLineMap(List<String> values){
-        Map<String,String> map = new HashMap<>();
-        for(int i = 0;i < TushareAccess.DAY_LINE_FIELDS.length;i++){
-            map.put(TushareAccess.DAY_LINE_FIELDS[i],values.get(i));
-        }
-        return map;
-    }
-
-    /**
-     * 转换周、月K数据
-     * @param values
-     * @return
-     */
-    private Map<String,String> transWeekMonthLineMap(List<String> values){
-        Map<String,String> map = new HashMap<>();
-        for(int i = 0;i < TushareAccess.LINE_FIELDS.length;i++){
-            map.put(TushareAccess.LINE_FIELDS[i],values.get(i));
-        }
-        return map;
-    }
-
-    /**
-     * 执行python脚本
-     * @param pyPath
-     * @param tsCode
-     * @return
-     */
-    private List<String> executePython(String pyPath, String tsCode,
-                                       String startDate, String endDate) throws Exception {
-        String[] args = new String[]{TushareAccess.PYTHON_ORDER,
-                pyPath,tsCode,startDate,endDate};
-        Process process = Runtime.getRuntime().exec(args);
-        List<String> list = this.receiveData(process);
-        if(list.size() > 1){
-            Collections.reverse(list);
-        }
-        process.waitFor();
-        log.info("脚本收集数据 python:{},tsCode:{},size:{}",pyPath,tsCode,list.size());
-        return list;
-    }
-
-    /**
-     * 接收脚本数据
-     * @param process
-     * @return
-     * @throws Exception
-     */
-    private List<String> receiveData(Process process) throws Exception {
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-        String line = null;
-        List<String> datas = new ArrayList<>();
-        while ((line = reader.readLine()) != null) {
-            datas = JSONArray.parseArray(line,String.class);
-        }
-        reader.close();
-        return datas;
+        log.info("收集月K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
 }

@@ -1,29 +1,17 @@
 package com.lt;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.lt.mapper.ReceiveMapper;
 import com.lt.result.TushareResult;
 import com.lt.service.ReceiveService;
-import com.lt.utils.Constants;
 import com.lt.utils.RestTemplateUtil;
-import com.lt.utils.TsCodes;
-import com.lt.utils.TushareAccess;
-import org.apache.commons.math3.stat.StatUtils;
+import com.lt.utils.TushareUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.annotation.Resource;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 
 /**
@@ -53,7 +41,7 @@ public class PlateLineInitTest {
             String tradeDate = df.format(itemDate);
             item.put("trade_date", tradeDate);
             TushareResult tushareResult = this.requestData(item
-                    ,TushareAccess.PLATE_INDEX_API[0],TushareAccess.PLATE_INDEX_API[1]);
+                    , TushareUtil.PLATE_INDEX_API[0], TushareUtil.PLATE_INDEX_API[1]);
             List<Map<String,String>> list = this.transitionMap(tushareResult);
             Thread.sleep(50000);
             if(null == list || list.isEmpty()){
@@ -73,7 +61,7 @@ public class PlateLineInitTest {
         Map<String,Object> item = new HashMap<>();
         item.put("trade_date", "20210701");
         TushareResult tushareResult = this.requestData(item
-                ,TushareAccess.PLATE_INDEX_API[0],TushareAccess.PLATE_INDEX_API[1]);
+                , TushareUtil.PLATE_INDEX_API[0], TushareUtil.PLATE_INDEX_API[1]);
         List<Map<String,String>> list = this.transitionMap(tushareResult);
         System.out.println("========================================================================"+list);
         if(null == list || list.isEmpty()){
@@ -107,9 +95,9 @@ public class PlateLineInitTest {
         Map<String,Object> params = new HashMap<>();
         params.put("params", item);
         params.put("api_name", apiName);
-        params.put("token", TushareAccess.TUSHARE_TOKEN);
+        params.put("token", TushareUtil.TUSHARE_TOKEN);
         params.put("fields", fields);
-        String res = RestTemplateUtil.post(TushareAccess.URL,JSON.toJSONString(params),null);
+        String res = RestTemplateUtil.post(TushareUtil.URL,JSON.toJSONString(params),null);
         System.out.println(res);
         TushareResult tushareResult = JSON.parseObject(res, TushareResult.class);
         if(!"0".equals(tushareResult.getCode())){

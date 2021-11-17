@@ -21,6 +21,13 @@ mybatis:
 
 rocketmq:
   name-server: 101.200.170.91:9876
+  comsumer:
+    day-line: DAYLINE-CONSUMER-GROUP
+    daily-basic: DAILY-CONSUMER-GROUP
+    repair-data: REPAIR-CONSUMER-GROUP
+    week-line: WEEKLINE-CONSUMER-GROUP
+    month-line: MONTHLINE-CONSUMER-GROUP
+    plate-line: PLATELINE-CONSUMER-GROUP
 
 management:
   endpoints:
