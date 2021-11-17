@@ -69,17 +69,17 @@ public class TushareApiService {
      * 获取概念列表
      */
     public List<Map<String,String>> obtainPlates() {
-        List<Map<String,String>> list = null;
+        Map<String,Object> item = new HashMap<>();
+        item.put("exchange", "A");
+        item.put("type", "N");
+        List<Map<String,String>> list = new ArrayList<>();
         try {
-            Map<String,Object> item = new HashMap<>();
-            item.put("exchange", "A");
-            item.put("type", "N");
-            TushareResult tushareResult = this.requestData(item, TushareUtil.PLATE_API[0]
-                    , TushareUtil.PLATE_API[1]);
-            list = transitionMap(tushareResult);
-            if(null == list || list.isEmpty()){
-                return null;
+            TushareResult result = this.requestData(item,
+                    TushareUtil.PLATE_API[0],TushareUtil.PLATE_API[1]);
+            if(null == result){
+                return list;
             }
+            list = this.transitionMap(result);
         }catch (Exception e){
             log.info("获取板块代码数据异常 Exception:{}",e);
         }
@@ -120,7 +120,6 @@ public class TushareApiService {
             if(null == list || list.isEmpty()){
                 return;
             }
-            System.out.println(list.size()+"==========="+JSON.toJSONString(list));
             for(Map<String,String> map : list){
                 MqConfiguration.send(TushareUtil.TUSHARE_PLATE_ELEMENT_TOPIC,map,defaultMQProducer);
             }
@@ -139,6 +138,9 @@ public class TushareApiService {
             item.put("trade_date", tradeDate);
             TushareResult tushareResult = this.requestData(item
                     , TushareUtil.DAY_BASIC_API[0], TushareUtil.DAY_BASIC_API[1]);
+            if(null == tushareResult){
+                return;
+            }
             List<Map<String,String>> list = transitionMap(tushareResult);
             if(null == list || list.isEmpty()){
                 return;
@@ -146,7 +148,6 @@ public class TushareApiService {
             for(Map<String,String> o : list){
                 MqConfiguration.send(TushareUtil.TUSHARE_BASIC_TOPIC,o,defaultMQProducer);
             }
-            log.info("获取每日指标数据数量:{}",list.size());
         }catch (Exception e){
             log.info("获取每日指标数据异常 tradeDate:{}",tradeDate);
         }
@@ -168,20 +169,18 @@ public class TushareApiService {
     }
 
     public List<Map<String,String>> transitionMap(TushareResult tushareResult){
-        if(null == tushareResult || tushareResult.getData().getFields().isEmpty()){
+        if(tushareResult.getData().getItems().isEmpty()){
             return null;
         }
         List<String> fields = tushareResult.getData().getFields();
         List<List<String>> items = tushareResult.getData().getItems();
         List<Map<String,String>> result = new ArrayList<>();
-        items.stream().forEach(o -> {
+        for(int i = 0;i < items.size();i++){
             Map<String,String> map = new HashMap<>();
-            Stream.iterate(0, i -> i+1).limit(o.size())
-                    .forEach(i -> {
-                        map.put(fields.get(i), o.get(i));
-                    });
-            result.add(map);
-        });
+            for(int y = 0;y < fields.size();y++){
+                map.put(fields.get(y), items.get(i).get(y));
+            }
+        }
         return result;
     }
 }

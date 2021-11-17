@@ -18,7 +18,7 @@ public class TushareUtil {
     public static final int [] MA_NUM_ARREY = new int[]{3,6,12,18,36,72,144};
     public static final String [] MA_NAME_ARREY = new String[]{"ma_five","ma_ten","ma_twenty","ma_month","ma_quarter","ma_semester","ma_year"};
 
-    /*概念列表*/
+    /*股票列表*/
     public static final String [] STOCK_CODE_API = new String[]{"stock_basic","ts_code,symbol,name,area,industry,market,list_status,is_hs"};
     /*概念列表*/
     public final static String [] PLATE_API = new String[]{"ths_index","ts_code,name,count"};

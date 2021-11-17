@@ -21,12 +21,12 @@ public class TushareLineInitTest {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Test
-    public void initDay(){
+    public void initDay() throws Exception {
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
                 try {
-                    initService.initDayLine(item,"20211117","20211117");
+                    initService.initDayLine(item,"20200701","20211117");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -39,6 +39,7 @@ public class TushareLineInitTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+//        initService.initDayLine("001288.SZ","20211101","20211117");
     }
 
     @Test
@@ -47,7 +48,7 @@ public class TushareLineInitTest {
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
                 try {
-                    initService.initWeekLine(item,"20211117","20211117");
+                    initService.initWeekLine(item,"20180101","20211117");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -68,7 +69,7 @@ public class TushareLineInitTest {
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
                 try {
-                    initService.initMonthLine(item,"20211117","20211117");
+                    initService.initMonthLine(item,"20080101","20211117");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

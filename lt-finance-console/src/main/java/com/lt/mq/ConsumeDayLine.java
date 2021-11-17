@@ -66,7 +66,7 @@ public class ConsumeDayLine {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
                     Map<String,String> map = JSON.parseObject(record, Map.class);
-                    receiveService.receiveDayLine(map);
+//                    receiveService.receiveDayLine(map);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }

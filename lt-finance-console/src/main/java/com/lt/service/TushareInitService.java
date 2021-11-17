@@ -113,7 +113,7 @@ public class TushareInitService {
                 }
                 int from = y;
                 int to = y + TushareUtil.MA_NUM_ARREY[i];
-                if(to >= closes.length){
+                if(to > closes.length){
                     continue;
                 }
                 BigDecimal [] items = Arrays.copyOfRange(closes,from,to);
