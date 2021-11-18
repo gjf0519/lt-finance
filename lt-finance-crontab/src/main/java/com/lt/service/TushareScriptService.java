@@ -52,7 +52,7 @@ public class TushareScriptService {
                 .map(TushareUtil::transDayLineMap)
                 .forEach(item -> {
                     MqConfiguration.send(TushareUtil.TUSHARE_DAYLINE_TOPIC,
-                            item.get("ts_code").hashCode(),defaultMQProducer);
+                            item,defaultMQProducer);
                 });
         log.info("收集日K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
@@ -75,7 +75,7 @@ public class TushareScriptService {
                 .map(TushareUtil::transWeekMonthLineMap)
                 .forEach(item -> {
                     MqConfiguration.send(TushareUtil.TUSHARE_WEEKLINE_TOPIC,
-                            item.get("ts_code").hashCode(), defaultMQProducer);
+                            item, defaultMQProducer);
                 });
         log.info("收集周K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
@@ -99,7 +99,7 @@ public class TushareScriptService {
                 .map(TushareUtil::transWeekMonthLineMap)
                 .forEach(item -> {
                     MqConfiguration.send(TushareUtil.TUSHARE_MONTHLINE_TOPIC,
-                            item.get("ts_code").hashCode(), defaultMQProducer);
+                            item, defaultMQProducer);
                 });
         log.info("收集月K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }

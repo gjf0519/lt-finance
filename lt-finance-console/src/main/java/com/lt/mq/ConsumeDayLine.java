@@ -65,10 +65,12 @@ public class ConsumeDayLine {
             for (MessageExt ext : msgs) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
+                    System.out.println(JSON.toJSONString(record));
                     Map<String,String> map = JSON.parseObject(record, Map.class);
-//                    receiveService.receiveDayLine(map);
+                    receiveService.receiveDayLine(map);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
+                    return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                 }
             }
             System.out.println("DAY数据并发开始消费");

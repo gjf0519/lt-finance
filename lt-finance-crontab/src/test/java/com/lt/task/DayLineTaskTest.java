@@ -22,7 +22,7 @@ public class DayLineTaskTest {
 
     @Test
     public void execute() {
-        dayLineTask.obtainData(TsCodes.STOCK_CODE,"20211108","20211115");
+        dayLineTask.obtainData(TsCodes.STOCK_CODE,"20211118","20211118");
         try {
             Thread.sleep(1000*60*30);
         } catch (InterruptedException e) {
