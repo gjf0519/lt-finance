@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.lt.config.MqConfiguration;
 import com.lt.entity.RepairDataEntity;
-import com.lt.utils.Constants;
 import com.lt.utils.PythonUtil;
 import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author gaijf
@@ -54,8 +51,8 @@ public class TushareScriptService {
                 .map(line -> JSONArray.parseArray(line, String.class))
                 .map(TushareUtil::transDayLineMap)
                 .forEach(item -> {
-                    MqConfiguration.sendOrder(TushareUtil.TUSHARE_DAYLINE_TOPIC,
-                            item, item.get("ts_code").hashCode(),defaultMQProducer);
+                    MqConfiguration.send(TushareUtil.TUSHARE_DAYLINE_TOPIC,
+                            item.get("ts_code").hashCode(),defaultMQProducer);
                 });
         log.info("收集日K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
@@ -77,8 +74,8 @@ public class TushareScriptService {
                 .map(line -> JSONArray.parseArray(line, String.class))
                 .map(TushareUtil::transWeekMonthLineMap)
                 .forEach(item -> {
-                    MqConfiguration.sendOrder(TushareUtil.TUSHARE_WEEKLINE_TOPIC,
-                            item,item.get("ts_code").hashCode(), defaultMQProducer);
+                    MqConfiguration.send(TushareUtil.TUSHARE_WEEKLINE_TOPIC,
+                            item.get("ts_code").hashCode(), defaultMQProducer);
                 });
         log.info("收集周K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }
@@ -101,8 +98,8 @@ public class TushareScriptService {
                 .map(line -> JSONArray.parseArray(line, String.class))
                 .map(TushareUtil::transWeekMonthLineMap)
                 .forEach(item -> {
-                    MqConfiguration.sendOrder(TushareUtil.TUSHARE_MONTHLINE_TOPIC,
-                            item,item.get("ts_code").hashCode(), defaultMQProducer);
+                    MqConfiguration.send(TushareUtil.TUSHARE_MONTHLINE_TOPIC,
+                            item.get("ts_code").hashCode(), defaultMQProducer);
                 });
         log.info("收集月K数据：tsCode:{},params:{},size:{}",tsCode,JSON.toJSONString(params),list.size());
     }

@@ -36,7 +36,6 @@ public class MqConfiguration {
     public DefaultMQProducer defaultProducer() throws MQClientException {
         log.info("defaultProducer 正在创建---------------------------------------");
         DefaultMQProducer producer = new DefaultMQProducer(groupName);
-
         producer.setNamesrvAddr(namesrvAddr);
         producer.setSendMsgTimeout(10000);
         producer.setVipChannelEnabled(false);

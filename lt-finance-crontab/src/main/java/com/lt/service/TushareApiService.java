@@ -32,41 +32,25 @@ public class TushareApiService {
 
     /**
      * 获取股票列表
+     * @return
      */
-    @Async
-    public List<String> obtainStockBasic() {
-        List<String> codes = new ArrayList<>();
+    public List<Map<String,String>> obtainStockBasic() {
+        List<Map<String,String>> list = new ArrayList<>();
         try {
             Map<String,Object> item = new HashMap<>();
             item.put("list_status", "L");
-            TushareResult tushareResult = this.requestData(item, TushareUtil.STOCK_CODE_API[0]
-                    , TushareUtil.STOCK_CODE_API[1]);
-            List<Map<String,String>> list = transitionMap(tushareResult);
-            if(null == list || list.isEmpty()){
-                return null;
-            }
-            for(Map<String,String> map : list){
-                if("主板".equals(map.get("market"))){
-                    codes.add(map.get("ts_code"));
-                    continue;
-                };
-                if("中小板".equals(map.get("market"))){
-                    codes.add(map.get("ts_code"));
-                    continue;
-                };
-                if("创业板".equals(map.get("market"))){
-                    codes.add(map.get("ts_code"));
-                    continue;
-                };
-            }
+            TushareResult tushareResult = this.requestData(item,
+                    TushareUtil.STOCK_CODE_API[0], TushareUtil.STOCK_CODE_API[1]);
+            list = this.transitionMap(tushareResult);
         }catch (Exception e){
             log.info("获取市场代码数据异常 Exception:{}",e);
         }
-        return codes;
+        return list;
     }
 
     /**
      * 获取概念列表
+     * @return
      */
     public List<Map<String,String>> obtainPlates() {
         Map<String,Object> item = new HashMap<>();
@@ -88,7 +72,9 @@ public class TushareApiService {
 
     /**
      * 获取概念指数
+     * @param tradeDate
      */
+    @Async
     public void obtainPlateIndex(String tradeDate) {
         try {
             Map<String,Object> item = new HashMap<>();
@@ -109,11 +95,12 @@ public class TushareApiService {
 
     /**
      * 获取概念成分股
+     * @param plateCode
      */
     public void obtainPlateElement(String plateCode) {
         try {
             Map<String,Object> item = new HashMap<>();
-            item.put("ts_code", "plateCode");
+            item.put("ts_code", plateCode);
             TushareResult tushareResult = this.requestData(item
                     , TushareUtil.PLATE_ELEMENT_API[0], TushareUtil.PLATE_ELEMENT_API[1]);
             List<Map<String,String>> list = transitionMap(tushareResult);
@@ -153,6 +140,13 @@ public class TushareApiService {
         }
     }
 
+    /**
+     * 发送取数请求
+     * @param item
+     * @param apiName
+     * @param fields
+     * @return
+     */
     public TushareResult requestData(Map<String,Object> item,String apiName,String fields){
         Map<String,Object> params = new HashMap<>();
         params.put("params", item);
@@ -168,6 +162,11 @@ public class TushareApiService {
         return tushareResult;
     }
 
+    /**
+     * 数据结构转换
+     * @param tushareResult
+     * @return
+     */
     public List<Map<String,String>> transitionMap(TushareResult tushareResult){
         if(tushareResult.getData().getItems().isEmpty()){
             return null;
