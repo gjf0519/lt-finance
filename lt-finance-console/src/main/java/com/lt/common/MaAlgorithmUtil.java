@@ -2,7 +2,7 @@ package com.lt.common;
 
 import com.lt.entity.KLineEntity;
 import com.lt.shape.MaLineType;
-import com.lt.utils.CalculateUtil;
+import com.lt.utils.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -238,24 +238,24 @@ public class MaAlgorithmUtil {
      */
     public static boolean maKLineDistance(double maValue,KLineEntity kLineEntity){
         if(kLineEntity.getOpen() > kLineEntity.getClose()){
-            double lowDistance = CalculateUtil.sub(
-                    CalculateUtil.div(kLineEntity.getLow(),maValue),1,2);
+            double lowDistance = MathUtil.sub(
+                    MathUtil.div(kLineEntity.getLow(),maValue),1,2);
             if(lowDistance > -0.01 && lowDistance <= 0.02){
                 return true;
             }
-            lowDistance = CalculateUtil.sub(
-                    CalculateUtil.div(kLineEntity.getClose(),maValue),1,2);
+            lowDistance = MathUtil.sub(
+                    MathUtil.div(kLineEntity.getClose(),maValue),1,2);
             if(lowDistance > -0.01 && lowDistance <= 0.02){
                 return true;
             }
         }else {
-            double highDistance = CalculateUtil.sub(
-                    CalculateUtil.div(kLineEntity.getHigh(),maValue),1,2);
+            double highDistance = MathUtil.sub(
+                    MathUtil.div(kLineEntity.getHigh(),maValue),1,2);
             if(highDistance > -0.01 && highDistance <= 0.02){
                 return true;
             }
-            highDistance = CalculateUtil.sub(
-                    CalculateUtil.div(kLineEntity.getOpen(),maValue),1,2);
+            highDistance = MathUtil.sub(
+                    MathUtil.div(kLineEntity.getOpen(),maValue),1,2);
             if(highDistance > -0.01 && highDistance <= 0.02){
                 return true;
             }
@@ -323,7 +323,7 @@ public class MaAlgorithmUtil {
         if(0 == maValue1 || 0 == maValue2){
             return 10;
         }
-        return CalculateUtil.sub(CalculateUtil.div(maValue1,maValue2),1,2);
+        return MathUtil.sub(MathUtil.div(maValue1,maValue2),1,2);
     }
 
     /**

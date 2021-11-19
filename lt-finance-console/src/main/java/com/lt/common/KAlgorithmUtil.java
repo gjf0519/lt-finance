@@ -1,7 +1,7 @@
 package com.lt.common;
 
 import com.lt.entity.KLineEntity;
-import com.lt.utils.CalculateUtil;
+import com.lt.utils.MathUtil;
 
 import java.util.List;
 
@@ -17,6 +17,6 @@ public class KAlgorithmUtil {
                 readNum++;
             }
         }
-        return CalculateUtil.div(readNum,list.size(),2);
+        return MathUtil.div(readNum,list.size(),2);
     }
 }

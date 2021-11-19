@@ -2,7 +2,7 @@ package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
 import com.lt.shape.MaLineType;
-import com.lt.utils.CalculateUtil;
+import com.lt.utils.MathUtil;
 
 /**
  * @author gaijf
@@ -34,11 +34,11 @@ public class KmKlineMaLineRule
         }
         double ratio;
         if(entity.getClose() >= entity.getOpen()){//阳线
-            ratio = CalculateUtil.sub(
-                    CalculateUtil.div(entity.getLow(),kline,2), 1,3);
+            ratio = MathUtil.sub(
+                    MathUtil.div(entity.getLow(),kline,2), 1,3);
         }else {
-            ratio = CalculateUtil.sub(
-                    CalculateUtil.div(entity.getHigh(),kline,2), 1,2);
+            ratio = MathUtil.sub(
+                    MathUtil.div(entity.getHigh(),kline,2), 1,2);
         }
         return ratio;
     }

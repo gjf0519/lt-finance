@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * @description
  * @date 2019/9/19
  */
-public class CalculateUtil {
+public class MathUtil {
     /*
      * 小数精确的位数
      */

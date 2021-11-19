@@ -3,7 +3,7 @@ package com.lt;
 import com.alibaba.fastjson.JSON;
 import com.lt.result.TushareResult;
 import com.lt.service.ReceiveService;
-import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +97,7 @@ public class PlateLineInitTest {
         params.put("api_name", apiName);
         params.put("token", TushareUtil.TUSHARE_TOKEN);
         params.put("fields", fields);
-        String res = RestTemplateUtil.post(TushareUtil.URL,JSON.toJSONString(params),null);
+        String res = RestUtil.post(TushareUtil.URL,JSON.toJSONString(params),null);
         System.out.println(res);
         TushareResult tushareResult = JSON.parseObject(res, TushareResult.class);
         if(!"0".equals(tushareResult.getCode())){

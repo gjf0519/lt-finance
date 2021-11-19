@@ -3,8 +3,7 @@ package com.lt.task;
 import com.lt.entity.RepairDataEntity;
 import com.lt.mapper.ReceiveMapper;
 import com.lt.service.KLineService;
-import com.lt.utils.Constants;
-import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,7 +42,7 @@ public class RepairDataTask {
                 continue;
             }
             if(TushareUtil.TUSHARE_DAYLINE_TOPIC.equals(entity.getRepairTopic())){
-                RestTemplateUtil.get("http://101.200.170.91:9090/day/line/"+entity.getRepairCode());
+                RestUtil.get("http://101.200.170.91:9090/day/line/"+entity.getRepairCode());
                 kLineService.updateRepairById(entity.getId());
             }
         }
@@ -52,7 +51,7 @@ public class RepairDataTask {
     private void plateLineRepair(){
         int total = kLineService.queryCountByDate(new Date());
         if(total < 829){
-            RestTemplateUtil.get("http://101.200.170.91:9090/plate/line/all");
+            RestUtil.get("http://101.200.170.91:9090/plate/line/all");
         }
     }
 }

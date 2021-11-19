@@ -6,7 +6,7 @@ import com.lt.entity.KLineEntity;
 import com.lt.service.DailyBasicServie;
 import com.lt.service.KLineService;
 import com.lt.shape.MaLineType;
-import com.lt.utils.CalculateUtil;
+import com.lt.utils.MathUtil;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,8 +185,8 @@ public class BreakMaLineLine {
         int breakNum2 = MaAlgorithmUtil.
                 maBreakDirectionDay(MaLineType.LINE060, MaLineType.LINE120, list);
         int index = breakNum1 > breakNum2 ? breakNum2 :breakNum1;
-        double up = CalculateUtil.div(
-                CalculateUtil.sub(list.get(0).getClose(),list.get(index).getClose()),
+        double up = MathUtil.div(
+                MathUtil.sub(list.get(0).getClose(),list.get(index).getClose()),
                 list.get(index).getClose(),2);
         if(breakNum1 >= 50 && breakNum2 >= 50 && up > 1){
             return false;

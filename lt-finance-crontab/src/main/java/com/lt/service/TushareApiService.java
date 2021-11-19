@@ -3,8 +3,7 @@ package com.lt.service;
 import com.alibaba.fastjson.JSON;
 import com.lt.config.MqConfiguration;
 import com.lt.result.TushareResult;
-import com.lt.utils.Constants;
-import com.lt.utils.RestTemplateUtil;
+import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * @author gaijf
@@ -153,7 +151,7 @@ public class TushareApiService {
         params.put("api_name", apiName);
         params.put("token", TushareUtil.TUSHARE_TOKEN);
         params.put("fields", fields);
-        String res = RestTemplateUtil.post(TushareUtil.URL,JSON.toJSONString(params),null);
+        String res = RestUtil.post(TushareUtil.URL,JSON.toJSONString(params),null);
         TushareResult tushareResult = JSON.parseObject(res, TushareResult.class);
         if(!"0".equals(tushareResult.getCode())){
             log.info("获取tushare数据异常 msg:{}",tushareResult.getMsg());

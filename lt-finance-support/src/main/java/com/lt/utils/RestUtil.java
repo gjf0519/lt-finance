@@ -11,15 +11,13 @@ import org.springframework.web.client.RestTemplate;
  * @description
  * @date 2020/2/25
  */
-public class RestTemplateUtil {
-
-    public static final String URL = "http://api.tushare.pro/";
+public class RestUtil {
 
     private static class SingletonRestTemplate {
         static final RestTemplate INSTANCE = new RestTemplate();
     }
 
-    private RestTemplateUtil() {
+    private RestUtil() {
     }
 
     public static RestTemplate getInstance() {
@@ -42,7 +40,7 @@ public class RestTemplateUtil {
             headers.add("Authorization", token);
         }
         HttpEntity<String> requestEntity = new HttpEntity<>(data, headers);
-        return RestTemplateUtil.getInstance().postForObject(url, requestEntity, String.class);
+        return RestUtil.getInstance().postForObject(url, requestEntity, String.class);
     }
 
     /**
@@ -56,7 +54,7 @@ public class RestTemplateUtil {
         headers.add("Content-Encoding", "UTF-8");
         headers.add("Content-Type", "application/json; charset=UTF-8");
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-        ResponseEntity<String> response = RestTemplateUtil.getInstance().exchange(url, HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> response = RestUtil.getInstance().exchange(url, HttpMethod.GET, requestEntity, String.class);
         String responseBody = response.getBody();
         return responseBody;
     }
@@ -76,7 +74,7 @@ public class RestTemplateUtil {
             headers.add("Authorization", token);
         }
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-        ResponseEntity<String> response = RestTemplateUtil.getInstance().exchange(url, HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> response = RestUtil.getInstance().exchange(url, HttpMethod.GET, requestEntity, String.class);
         String responseBody = response.getBody();
         return responseBody;
     }

@@ -3,7 +3,7 @@ package com.lt.features.maline.math;
 import com.lt.common.MaLineUtil;
 import com.lt.entity.KLineEntity;
 import com.lt.shape.MaLineType;
-import com.lt.utils.CalculateUtil;
+import com.lt.utils.MathUtil;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
@@ -24,16 +24,16 @@ public class MaLineCentralTendencyFeature implements MaLineMathFeature{
         }
         //中位数
         Median median= new Median();
-        double medianValue = CalculateUtil.round(median.evaluate(values),2);
+        double medianValue = MathUtil.round(median.evaluate(values),2);
         //众数
         double[] res = StatUtils.mode(values);
         //算数平均数
-        double avgValue = CalculateUtil.round(StatUtils.mean(values),2);
+        double avgValue = MathUtil.round(StatUtils.mean(values),2);
         if(medianValue > avgValue){
             return;
         }
         //几何平均数
-        double geometryAvg = CalculateUtil.round(StatUtils.geometricMean(values),2);
+        double geometryAvg = MathUtil.round(StatUtils.geometricMean(values),2);
 //        System.out.println(list.get(maList.size()-1).getTradeDate()+"==="+"中位数:"+medianValue+"===平均数:"+avgValue+"===众数:"+ JSON.toJSONString(res));
         return ;
     }

@@ -2,7 +2,7 @@ package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
 import com.lt.shape.MaLineType;
-import com.lt.utils.CalculateUtil;
+import com.lt.utils.MathUtil;
 
 import java.util.List;
 
@@ -112,8 +112,8 @@ public class LineRoseRule extends AbstractBaseRule<List<KLineEntity>,Integer>
     private Integer maLineRose(List<KLineEntity> entitys){
         double fline = klineVal(entitys.get(0),this.roseLine);
         double lline = klineVal(entitys.get(entitys.size()-1),this.roseLine);
-        double ratio = CalculateUtil.sub(1,
-                CalculateUtil.div(fline,lline,2),2);
+        double ratio = MathUtil.sub(1,
+                MathUtil.div(fline,lline,2),2);
         if(ratio >= high || ratio <= low){
             return 0;
         }
@@ -123,8 +123,8 @@ public class LineRoseRule extends AbstractBaseRule<List<KLineEntity>,Integer>
     private Integer maLineRose(List<KLineEntity> entitys,int limit){
         double fline = klineVal(entitys.get(0),this.roseLine);
         double lline = klineVal(entitys.get(limit),this.roseLine);
-        double ratio = CalculateUtil.sub(
-                CalculateUtil.div(fline,lline,2),1,2);
+        double ratio = MathUtil.sub(
+                MathUtil.div(fline,lline,2),1,2);
         if(ratio >= high || ratio <= low){
             return 0;
         }
