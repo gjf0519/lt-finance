@@ -1,7 +1,7 @@
 package com.lt.task;
 
 import com.lt.entity.RepairDataEntity;
-import com.lt.mapper.ReceiveMapper;
+import com.lt.mapper.TushareMapper;
 import com.lt.service.KLineService;
 import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
@@ -19,7 +19,7 @@ public class RepairDataTask {
     @Autowired
     private KLineService kLineService;
     @Resource
-    private ReceiveMapper receiveMapper;
+    private TushareMapper receiveMapper;
 
     @Scheduled(cron = "0 0/30 * * * ? ")
     public void execute() {

@@ -1,6 +1,6 @@
 package com.lt;
 
-import com.lt.service.TushareInitService;
+import com.lt.service.KlineInitService;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class TushareLineInitTest {
 
     @Autowired
-    private TushareInitService initService;
+    private KlineInitService initService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 

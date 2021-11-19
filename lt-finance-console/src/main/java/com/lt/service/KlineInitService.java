@@ -1,7 +1,7 @@
 package com.lt.service;
 
 import com.alibaba.fastjson.JSONArray;
-import com.lt.mapper.ReceiveMapper;
+import com.lt.mapper.TushareMapper;
 import com.lt.utils.PythonUtil;
 import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class TushareInitService {
+public class KlineInitService {
 
     @Resource
-    private ReceiveMapper receiveMapper;
+    private TushareMapper receiveMapper;
 
     /**
      * 初始化日K数据

@@ -2,7 +2,7 @@ package com.lt;
 
 import com.alibaba.fastjson.JSON;
 import com.lt.result.TushareResult;
-import com.lt.service.ReceiveService;
+import com.lt.service.TushareService;
 import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class PlateLineInitTest {
 
     @Autowired
-    private ReceiveService receiveService;
+    private TushareService receiveService;
     private static List<String> CODES = new ArrayList<>();
 
     /**

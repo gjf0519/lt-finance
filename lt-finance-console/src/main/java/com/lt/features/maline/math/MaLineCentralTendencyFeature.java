@@ -1,6 +1,6 @@
 package com.lt.features.maline.math;
 
-import com.lt.common.MaLineUtil;
+import com.lt.common.EmaLineUtil;
 import com.lt.entity.KLineEntity;
 import com.lt.shape.MaLineType;
 import com.lt.utils.MathUtil;
@@ -17,7 +17,7 @@ import java.util.List;
 public class MaLineCentralTendencyFeature implements MaLineMathFeature{
 
     public void execute(List<KLineEntity> list,MaLineType maLineType){
-        List<Double> maList = MaLineUtil.portraitMaValues(list,maLineType);
+        List<Double> maList = EmaLineUtil.emaParallelList(list,maLineType);
         double [] values = new double[maList.size()];
         for(int i = 0;i < values.length;i++){
             values[i] = maList.get(i);

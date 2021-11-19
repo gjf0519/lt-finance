@@ -6,9 +6,11 @@ import com.lt.utils.MathUtil;
 import java.util.List;
 
 /**
- * K线计算工具类
+ * @author gaijf
+ * @description 规则过滤基础工具类
+ * @date 2020/12/2
  */
-public class KAlgorithmUtil {
+public class RuleFilterUtil {
 
     public static double readKlineRate(List<KLineEntity> list){
         int readNum = 0;

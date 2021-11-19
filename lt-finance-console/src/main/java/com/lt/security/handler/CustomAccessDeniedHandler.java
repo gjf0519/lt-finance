@@ -1,7 +1,7 @@
 package com.lt.security.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.lt.common.ConsoleConstants;
+import com.lt.common.ViewConstants;
 import com.lt.view.ResultCode;
 import com.lt.view.ResultEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
         log.info("权限不足或未登录:{}",accessDeniedException);
-        String access_token = request.getHeader(ConsoleConstants.AUTHENTICATION_HEAD);
+        String access_token = request.getHeader(ViewConstants.AUTHENTICATION_HEAD);
         if(StringUtils.isEmpty(access_token)){
             response.sendRedirect(request.getContextPath() + "/login.html");
         }else {

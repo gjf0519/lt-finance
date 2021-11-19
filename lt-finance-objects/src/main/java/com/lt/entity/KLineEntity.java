@@ -26,11 +26,11 @@ public class KLineEntity {
     private Double pctChg;
     private Double vol;
     private Double amount;
-    private Double maFive;
-    private Double maTen;
-    private Double maTwenty;
-    private Double maMonth;
-    private Double maQuarter;
-    private Double maSemester;
-    private Double maYear;
+    private Double emaFive;
+    private Double emaTen;
+    private Double emaTwenty;
+    private Double emaMonth;
+    private Double emaQuarter;
+    private Double emaHalfYear;
+    private Double emaFullYear;
 }

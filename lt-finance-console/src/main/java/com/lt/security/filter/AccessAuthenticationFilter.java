@@ -1,6 +1,6 @@
 package com.lt.security.filter;
 
-import com.lt.common.ConsoleConstants;
+import com.lt.common.ViewConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class AccessAuthenticationFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
-        String access_token = request.getHeader(ConsoleConstants.AUTHENTICATION_HEAD);
+        String access_token = request.getHeader(ViewConstants.AUTHENTICATION_HEAD);
         if (StringUtils.isNotEmpty(access_token)) {
             if(!redisTemplate.hasKey(access_token) ||
                     null == redisTemplate.opsForValue().get(access_token)){

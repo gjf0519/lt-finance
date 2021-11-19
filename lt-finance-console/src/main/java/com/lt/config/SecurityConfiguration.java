@@ -1,6 +1,6 @@
 package com.lt.config;
 
-import com.lt.common.ConsoleConstants;
+import com.lt.common.ViewConstants;
 import com.lt.security.SecurityJdbcUserService;
 import com.lt.security.filter.AccessAuthenticationFilter;
 import com.lt.security.handler.CustomAccessDeniedHandler;
@@ -92,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .httpStrictTransportSecurity().disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers(ConsoleConstants.ROUTES).permitAll()
+                .antMatchers(ViewConstants.ROUTES).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()

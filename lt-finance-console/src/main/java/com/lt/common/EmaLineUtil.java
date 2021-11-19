@@ -6,21 +6,40 @@ import com.lt.shape.MaLineType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MaLineUtil {
+/**
+ * @author gaijf
+ * @description 均线取值工具类
+ * @date 2020/12/2
+ */
+public class EmaLineUtil {
 
     /**
-     * 获取某天全部均线 横向
+     * 获取某天全部均值 横向
      * @param entity
      * @return
      */
-    public static List<Double> transverseMaValue(KLineEntity entity){
+    public static List<Double> emaCross(KLineEntity entity){
         List<Double> values = new ArrayList<>();
         for(MaLineType lineType : MaLineType.values()){
-            double value = portraitMaValue(entity,lineType);
+            double value = emaValue(entity,lineType);
             if(0 == value){
                 return values;
             }
             values.add(value);
+        }
+        return values;
+    }
+
+    /**
+     * 获取全部均值 横向
+     * @param lineEntities
+     * @return
+     */
+    public static List<List<Double>> emaCrossList(List<KLineEntity> lineEntities){
+        List<List<Double>> values = new ArrayList<>(lineEntities.size());
+        for(KLineEntity entity : lineEntities){
+            List<Double> items = emaCross(entity);
+            values.add(items);
         }
         return values;
     }
@@ -31,10 +50,11 @@ public class MaLineUtil {
      * @param lineType
      * @return
      */
-    public static List<Double> portraitMaValues(List<KLineEntity> lineEntities, MaLineType lineType){
+    public static List<Double> emaParallelList(List<KLineEntity> lineEntities,
+                                           MaLineType lineType){
         List<Double> values = new ArrayList<>(lineEntities.size());
         for(KLineEntity entity : lineEntities){
-            double value = portraitMaValue(entity,lineType);
+            double value = emaValue(entity,lineType);
             if(0 == value){
                 return values;
             }
@@ -49,29 +69,29 @@ public class MaLineUtil {
      * @param lineType
      * @return
      */
-    public static double portraitMaValue(KLineEntity entity, MaLineType lineType){
+    public static double emaValue(KLineEntity entity, MaLineType lineType){
         double kline = 0;
         switch (lineType.getCode()){
             case 5:
-                kline = entity.getMaFive();
+                kline = entity.getEmaFive();
                 break;
             case 10:
-                kline = entity.getMaTen();
+                kline = entity.getEmaTen();
                 break;
             case 20:
-                kline = entity.getMaTwenty();
+                kline = entity.getEmaTwenty();
                 break;
             case 30:
-                kline = entity.getMaMonth();
+                kline = entity.getEmaMonth();
                 break;
             case 60:
-                kline = entity.getMaQuarter();
+                kline = entity.getEmaQuarter();
                 break;
             case 120:
-                kline = entity.getMaSemester();
+                kline = entity.getEmaHalfYear();
                 break;
             case 250:
-                kline = entity.getMaYear();
+                kline = entity.getEmaFullYear();
                 break;
             default:
                 kline = 0;

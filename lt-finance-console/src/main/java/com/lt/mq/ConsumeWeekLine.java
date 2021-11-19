@@ -1,8 +1,7 @@
 package com.lt.mq;
 
 import com.alibaba.fastjson.JSON;
-import com.lt.service.ReceiveService;
-import com.lt.utils.Constants;
+import com.lt.service.TushareService;
 import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -35,7 +34,7 @@ public class ConsumeWeekLine {
     @Value("${rocketmq.comsumer.week-line}")
     private String consumerGroup;
     @Autowired
-    private ReceiveService receiveService;
+    private TushareService receiveService;
     private DefaultMQPushConsumer consumerWeekLine;
     private String topicName = TushareUtil.TUSHARE_WEEKLINE_TOPIC;
 
@@ -58,8 +57,8 @@ public class ConsumeWeekLine {
     }
 
     private static class Listener implements MessageListenerConcurrently {
-        private ReceiveService receiveService;
-        public Listener(ReceiveService receiveService){
+        private TushareService receiveService;
+        public Listener(TushareService receiveService){
             this.receiveService = receiveService;
         }
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list,

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface ReceiveMapper {
+public interface TushareMapper {
 
     @Select({"SELECT count(1) from lt_daily_basic m WHERE m.ts_code=#{tsCode} and m.trade_date = #{tradeDate}"})
     int hasSaveDaily(@Param("tsCode") String tsCode, @Param("tradeDate") String tradeDate);
@@ -28,9 +28,9 @@ public interface ReceiveMapper {
     List<KLineEntity> queryDayLineByLimit(@Param("code") String code, @Param("limit") int limit);
 
     @Insert({"insert into lt_day_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
+            "vol,amount,ema_five,ema_ten,ema_twenty,ema_month,ema_quarter,ema_half_year,ema_full_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
+            ",#{vol},#{amount},#{ema_five},#{ema_ten},#{ema_twenty},#{ema_month},#{ema_quarter},#{ema_half_year},#{ema_full_year})"})
     void saveDayLine(Map<String, String> map);
 
     @Select({"SELECT count(1) from lt_week_line m WHERE m.ts_code=#{tsCode} and m.trade_date = #{tradeDate}"})
@@ -40,9 +40,9 @@ public interface ReceiveMapper {
     List<KLineEntity> queryWeekLineByLimit(@Param("code") String code, @Param("limit") int limit);
 
     @Insert({"insert into lt_week_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
+            "vol,amount,ema_five,ema_ten,ema_twenty,ema_month,ema_quarter,ema_half_year,ema_full_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
+            ",#{vol},#{amount},#{ema_five},#{ema_ten},#{ema_twenty},#{ema_month},#{ema_quarter},#{ema_half_year},#{ema_full_year})"})
     void saveWeekLine(Map<String, String> map);
 
     @Select({"SELECT count(1) from lt_plate_line m WHERE m.ts_code=#{tsCode} and m.trade_date = #{tradeDate}"})
@@ -52,9 +52,9 @@ public interface ReceiveMapper {
     List<KLineEntity> queryPlateLineByLimit(@Param("code") String code, @Param("limit") int limit);
 
     @Insert({"insert into lt_plate_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
+            "vol,amount,ema_five,ema_ten,ema_twenty,ema_month,ema_quarter,ema_half_year,ema_full_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_change}" +
-            ",#{vol},#{float_mv},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
+            ",#{vol},#{float_mv},#{ema_five},#{ema_ten},#{ema_twenty},#{ema_month},#{ema_quarter},#{ema_half_year},#{ema_full_year})"})
     void savePlateLine(Map<String, String> map);
 
     @Select({"SELECT count(1) from lt_repair_data m WHERE m.repair_code = #{repairCode} and m.repair_date = #{repairDate}"})
@@ -67,8 +67,8 @@ public interface ReceiveMapper {
     int hasSaveMonthLine(@Param("tsCode") String tsCode, @Param("tradeDate") String tradeDate);
 
     @Insert({"insert into lt_month_line (ts_code,trade_date,open,high,low,close,pre_close,price_chg,pct_chg," +
-            "vol,amount,ma_five,ma_ten,ma_twenty,ma_month,ma_quarter,ma_semester,ma_year) values" +
+            "vol,amount,ema_five,ema_ten,ema_twenty,ema_month,ema_quarter,ema_half_year,ema_full_year) values" +
             " (#{ts_code},#{trade_date},#{open},#{high},#{low},#{close},#{pre_close},#{change},#{pct_chg}" +
-            ",#{vol},#{amount},#{ma_five},#{ma_ten},#{ma_twenty},#{ma_month},#{ma_quarter},#{ma_semester},#{ma_year})"})
+            ",#{vol},#{amount},#{ema_five},#{ema_ten},#{ema_twenty},#{ema_month},#{ema_quarter},#{ema_half_year},#{ema_full_year})"})
     void saveMonthLine(Map<String, String> map);
 }

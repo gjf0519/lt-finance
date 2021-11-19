@@ -2,8 +2,7 @@ package com.lt.mq;
 
 import com.alibaba.fastjson.JSON;
 import com.lt.entity.RepairDataEntity;
-import com.lt.service.ReceiveService;
-import com.lt.utils.Constants;
+import com.lt.service.TushareService;
 import com.lt.utils.TushareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -34,7 +33,7 @@ public class ConsumeRepairData {
     @Value("${rocketmq.comsumer.repair-data}")
     private String consumerGroup;
     @Autowired
-    private ReceiveService receiveService;
+    private TushareService receiveService;
     private DefaultMQPushConsumer consumerRepair;
     private String topicName = TushareUtil.TUSHARE_REPAIR_TOPIC;
 
@@ -57,8 +56,8 @@ public class ConsumeRepairData {
     }
 
     private static class Listener implements MessageListenerConcurrently {
-        private ReceiveService receiveService;
-        public Listener(ReceiveService receiveService){
+        private TushareService receiveService;
+        public Listener(TushareService receiveService){
             this.receiveService = receiveService;
         }
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list,

@@ -1,18 +1,14 @@
 package com.lt.service;
 
-import com.alibaba.fastjson.JSON;
 import com.lt.entity.KLineEntity;
 import com.lt.entity.RepairDataEntity;
-import com.lt.mapper.ReceiveMapper;
-import com.lt.utils.Constants;
+import com.lt.mapper.TushareMapper;
 import com.lt.utils.TushareUtil;
-import org.apache.commons.math3.stat.StatUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +18,10 @@ import java.util.Map;
  * @date 2020/12/3
  */
 @Service
-public class ReceiveService {
+public class TushareService {
 
     @Resource
-    private ReceiveMapper receiveMapper;
+    private TushareMapper receiveMapper;
     private final static int LIMIT_NUM = 144;
     private final static String CODE_KEY = "ts_code";
     private final static String DATE_KEY = "trade_date";

@@ -34,25 +34,25 @@ public abstract class AbstractBaseRule<T,R> implements BaseRule<T,R> {
         double kline = 0;
         switch (lineType.getCode()){
             case 5:
-                kline = entity.getMaFive();
+                kline = entity.getEmaFive();
                 break;
             case 10:
-                kline = entity.getMaTen();
+                kline = entity.getEmaTen();
                 break;
             case 20:
-                kline = entity.getMaTwenty();
+                kline = entity.getEmaTwenty();
                 break;
             case 30:
-                kline = entity.getMaMonth();
+                kline = entity.getEmaMonth();
                 break;
             case 60:
-                kline = entity.getMaQuarter();
+                kline = entity.getEmaQuarter();
                 break;
             case 120:
-                kline = entity.getMaSemester();
+                kline = entity.getEmaHalfYear();
                 break;
             case 250:
-                kline = entity.getMaYear();
+                kline = entity.getEmaFullYear();
                 break;
             default:
                 kline = 0;
