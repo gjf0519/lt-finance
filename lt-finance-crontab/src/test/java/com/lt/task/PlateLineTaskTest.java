@@ -1,6 +1,6 @@
 package com.lt.task;
 
-import com.lt.service.TushareApiService;
+import com.lt.web.service.TushareApiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,8 +1,8 @@
 package com.lt.task;
 
 import com.lt.entity.RepairDataEntity;
-import com.lt.mapper.TushareMapper;
-import com.lt.service.KLineService;
+import com.lt.web.mapper.TushareMapper;
+import com.lt.web.service.KLineService;
 import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
 import org.springframework.beans.factory.annotation.Autowired;

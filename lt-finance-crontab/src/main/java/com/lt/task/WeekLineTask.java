@@ -1,9 +1,7 @@
 package com.lt.task;
 
 import com.alibaba.fastjson.JSON;
-import com.lt.entity.RepairDataEntity;
-import com.lt.service.TushareScriptService;
-import com.lt.utils.Constants;
+import com.lt.web.service.TushareScriptService;
 import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
 import com.lt.utils.TushareUtil;
@@ -12,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -34,12 +33,15 @@ public class WeekLineTask {
         if(dayOfWeek != DayOfWeek.SATURDAY){
             return;
         }
-        String tradeDate = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-        this.obtainData(TsCodes.STOCK_CODE,tradeDate,tradeDate);
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String startDate = localDate.format(formatters);
+        String endDate = localDate.plusDays(-5).format(formatters);
+        this.obtainData(TsCodes.STOCK_CODE,startDate,endDate);
         log.info("==========================周线收集数据完成======================");
     }
 
-    private void obtainData(List<String> codes,String startDate,String endDate){
+    public void obtainData(List<String> codes,String startDate,String endDate){
         for(String item : codes){
             try {
                 Thread.sleep(300);

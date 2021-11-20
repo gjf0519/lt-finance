@@ -1,6 +1,6 @@
 package com.lt;
 
-import com.lt.service.KlineInitService;
+import com.lt.web.service.KlineInitService;
 import com.lt.utils.TsCodes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,10 +68,12 @@ public class TushareLineInitTest {
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
-                try {
-                    initService.initMonthLine(item,"20080101","20211117");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(latch.getCount() <= 2525){
+                    try {
+                        initService.initMonthLine(item,"20080101","20211117");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 latch.countDown();
                 System.out.println(latch.getCount());

@@ -1,9 +1,7 @@
 package com.lt.task;
 
 import com.alibaba.fastjson.JSON;
-import com.lt.entity.RepairDataEntity;
-import com.lt.service.TushareScriptService;
-import com.lt.utils.Constants;
+import com.lt.web.service.TushareScriptService;
 import com.lt.utils.TimeUtil;
 import com.lt.utils.TsCodes;
 import com.lt.utils.TushareUtil;
@@ -12,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,13 +29,15 @@ public class MonthLineTask {
     @Scheduled(cron = "0 0 21 * * ? ")
     public void execute() {
         LocalDate today = LocalDate.now();
-        LocalDate lastDay = today.with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate lastDay = today.with(TemporalAdjusters.firstDayOfMonth());
         if(today.compareTo(lastDay) != 0){
             return;
         }
+        Date monthEnd = Date.from(today.plusMonths(-1).with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
         log.info("==========================月线收集数据开始======================");
-        String tradeDate = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-        this.obtainData(TsCodes.STOCK_CODE,tradeDate,tradeDate);
+        String startDate = TimeUtil.dateFormat(monthEnd,"yyyyMMdd");
+        String endDate = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
+        this.obtainData(TsCodes.STOCK_CODE,startDate,endDate);
         log.info("==========================月线收集数据完成======================");
     }
 

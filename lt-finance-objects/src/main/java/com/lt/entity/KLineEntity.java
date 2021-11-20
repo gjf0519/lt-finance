@@ -25,7 +25,6 @@ public class KLineEntity {
     private Double priceChg;
     private Double pctChg;
     private Double vol;
-    private Double amount;
     private Double emaFive;
     private Double emaTen;
     private Double emaTwenty;

@@ -1,6 +1,6 @@
 package com.lt.security;
 
-import com.lt.service.UserService;
+import com.lt.web.service.UserService;
 import com.lt.view.ResultCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;

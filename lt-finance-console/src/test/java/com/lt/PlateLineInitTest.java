@@ -2,7 +2,7 @@ package com.lt;
 
 import com.alibaba.fastjson.JSON;
 import com.lt.result.TushareResult;
-import com.lt.service.TushareService;
+import com.lt.web.service.TushareService;
 import com.lt.utils.RestUtil;
 import com.lt.utils.TushareUtil;
 import org.junit.jupiter.api.Test;

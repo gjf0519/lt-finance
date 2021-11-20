@@ -1,6 +1,6 @@
 package com.lt.task;
 
-import com.lt.service.TushareApiService;
+import com.lt.web.service.TushareApiService;
 import com.lt.utils.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
