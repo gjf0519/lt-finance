@@ -1,9 +1,8 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +15,8 @@ import java.util.List;
  */
 public class MaLineArrangeRuleV2 extends AbstractBaseRule<List<KLineEntity>,Integer>{
 
-    public static List<MaLineType> TYPES = Arrays.asList(MaLineType.LINE005,
-            MaLineType.LINE010,MaLineType.LINE020,MaLineType.LINE030,MaLineType.LINE060,MaLineType.LINE120,MaLineType.LINE250);
+    public static List<EmaLineType> TYPES = Arrays.asList(EmaLineType.LINE005,
+            EmaLineType.LINE010, EmaLineType.LINE020, EmaLineType.LINE030, EmaLineType.LINE060, EmaLineType.LINE120, EmaLineType.LINE250);
 
     /**
      * 默认就算全部排列情况

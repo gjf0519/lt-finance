@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +13,10 @@ import java.util.List;
  * @date 2021/1/15
  */
 public class MaLineArrangeRule extends AbstractBaseRule<KLineEntity,Integer>
-        implements MaLineRule<KLineEntity,List<MaLineType>,Integer>{
+        implements MaLineRule<KLineEntity,List<EmaLineType>,Integer>{
 
-    public static List<MaLineType> TYPES = Arrays.asList(MaLineType.LINE005,
-            MaLineType.LINE010,MaLineType.LINE020,MaLineType.LINE030,MaLineType.LINE060);
+    public static List<EmaLineType> TYPES = Arrays.asList(EmaLineType.LINE005,
+            EmaLineType.LINE010, EmaLineType.LINE020, EmaLineType.LINE030, EmaLineType.LINE060);
 
     /**
      * 默认计算5/10/20/30/60排列情况
@@ -35,9 +35,9 @@ public class MaLineArrangeRule extends AbstractBaseRule<KLineEntity,Integer>
      * @return 1全上0交叉-1全下
      */
     @Override
-    public Integer verify(KLineEntity kLineEntitie,List<MaLineType> maLineTypes) {
+    public Integer verify(KLineEntity kLineEntitie,List<EmaLineType> maLineTypes) {
         List<Double> items = new ArrayList<>(maLineTypes.size());
-        for(MaLineType lineType : maLineTypes){
+        for(EmaLineType lineType : maLineTypes){
             items.add(klineVal(kLineEntitie,lineType));
         }
         int dwnum = 0;

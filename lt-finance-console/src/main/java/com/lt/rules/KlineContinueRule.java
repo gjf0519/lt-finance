@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class KlineContinueRule
         extends AbstractBaseRule<List<KLineEntity>,Integer>
-        implements MaLineRule<List<KLineEntity>,MaLineType,Integer>{
+        implements MaLineRule<List<KLineEntity>, EmaLineType,Integer>{
 
     private boolean isContinue = false;
 
@@ -30,7 +30,7 @@ public class KlineContinueRule
     }
 
     @Override
-    public Integer verify(List<KLineEntity> entitys,MaLineType lineType) {
+    public Integer verify(List<KLineEntity> entitys, EmaLineType lineType) {
         if(null == entitys || entitys.isEmpty()){
             return null;
         }
@@ -63,7 +63,7 @@ public class KlineContinueRule
      * @return 向上天数
      */
     public Integer verify(List<KLineEntity> entitys,
-                         MaLineType lineType, int limit) {
+                          EmaLineType lineType, int limit) {
         if(null == entitys ||
                 entitys.isEmpty()){
             return null;

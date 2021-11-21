@@ -1,9 +1,5 @@
 package com.lt.rules;
 
-import com.lt.shape.MaLineType;
-
-import java.util.List;
-
 /**
  * @author gaijf
  * @description

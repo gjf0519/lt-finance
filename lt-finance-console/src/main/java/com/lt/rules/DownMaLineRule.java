@@ -1,11 +1,9 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author gaijf
@@ -16,14 +14,14 @@ public class DownMaLineRule
         extends AbstractBaseRule<List<KLineEntity>,Integer>
         implements MaLineRule<List<KLineEntity>,Integer,Integer>{
 
-    private MaLineType breakLine = MaLineType.LINE020;
-    private MaLineType directionalLine = MaLineType.LINE005;
+    private EmaLineType breakLine = EmaLineType.LINE020;
+    private EmaLineType directionalLine = EmaLineType.LINE005;
 
     public DownMaLineRule() {
         super();
     }
 
-    public DownMaLineRule(MaLineType breakLine, MaLineType directionalLine) {
+    public DownMaLineRule(EmaLineType breakLine, EmaLineType directionalLine) {
         this.breakLine = breakLine;
         this.directionalLine = directionalLine;
     }

@@ -1,7 +1,7 @@
 package com.lt.common;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,9 @@ public class EmaLineUtil {
      */
     public static List<Double> emaCross(KLineEntity entity){
         List<Double> values = new ArrayList<>();
-        for(MaLineType lineType : MaLineType.values()){
-            double value = emaValue(entity,lineType);
-            if(0 == value){
+        for(EmaLineType lineType : EmaLineType.values()){
+            Double value = emaValue(entity,lineType);
+            if(null == value){
                 return values;
             }
             values.add(value);
@@ -51,11 +51,11 @@ public class EmaLineUtil {
      * @return
      */
     public static List<Double> emaParallelList(List<KLineEntity> lineEntities,
-                                           MaLineType lineType){
+                                           EmaLineType lineType){
         List<Double> values = new ArrayList<>(lineEntities.size());
         for(KLineEntity entity : lineEntities){
-            double value = emaValue(entity,lineType);
-            if(0 == value){
+            Double value = emaValue(entity,lineType);
+            if(null == value){
                 return values;
             }
             values.add(value);
@@ -69,8 +69,8 @@ public class EmaLineUtil {
      * @param lineType
      * @return
      */
-    public static double emaValue(KLineEntity entity, MaLineType lineType){
-        double kline = 0;
+    public static Double emaValue(KLineEntity entity, EmaLineType lineType){
+        Double kline = null;
         switch (lineType.getCode()){
             case 5:
                 kline = entity.getEmaFive();
@@ -93,8 +93,6 @@ public class EmaLineUtil {
             case 250:
                 kline = entity.getEmaFullYear();
                 break;
-            default:
-                kline = 0;
         }
         return kline;
     }

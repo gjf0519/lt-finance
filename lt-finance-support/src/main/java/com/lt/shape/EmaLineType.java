@@ -5,7 +5,7 @@ package com.lt.shape;
  * @description
  * @date 2021/1/14
  */
-public enum MaLineType {
+public enum EmaLineType {
     LINE005(5,"5日"),
     LINE010(10,"10日"),
     LINE020(20,"20日"),
@@ -13,9 +13,10 @@ public enum MaLineType {
     LINE060(60,"60日"),
     LINE120(120,"120日"),
     LINE250(250,"250日");
+
     private int code;
     private String name;
-    private MaLineType(int code, String name){
+    private EmaLineType(int code, String name){
         this.code = code;
         this.name = name;
     }

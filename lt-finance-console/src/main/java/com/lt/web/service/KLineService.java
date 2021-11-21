@@ -156,4 +156,8 @@ public class KLineService {
     public KLineEntity queryMinKline(String tsCode){
         return kLineMapper.queryMinKline(tsCode);
     }
+
+    public List<KLineEntity> queryDayByTimeBucket(String tsCode, String limitStart, String limitEnd) {
+        return kLineMapper.queryDayByTimeBucket(tsCode,limitStart,limitEnd);
+    }
 }

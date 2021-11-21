@@ -4,7 +4,7 @@ import com.lt.entity.KLineEntity;
 import com.lt.rules.KmKlineMaLineRule;
 import com.lt.rules.SiteKlineMaLineRule;
 import com.lt.screen.LineFormFilter;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.List;
 import java.util.Map;
@@ -30,11 +30,11 @@ public class DayTwitchFilter implements LineFormFilter {
         }
         //K先与均线的位置
         SiteKlineMaLineRule siteKlineMaLineRule = new SiteKlineMaLineRule();
-        Map<String,Integer> sites = siteKlineMaLineRule.verify(kLineEntity,MaLineType.LINE020);
-        if(-1 == sites.get(MaLineType.LINE020.getName())){
+        Map<String,Integer> sites = siteKlineMaLineRule.verify(kLineEntity, EmaLineType.LINE020);
+        if(-1 == sites.get(EmaLineType.LINE020.getName())){
             return 0;
         };
-        if(1 == sites.get(MaLineType.LINE020.getName())){
+        if(1 == sites.get(EmaLineType.LINE020.getName())){
             KmKlineMaLineRule kmKlineMaLineRule = new KmKlineMaLineRule();
             double km = kmKlineMaLineRule.verify(kLineEntity);
             if(km > 0.1){

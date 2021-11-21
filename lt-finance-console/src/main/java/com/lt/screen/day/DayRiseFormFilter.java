@@ -3,7 +3,7 @@ package com.lt.screen.day;
 import com.lt.entity.KLineEntity;
 import com.lt.rules.*;
 import com.lt.screen.LineFormFilter;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.List;
 import java.util.Map;
@@ -33,43 +33,43 @@ public class DayRiseFormFilter implements LineFormFilter {
         }
         //持续性
         KlineContinueRule klineContinueRule = new KlineContinueRule();
-        int continueNum5 = klineContinueRule.verify(kLineEntities,MaLineType.LINE005,5);
+        int continueNum5 = klineContinueRule.verify(kLineEntities, EmaLineType.LINE005,5);
         klineContinueRule.setContinue(true);
-        int continueNum10 = klineContinueRule.verify(kLineEntities,MaLineType.LINE005,10);
+        int continueNum10 = klineContinueRule.verify(kLineEntities, EmaLineType.LINE005,10);
         if(continueNum10 < 5 && continueNum5 < 3){
             return 0;
         }
         //K位置
         SiteKlineMaLineRule siteKlineMaLineRule = new SiteKlineMaLineRule();
         Map<String,Integer> sites = siteKlineMaLineRule.verify(kLineEntities.get(0));
-        if(null == sites.get(MaLineType.LINE030.getName()) ||
-                null == sites.get(MaLineType.LINE020.getName())){
+        if(null == sites.get(EmaLineType.LINE030.getName()) ||
+                null == sites.get(EmaLineType.LINE020.getName())){
             return 0;
         }
         int siteLevel = 0;
-        if(sites.get(MaLineType.LINE005.getName()) == -1
-                && sites.get(MaLineType.LINE010.getName()) == 0
-                && sites.get(MaLineType.LINE020.getName()) == 1
-                && sites.get(MaLineType.LINE030.getName()) == 1){
+        if(sites.get(EmaLineType.LINE005.getName()) == -1
+                && sites.get(EmaLineType.LINE010.getName()) == 0
+                && sites.get(EmaLineType.LINE020.getName()) == 1
+                && sites.get(EmaLineType.LINE030.getName()) == 1){
             //重点
             siteLevel = 2;
-        }else if(sites.get(MaLineType.LINE005.getName()) == 0 //600379 20210401
-                && sites.get(MaLineType.LINE010.getName()) == 0
-                && sites.get(MaLineType.LINE020.getName()) == 1
-                && sites.get(MaLineType.LINE030.getName()) == 1){
+        }else if(sites.get(EmaLineType.LINE005.getName()) == 0 //600379 20210401
+                && sites.get(EmaLineType.LINE010.getName()) == 0
+                && sites.get(EmaLineType.LINE020.getName()) == 1
+                && sites.get(EmaLineType.LINE030.getName()) == 1){
             //重点
             siteLevel = 2;
-        }else if(sites.get(MaLineType.LINE005.getName()) == 0 //000793 20210406
-                && sites.get(MaLineType.LINE010.getName()) == 1
-                && sites.get(MaLineType.LINE020.getName()) == 1
-                && sites.get(MaLineType.LINE030.getName()) == 1){
+        }else if(sites.get(EmaLineType.LINE005.getName()) == 0 //000793 20210406
+                && sites.get(EmaLineType.LINE010.getName()) == 1
+                && sites.get(EmaLineType.LINE020.getName()) == 1
+                && sites.get(EmaLineType.LINE030.getName()) == 1){
             //重点
             siteLevel = 2;
-        }else if(sites.get(MaLineType.LINE020.getName()) == 1
-                && sites.get(MaLineType.LINE030.getName()) == 1){
+        }else if(sites.get(EmaLineType.LINE020.getName()) == 1
+                && sites.get(EmaLineType.LINE030.getName()) == 1){
             //普通
             siteLevel = 1;
-        }else if(continueNum10 >=7 && sites.get(MaLineType.LINE020.getName()) == 1){
+        }else if(continueNum10 >=7 && sites.get(EmaLineType.LINE020.getName()) == 1){
             //普通
             siteLevel = 1;
         }else {

@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 import com.lt.utils.MathUtil;
 
 /**
@@ -11,9 +11,9 @@ import com.lt.utils.MathUtil;
  */
 public class KmKlineMaLineRule
         extends AbstractBaseRule<KLineEntity,Double>
-        implements MaLineRule<KLineEntity,MaLineType,Double>{
+        implements MaLineRule<KLineEntity, EmaLineType,Double>{
 
-    private static MaLineType LINETYPE = MaLineType.LINE020;
+    private static EmaLineType LINETYPE = EmaLineType.LINE020;
 
     @Override
     public Double verify(KLineEntity entity) {
@@ -24,7 +24,7 @@ public class KmKlineMaLineRule
     }
 
     @Override
-    public Double verify(KLineEntity entity, MaLineType lineType) {
+    public Double verify(KLineEntity entity, EmaLineType lineType) {
         if(null == entity){
             return null;
         }

@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 import com.lt.utils.MathUtil;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class LineRoseRule extends AbstractBaseRule<List<KLineEntity>,Integer>
     private double low = 0;
     private double high = 0;
     private int roseType = 0;
-    private MaLineType roseLine = MaLineType.LINE005;
+    private EmaLineType roseLine = EmaLineType.LINE005;
 
     public LineRoseRule(double high,double low) {
         this.low = low;
@@ -30,13 +30,13 @@ public class LineRoseRule extends AbstractBaseRule<List<KLineEntity>,Integer>
         this.roseType = roseType;
     }
 
-    public LineRoseRule(double low, double high, MaLineType roseLine) {
+    public LineRoseRule(double low, double high, EmaLineType roseLine) {
         this.low = low;
         this.high = high;
         this.roseLine = roseLine;
     }
 
-    public LineRoseRule(int roseType, double low, double high, MaLineType roseLine) {
+    public LineRoseRule(int roseType, double low, double high, EmaLineType roseLine) {
         this.low = low;
         this.high = high;
         this.roseType = roseType;

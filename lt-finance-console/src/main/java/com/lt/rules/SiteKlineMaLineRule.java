@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,12 +15,12 @@ import java.util.Map;
  */
 public class SiteKlineMaLineRule
         extends AbstractBaseRule<KLineEntity,Map<String,Integer>>
-        implements MaLineRule<KLineEntity,MaLineType,Map<String,Integer>>{
+        implements MaLineRule<KLineEntity, EmaLineType,Map<String,Integer>>{
 
     //1上0交-1下
     public static int [] SITES = new int[]{1,0,-1};
-    public static List<MaLineType> TYPES = Arrays.asList(MaLineType.LINE005,
-            MaLineType.LINE010,MaLineType.LINE020,MaLineType.LINE030);
+    public static List<EmaLineType> TYPES = Arrays.asList(EmaLineType.LINE005,
+            EmaLineType.LINE010, EmaLineType.LINE020, EmaLineType.LINE030);
 
     @Override
     public Map<String,Integer> verify(KLineEntity entity) {
@@ -28,7 +28,7 @@ public class SiteKlineMaLineRule
             return null;
         }
         Map<String,Integer> map = new HashMap<>();
-        for(MaLineType lineType : TYPES){
+        for(EmaLineType lineType : TYPES){
             Map<String,Integer> item = verify(entity, lineType);
             if(null == item){
                 continue;
@@ -41,7 +41,7 @@ public class SiteKlineMaLineRule
 
     @Override
     public Map<String,Integer> verify(KLineEntity entity,
-                       MaLineType lineType) {
+                       EmaLineType lineType) {
         if(null == entity){
             return null;
         }

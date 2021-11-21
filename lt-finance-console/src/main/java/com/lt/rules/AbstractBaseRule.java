@@ -1,7 +1,7 @@
 package com.lt.rules;
 
 import com.lt.entity.KLineEntity;
-import com.lt.shape.MaLineType;
+import com.lt.shape.EmaLineType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +15,14 @@ public abstract class AbstractBaseRule<T,R> implements BaseRule<T,R> {
 
     public List<Double> klineVals(KLineEntity kLineEntity){
         List<Double> values = new ArrayList<>();
-        for(MaLineType lineType : MaLineType.values()){
+        for(EmaLineType lineType : EmaLineType.values()){
             values.add(klineVal(kLineEntity,lineType));
         }
         return values;
     }
 
     public List<Double> klineVals(List<KLineEntity> list,
-                                   MaLineType lineType){
+                                   EmaLineType lineType){
         List<Double> values = new ArrayList<>();
         for(KLineEntity entity : list){
             values.add(klineVal(entity,lineType));
@@ -30,7 +30,7 @@ public abstract class AbstractBaseRule<T,R> implements BaseRule<T,R> {
         return values;
     }
 
-    public double klineVal(KLineEntity entity,MaLineType lineType){
+    public double klineVal(KLineEntity entity, EmaLineType lineType){
         double kline = 0;
         switch (lineType.getCode()){
             case 5:

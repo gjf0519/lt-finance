@@ -68,12 +68,10 @@ public class TushareLineInitTest {
         CountDownLatch latch = new CountDownLatch(TsCodes.STOCK_CODE.size());
         for(String item : TsCodes.STOCK_CODE){
             threadPoolExecutor.execute(()->{
-                if(latch.getCount() <= 2525){
-                    try {
-                        initService.initMonthLine(item,"20080101","20211117");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    initService.initMonthLine(item,"20080101","20211117");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 latch.countDown();
                 System.out.println(latch.getCount());

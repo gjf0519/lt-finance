@@ -64,4 +64,7 @@ public interface KLineMapper {
     @Select({"SELECT m.* FROM lt_day_line m where m.ts_code=#{tsCode} and m.trade_date >= #{tradeDate} order by m.trade_date "})
     List<KLineEntity> queryDayLineByMin(@Param("tsCode") String code,
                                         @Param("tradeDate") String tradeDate);
+
+    @Select({"select m.* from lt_day_line m where m.ts_code=#{tsCode} and m.trade_date >= #{limitEnd} and m.trade_date <= #{limitStart} order by m.trade_date desc "})
+    List<KLineEntity> queryDayByTimeBucket(@Param("tsCode") String tsCode,@Param("limitStart") String limitStart,@Param("limitEnd") String limitEnd);
 }
