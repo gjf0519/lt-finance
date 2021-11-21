@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author gaijf
- * @description: 均线平行突破
+ * @description: ST柏龙 002776 20210930 均线均匀反向排列形态
  * @date 2021/11/2015:50
  */
 @SpringBootTest
@@ -33,6 +33,7 @@ public class EmaOrderBreakTest {
 
     private static AtomicInteger number = new AtomicInteger(0);
     private static AtomicInteger highs = new AtomicInteger(0);
+    private static AtomicInteger rise = new AtomicInteger(0);
 
     @Test
     public void test(){
@@ -58,12 +59,13 @@ public class EmaOrderBreakTest {
             e.printStackTrace();
         }
         System.out.println(MathUtil.div(highs.get(),number.get(),2));
+        System.out.println(MathUtil.div(rise.get(),number.get(),2));
     }
 
     @Test
-    public void calculation(String item,String tradeDate){
+    public void calculation(String item,String tradeDate){//String item,String tradeDate
         List<KLineEntity> list = kLineService
-                .queryDayLineList(item,tradeDate,268);
+                .queryDayLineList(item,tradeDate,268);//"002776.sz","20211119"
         //计算60/120/250均线三角形形态时间段
         List<Map<String,String>> timeBucketList = this.emaTimeBucket(list);
         if(timeBucketList.isEmpty()){
@@ -269,6 +271,7 @@ public class EmaOrderBreakTest {
             if(isAllDown){
                 break;
             }
+            isAllDown = true;
         }
         Date date = TimeUtil.StringToDate(list.get(index).getTradeDate(),"yyyyMMdd");
         int limitDay = TimeUtil.getDiffDays(date,new Date());
@@ -302,6 +305,14 @@ public class EmaOrderBreakTest {
             if(list.get(i).getClose() > max){
                 max = list.get(i).getClose();
             }
+        }
+        //计算涨幅
+        BigDecimal mean = new BigDecimal(max).divide(new BigDecimal(entity.getClose()),4, BigDecimal.ROUND_HALF_UP)
+                .setScale(4, BigDecimal.ROUND_UP);
+        BigDecimal chg = mean.subtract(new BigDecimal("1")).setScale(2, BigDecimal.ROUND_HALF_UP);
+        System.out.println(entity.getTsCode()+"========="+entity.getTradeDate()+"============"+chg);
+        if(chg.doubleValue() > 0.5){
+            rise.incrementAndGet();
         }
         if(max > entity.getClose()){
             highs.incrementAndGet();
