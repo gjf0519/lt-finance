@@ -65,7 +65,9 @@ public class EmaOrderBreakTest {
     @Test
     public void calculation(String item,String tradeDate){//String item,String tradeDate
         List<KLineEntity> list = kLineService
-                .queryDayLineList(item,tradeDate,268);//"002776.sz","20211119"
+                .queryDayLineList(item,tradeDate,268);
+//        List<KLineEntity> list = kLineService
+//                .queryDayLineList("002776.SZ","20211119",268);//"002776.sz","20211119"
         //计算60/120/250均线三角形形态时间段
         List<Map<String,String>> timeBucketList = this.emaTimeBucket(list);
         if(timeBucketList.isEmpty()){
@@ -244,7 +246,7 @@ public class EmaOrderBreakTest {
         }
         List<Boolean> downs = new ArrayList<>();
         int num = 0;
-        for (int i = 0;i < kLineEntityList.size();i++){
+        for (int i = 0;i < realEmaValues.size();i++){
             if(realEmaValues.get(i) > juniorEmaValues.get(i)){
                 num++;
                 downs.add(true);
@@ -255,10 +257,9 @@ public class EmaOrderBreakTest {
         return num == downs.size() ? true : false;
     }
 
-
     public KLineEntity emaEvenDown(List<KLineEntity> list){
         int index = 0;
-        boolean isAllDown = true;
+        boolean isAllDown = false;
         for(int i = 0;i < list.size();i++){
             index = i;
             List<Double> realEmas = EmaLineUtil.emaCross(list.get(i));
@@ -267,11 +268,11 @@ public class EmaOrderBreakTest {
                     isAllDown = false;
                     break;
                 }
+                isAllDown = true;
             }
             if(isAllDown){
                 break;
             }
-            isAllDown = true;
         }
         Date date = TimeUtil.StringToDate(list.get(index).getTradeDate(),"yyyyMMdd");
         int limitDay = TimeUtil.getDiffDays(date,new Date());
@@ -286,6 +287,38 @@ public class EmaOrderBreakTest {
         }
         return resultEntity;
     }
+
+
+//    public KLineEntity emaEvenDown(List<KLineEntity> list){
+//        int index = 0;
+//        boolean isAllDown = true;
+//        for(int i = 0;i < list.size();i++){
+//            index = i;
+//            List<Double> realEmas = EmaLineUtil.emaCross(list.get(i));
+//            for(int y = 0;y < (realEmas.size()-1);y++){
+//                if(realEmas.get(y) > realEmas.get(y+1)){
+//                    isAllDown = false;
+//                    break;
+//                }
+//            }
+//            if(isAllDown){
+//                break;
+//            }
+//            isAllDown = true;
+//        }
+//        Date date = TimeUtil.StringToDate(list.get(index).getTradeDate(),"yyyyMMdd");
+//        int limitDay = TimeUtil.getDiffDays(date,new Date());
+//        KLineEntity resultEntity = null;
+//        //为了计算上涨概率
+//        if(isAllDown){
+//            resultEntity = list.get(index);
+//        }
+//        //10日内上出现该形态的数据
+//        if(isAllDown && limitDay < 10){
+//            System.out.println(list.get(index).getTradeDate()+"************************************************"+list.get(0).getTsCode());
+//        }
+//        return resultEntity;
+//    }
 
     /**
      *  //计算后期上涨的概率
@@ -310,9 +343,9 @@ public class EmaOrderBreakTest {
         BigDecimal mean = new BigDecimal(max).divide(new BigDecimal(entity.getClose()),4, BigDecimal.ROUND_HALF_UP)
                 .setScale(4, BigDecimal.ROUND_UP);
         BigDecimal chg = mean.subtract(new BigDecimal("1")).setScale(2, BigDecimal.ROUND_HALF_UP);
-        System.out.println(entity.getTsCode()+"========="+entity.getTradeDate()+"============"+chg);
         if(chg.doubleValue() > 0.5){
             rise.incrementAndGet();
+            System.out.println(entity.getTsCode()+"========="+entity.getTradeDate()+"============"+chg);
         }
         if(max > entity.getClose()){
             highs.incrementAndGet();

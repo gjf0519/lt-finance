@@ -64,7 +64,6 @@ public class DayLineConsume {
             for (MessageExt ext : msgs) {
                 try {
                     String record = new String(ext.getBody(), RemotingHelper.DEFAULT_CHARSET);
-                    System.out.println(JSON.toJSONString(record));
                     Map<String,String> map = JSON.parseObject(record, Map.class);
                     receiveService.receiveDayLine(map);
                 } catch (UnsupportedEncodingException e) {

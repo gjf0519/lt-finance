@@ -16,7 +16,7 @@ public class TushareUtil {
     public static final String TUSHARE_MONTHLINE_TOPIC = "TUSHARE-MONTHLINE";
     public static final String TUSHARE_PLATE_ELEMENT_TOPIC = "TUSHARE-PLATE-ELEMENT";
     public static final int [] MA_NUM_ARREY = new int[]{3,6,12,18,36,72,144};
-    public static final String [] EMA_NAME_ARRAY = new String[]{"ema_five","ema_ten","ema_twenty","ma_month","ema_quarter","ema_half_year","ema_full_year"};
+    public static final String [] EMA_NAME_ARRAY = new String[]{"ema_five","ema_ten","ema_twenty","ema_month","ema_quarter","ema_half_year","ema_full_year"};
 
     /*股票列表*/
     public static final String [] STOCK_CODE_API = new String[]{"stock_basic","ts_code,symbol,name,area,industry,market,list_status,is_hs"};
