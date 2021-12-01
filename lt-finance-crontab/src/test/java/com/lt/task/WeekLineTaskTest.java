@@ -28,10 +28,9 @@ public class WeekLineTaskTest {
     @Test
     public void execute() {
         LocalDate localDate = LocalDate.now();
-        Date monthEnd = Date.from(localDate.plusMonths(-1).with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        System.out.println(TimeUtil.dateFormat(monthEnd,"yyyyMMdd"));
-        LocalDate lastDay = localDate.with(TemporalAdjusters.firstDayOfMonth());
-        System.out.println(lastDay.toString());
-//        weekLineTask.obtainData(TsCodes.STOCK_CODE,"20211119","20211119");
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String startDate = localDate.format(formatters);
+        String endDate = localDate.plusDays(-7).format(formatters);
+        weekLineTask.obtainData(TsCodes.STOCK_CODE,"20211125","20211125");
     }
 }

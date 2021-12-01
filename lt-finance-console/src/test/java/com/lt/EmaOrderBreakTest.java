@@ -45,7 +45,7 @@ public class EmaOrderBreakTest {
                         return;
                     }
                     String date = TimeUtil.dateFormat(new Date(),"yyyyMMdd");
-                    this.calculation(item,date);
+                    this.calculation(item,date,268);
                 }catch (Exception e){
                     e.printStackTrace();
                 }finally {
@@ -63,11 +63,13 @@ public class EmaOrderBreakTest {
     }
 
     @Test
-    public void calculation(String item,String tradeDate){//String item,String tradeDate
+    public void testByOne(){
+        this.calculation("002776.SZ","20211119",268);
+    }
+
+    public void calculation(String item,String tradeDate,int limit){
         List<KLineEntity> list = kLineService
-                .queryDayLineList(item,tradeDate,268);
-//        List<KLineEntity> list = kLineService
-//                .queryDayLineList("002776.SZ","20211119",268);//"002776.sz","20211119"
+                .queryDayLineList(item,tradeDate,limit);//"002776.sz","20211119"
         //计算60/120/250均线三角形形态时间段
         List<Map<String,String>> timeBucketList = this.emaTimeBucket(list);
         if(timeBucketList.isEmpty()){
@@ -287,38 +289,6 @@ public class EmaOrderBreakTest {
         }
         return resultEntity;
     }
-
-
-//    public KLineEntity emaEvenDown(List<KLineEntity> list){
-//        int index = 0;
-//        boolean isAllDown = true;
-//        for(int i = 0;i < list.size();i++){
-//            index = i;
-//            List<Double> realEmas = EmaLineUtil.emaCross(list.get(i));
-//            for(int y = 0;y < (realEmas.size()-1);y++){
-//                if(realEmas.get(y) > realEmas.get(y+1)){
-//                    isAllDown = false;
-//                    break;
-//                }
-//            }
-//            if(isAllDown){
-//                break;
-//            }
-//            isAllDown = true;
-//        }
-//        Date date = TimeUtil.StringToDate(list.get(index).getTradeDate(),"yyyyMMdd");
-//        int limitDay = TimeUtil.getDiffDays(date,new Date());
-//        KLineEntity resultEntity = null;
-//        //为了计算上涨概率
-//        if(isAllDown){
-//            resultEntity = list.get(index);
-//        }
-//        //10日内上出现该形态的数据
-//        if(isAllDown && limitDay < 10){
-//            System.out.println(list.get(index).getTradeDate()+"************************************************"+list.get(0).getTsCode());
-//        }
-//        return resultEntity;
-//    }
 
     /**
      *  //计算后期上涨的概率

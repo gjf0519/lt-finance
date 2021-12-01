@@ -35,9 +35,8 @@ public class WeekLineTask {
         }
         LocalDate localDate = LocalDate.now();
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String startDate = localDate.format(formatters);
-        String endDate = localDate.plusDays(-5).format(formatters);
-        this.obtainData(TsCodes.STOCK_CODE,startDate,endDate);
+        String tradeDate = localDate.plusDays(-1).format(formatters);
+        this.obtainData(TsCodes.STOCK_CODE,tradeDate,tradeDate);
         log.info("==========================周线收集数据完成======================");
     }
 
